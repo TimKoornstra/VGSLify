@@ -5,7 +5,7 @@ VGSLify is a powerful toolkit designed to simplify the process of defining, trai
 ## Table of Contents
 
 - [Installation](#installation)
-- [How It Works](#how-it-works)
+- [How VGSL Works](#how-vgsl-works)
 - [Quick Start](#quick-start)
 - [Supported Layers and Their Specifications](#supported-layers-and-their-specifications)
 - [Future Work](#future-work)
@@ -161,20 +161,20 @@ This provides a concise representation of your model's architecture in VGSL form
 
 Below is a concise table providing a summary of each supported layer:
 
-| **Layer**                      | **Spec**                                                  | **Example**                 | **Description**                                                                                              |
-|-------------------------------|-----------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------------------------------------|
-| Input                         | `batch,height,width,depth`                             | `None,64,None,1`         | Input layer with variable batch size & width, and 1 channel depth                                            |
-| Output                        | `O(2\|1\|0)(l\|s)`                                  | `O1s10`                     | Dense layer with a 1D sequence, 10 output classes, and softmax activation                                   |
-| Conv2D                        | `C(s\|t\|r\|l\|m),<x>,<y>[,<s_x>,<s_y>],<d>` | `Cr3,3,64`              | Conv2D layer with ReLU activation, 3x3 filter size, 1x1 stride, and 64 filters                             |
-| Dense (Fully Connected, FC)   | `F(s\|t\|r\|l\|m)<d>`                             | `Fs64`                      | Dense layer with softmax activation and 64 units                                                            |
-| LSTM                          | `L(f\|r)[s]<n>[,D<rate>][,Rd<rate>]`                      | `Lf64sD25Rd10`              | LSTM cell (forward-only) with 64 units, return sequences, 0.25 dropout, and 0.10 recurrent dropout          |
-| GRU                           | `G(f\|r)[s]<n>[,D<rate>][,Rd<rate>]`                      | `Gr64s,D20,Rd15`              | GRU cell (reverse-only) with 64 units, return sequences, 0.20 dropout, and 0.15 recurrent dropout           |
-| Bidirectional                 | `B(g\|l)<n>[,D<rate>][,Rd<rate>]`                         | `Bl256,D15,Rd10`              | Bidirectional layer wrapping an LSTM RNN with 256 units, 0.15 dropout, and 0.10 recurrent dropout           |
-| BatchNormalization            | `Bn`                                                     | `Bn`                        | BatchNormalization layer                                                                                    |
-| MaxPooling2D                  | `Mp<x>,<y>,<s_x>,<s_y>`                                  | `Mp2,2,1,1`                 | MaxPooling2D layer with 2x2 pool size and 1x1 strides                                                       |
-| AvgPooling2D                  | `Ap<x>,<y>,<s_x>,<s_y>`                                  | `Ap2,2,2,2`                 | AveragePooling2D layer with 2x2 pool size and 2x2 strides                                                   |
-| Dropout                       | `D<rate>`                                                | `D25`                       | Dropout layer with a dropout rate of 0.25                                                                   |
-| Reshape                       | `Rc`                                                     | `Rc`                        | Reshape layer returns a new (collapsed) tf.Tensor based on the previous layer outputs                        |
+| **Layer**                                 | **Spec**                                     | **Example**      | **Description**                                                                                    |
+|-------------------------------------------|----------------------------------------------|------------------|----------------------------------------------------------------------------------------------------|
+| [Input](#input)                           | `batch,height,width,depth`                   | `None,64,None,1` | Input layer with variable batch size & width, and 1 channel depth                                  |
+| [Output](#output)                         | `O(2\|1\|0)(l\|s)`                           | `O1s10`          | Dense layer with a 1D sequence, 10 output classes, and softmax activation                          |
+| [Conv2D](#conv2d)                         | `C(s\|t\|r\|l\|m),<x>,<y>[,<s_x>,<s_y>],<d>` | `Cr3,3,64`       | Conv2D layer with ReLU activation, 3x3 filter size, 1x1 stride, and 64 filters                     |
+| [Dense (Fully Connected, FC)](#dense)     | `F(s\|t\|r\|l\|m)<d>`                        | `Fs64`           | Dense layer with softmax activation and 64 units                                                   |
+| [LSTM](#lstm)                             | `L(f\|r)[s]<n>[,D<rate>][,Rd<rate>]`         | `Lf64sD25Rd10`   | LSTM cell (forward-only) with 64 units, return sequences, 0.25 dropout, and 0.10 recurrent dropout |
+| [GRU](#gru)                               | `G(f\|r)[s]<n>[,D<rate>][,Rd<rate>]`         | `Gr64s,D20,Rd15` | GRU cell (reverse-only) with 64 units, return sequences, 0.20 dropout, and 0.15 recurrent dropout  |
+| [Bidirectional](#bidirectional)           | `B(g\|l)<n>[,D<rate>][,Rd<rate>]`            | `Bl256,D15,Rd10` | Bidirectional layer wrapping an LSTM RNN with 256 units, 0.15 dropout, and 0.10 recurrent dropout  |
+| [BatchNormalization](#batchnormalization) | `Bn`                                         | `Bn`             | BatchNormalization layer                                                                           |
+| [MaxPooling2D](#maxpooling2d)             | `Mp<x>,<y>,<s_x>,<s_y>`                      | `Mp2,2,1,1`      | MaxPooling2D layer with 2x2 pool size and 1x1 strides                                              |
+| [AvgPooling2D](#avgpooling2d)             | `Ap<x>,<y>,<s_x>,<s_y>`                      | `Ap2,2,2,2`      | AveragePooling2D layer with 2x2 pool size and 2x2 strides                                          |
+| [Dropout](#dropout)                       | `D<rate>`                                    | `D25`            | Dropout layer with a dropout rate of 0.25                                                          |
+| [Reshape](#reshape)                       | `Rc`                                         | `Rc`             | Reshape layer returns a new (collapsed) tf.Tensor based on the previous layer outputs              |
 
 *Note*: In the specs, the `|` symbol indicates options. For example, in `O(2 | 1 | 0)(l | s)`, it means the output layer could be `O2l`, `O1s`, etc. Arguments between the `[` and `]` symbol indicate that this is optional. The `[s]` in RNN layers activates `return_sequences`.
 
@@ -204,7 +204,7 @@ For more detailed information about each layer and its associated VGSL spec, see
   - `Cr3,3,64` creates a Conv2D layer with a ReLU activation function, a 3x3 filter, 1x1 stride, and 64 filters.
   - `Cr3,3,1,3,128` creates a Conv2D layer with a ReLU activation function, a 3x3 filter, 1x3 strides, and 128 filters.
 
-#### Dense (Fully-connected layer)
+#### Dense
 
 - **Spec**: `F(s|t|r|e|l|m)<d>`
 - **Description**: Fully-connected layer with `s|t|r|e|l|m` non-linearity and `d` units.
