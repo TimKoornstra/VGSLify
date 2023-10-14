@@ -39,8 +39,6 @@ class VGSLModelGenerator:
 
     Attributes
     ----------
-    model_library : dict
-        Dictionary of predefined models with their VGSL spec strings.
     model_name : str
         Name of the model.
     history : list
@@ -52,9 +50,6 @@ class VGSLModelGenerator:
 
     Raises
     ------
-    KeyError
-        If the provided model string is not found in the predefined model
-        library.
     ValueError
         If there's an issue with the VGSL spec string format or unsupported
         operations.
@@ -94,8 +89,6 @@ class VGSLModelGenerator:
 
         Raises
         ------
-        KeyError:
-            If the model name is not found in the predefined library.
         ValueError:
             If there's an issue with the VGSL spec string format or unsupported
             operations.
