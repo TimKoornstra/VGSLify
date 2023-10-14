@@ -17,16 +17,13 @@ class VGSLModelGenerator:
 
     VGSL is a domain-specific language that allows the rapid specification of
     neural network architectures. This class provides a way to generate and
-    initialize a model using either a predefined model from the library or a
-    custom VGSL specification string. It supports various layers like Conv2D,
-    LSTM, GRU, Dense, etc.
+    initialize a model using a custom VGSL specification string. It supports
+    various layers like Conv2D, LSTM, GRU, Dense, etc.
 
     Parameters
     ----------
     model : str
-        VGSL spec string defining the model architecture. If the string starts
-        with "model", it attempts to pull the model from the predefined
-        library.
+        VGSL spec string defining the model architecture.
     name : str, optional
         Name of the model. Defaults to the given `model` string or
         "custom_model" if it's a VGSL spec string.
@@ -74,7 +71,7 @@ class VGSLModelGenerator:
         Parameters
         ----------
         model : str
-            VGSL spec string or model name from the predefined library.
+            VGSL spec string.
         name : str, optional
             Custom name for the model. If not provided, uses the model name
             or "custom_model" for VGSL specs.
@@ -96,7 +93,6 @@ class VGSLModelGenerator:
 
         self._initializer = initializer
         self._channel_axis = -1
-        self.model_library = VGSLModelGenerator.get_model_libary()
 
         if model is None:
             raise ValueError(
