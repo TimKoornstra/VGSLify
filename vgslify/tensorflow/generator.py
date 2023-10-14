@@ -154,7 +154,7 @@ class VGSLModelGenerator:
                 enumerate(self.selected_model_vgsl_spec[starting_index:]):
             logger.debug(layer)
             if layer.startswith('C'):
-                setattr(self, f"conv2d_{index}", self.Conv2D(
+                setattr(self, f"conv2d_{index}", self.conv2d(
                     layer, self._initializer))
                 self.history.append(f"conv2d_{index}")
             elif layer.startswith('Bn'):
@@ -167,7 +167,7 @@ class VGSLModelGenerator:
                     layer, self._initializer))
                 self.history.append(f"lstm_{index}")
             elif layer.startswith('F'):
-                setattr(self, f"dense{index}", self.Dense(
+                setattr(self, f"dense{index}", self.dense(
                     layer, self._initializer))
                 self.history.append(f"dense{index}")
             elif layer.startswith('B'):
@@ -180,11 +180,11 @@ class VGSLModelGenerator:
                 self.history.append(f"gru_{index}")
             elif layer.startswith('Mp'):
                 setattr(self, f"maxpool_{index}",
-                        self.MaxPooling2D(layer))
+                        self.maxpooling2d(layer))
                 self.history.append(f"maxpool_{index}")
             elif layer.startswith('Ap'):
                 setattr(self, f"avgpool_{index}",
-                        self.AvgPool2D(layer))
+                        self.avgpool2d(layer))
                 self.history.append(f"avgpool_{index}")
             elif layer.startswith('D'):
                 setattr(self, f"dropout_{index}",
