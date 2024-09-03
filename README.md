@@ -43,7 +43,25 @@ If you want to install the development version or a modified version of VGSLify,
 pip install .
 ```
 
-### 4. Verifying Installation
+### 4. Installing a backend
+
+VGSLify allows you to choose your preferred deep learning framework. You must install the backend separately according to your needs:
+
+- **TensorFlow**: To use VGSLify with TensorFlow, install TensorFlow using the following command:
+
+  ```bash
+  pip install tensorflow
+  ```
+
+- **PyTorch**: For PyTorch support, install PyTorch using the following command:
+
+  ```bash
+  pip install torch
+  ```
+
+You can install both backends if you want to switch between TensorFlow and PyTorch.
+
+### 5. Verifying Installation
 
 After installation, you can verify that VGSLify was installed correctly by importing it in Python:
 
@@ -71,23 +89,23 @@ In this example, the string defines a neural network with input layers, convolut
 
 Using VGSLify, you can rapidly prototype TensorFlow models using the Variable-size Graph Specification Language (VGSL). Here's a simple example to get you started:
 
-### Generating a TensorFlow Model with VGSLify
+### Generating a Model with VGSLify
 
 1. **Import the Necessary Module**:
    
-   First, import the `VGSLModelGenerator` class from VGSLify's TensorFlow module.
+   First, import the `VGSLModelGenerator` class from VGSLify's core module.
 
    ```python
-   from vgslify.tensorflow.generator import VGSLModelGenerator
+   from vgslify.generator import VGSLModelGenerator
    ```
 
 2. **Initialize the Model Generator**:
 
-   You can specify the architecture of the model using the VGSL spec string. For this example, let's create a model with a convolutional layer, max-pooling layer, and an output softmax layer:
+   You can specify the architecture of the model using the VGSL spec string. For this example, let's create a TensorFlow model with a convolutional layer, max-pooling layer, and an output softmax layer:
 
    ```python
    vgsl_spec = "None,64,None,1 Cr3,3,32 Mp2,2,2,2 O1s92"
-   vgsl_gn = VGSLModelGenerator(vgsl_spec)
+   vgsl_gn = VGSLModelGenerator(vgsl_spec, backend="tensorflow")
    ```
 
 3. **Build and View the Model**:
@@ -95,7 +113,7 @@ Using VGSLify, you can rapidly prototype TensorFlow models using the Variable-si
    After specifying the model architecture, you can build and view the model summary.
 
    ```python
-   model = vgsl_gn.build()
+   model = vgsl_gn.build_model()
    model.summary()
    ```
 
@@ -103,34 +121,27 @@ This example demonstrates the simplicity of creating a TensorFlow model using VG
 
 ### Creating Individual Layers with VGSLify
 
-In addition to creating complete models, VGSLify also allows you to generate individual TensorFlow layers using the VGSL spec. This is particularly useful when you want to integrate a VGSL-defined layer into an existing model or when you wish to experiment with individual components.
+In addition to creating complete models, VGSLify also allows you to generate individual layers using the VGSL spec. This is particularly useful when you want to integrate a VGSL-defined layer into an existing model or when you wish to experiment with individual components.
 
 1. **Import the Necessary Module**:
 
    Just like before, you'll need to import the `VGSLModelGenerator` class.
 
    ```python
-   from vgslify.tensorflow.generator import VGSLModelGenerator
+   from vgslify.generator import VGSLModelGenerator
    ```
 
 2. **Generate an Individual Layer:
 
-   To generate a layer, use the corresponding method on VGSLModelGenerator. The method name is the lowercase version of the desired layer name. For instance, to create a Conv2D layer, use VGSLModelGenerator.conv2d. Here's how you can generate a convolutional layer:
+   To generate a layer, use the corresponding method from the `TensorFlowLayerFactory`. The factory provides static methods to create layers based on the VGSL specification strings. For instance, to create a Conv2D layer, you would use the `conv2d` method from the `TensorFlowLayerFactory`. Here's how you can generate a convolutional layer:
 
    ```python
+   from vgslify.tensorflow.layers import TensorFlowLayerFactory
    vgsl_spec_for_conv2d = "Cr3,3,64"
-   conv2d_layer = VGSLModelGenerator.conv2d(vgsl_spec_for_conv2d)
+   conv2d_layer = TensorFlowLayerFactory.conv2d(vgsl_spec_for_conv2d)
    ```
 
-   Optionally, you can also specify an initializer:
-
-   ```python
-   import tensorflow as tf
-   conv2d_layer_with_initializer = VGSLModelGenerator.conv2d(vgsl_spec_for_conv2d, 
-                                                             initializer=tf.keras.initializers.GlorotNormal)
-   ```
-
-### Converting TensorFlow Models to VGSL
+### Converting TensorFlow Models to VGSL [WIP]
 
 Once you have trained a TensorFlow model, you might want to convert it back into a VGSL spec string for various purposes. VGSLify provides an easy way to do this:
 
@@ -140,7 +151,7 @@ Once you have trained a TensorFlow model, you might want to convert it back into
 
    ```python
    import tensorflow as tf
-   model = tf.keras.models.load_model("path_to_your_model.h5")
+   model = tf.keras.models.load_model("path_to_your_model.keras")
    ``` 
    
 2. **Convert to VGSL Spec String**:
@@ -290,6 +301,5 @@ VGSLify is open-source software and is licensed under the MIT License. This mean
 
 A special thank you to:
 
-- **@Thelukepet**: For his invaluable contributions to the codebase.
 - The creators and contributors of the original VGSL specification, which inspired and laid the groundwork for VGSLify.
 

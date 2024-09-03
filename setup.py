@@ -21,7 +21,6 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "tensorflow >= 2.16.0",
     ],
     python_requires=">=3.9",
 )
