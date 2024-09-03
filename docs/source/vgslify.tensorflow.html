@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.tensorflow package &mdash; VGSLify 0.10.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=82662543"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="vgslify.core package" href="vgslify.core.html" />
+    <link rel="prev" title="vgslify package" href="vgslify.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">vgslify</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="vgslify.html">vgslify package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="vgslify.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">vgslify.tensorflow package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.html#module-vgslify.generator">vgslify.generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.html#module-vgslify.parser">vgslify.parser module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.html#module-vgslify">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="vgslify.html">vgslify package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="vgslify.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">vgslify.tensorflow package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vgslify.tensorflow.layers">vgslify.tensorflow.layers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-vgslify.tensorflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.html#module-vgslify.generator">vgslify.generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.html#module-vgslify.parser">vgslify.parser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.html#module-vgslify">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">vgslify.tensorflow package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-vgslify.tensorflow.layers">vgslify.tensorflow.layers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.activation"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.activation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.avgpool2d"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.avgpool2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.batchnorm"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.batchnorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.bidirectional"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.bidirectional()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.build_final_model"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.build_final_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.conv2d"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.conv2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.dense"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.dense()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.dropout"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.dropout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.flatten"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.flatten()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.gru"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.gru()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.input"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.lstm"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.lstm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.maxpooling2d"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.maxpooling2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.output"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.output()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.reshape"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.reshape()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-vgslify.tensorflow">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">vgslify</a></li>
+          <li class="breadcrumb-item"><a href="vgslify.html">vgslify package</a></li>
+      <li class="breadcrumb-item active">vgslify.tensorflow package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/vgslify.tensorflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vgslify-tensorflow-package">
+<h1>vgslify.tensorflow package<a class="headerlink" href="#vgslify-tensorflow-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-vgslify.tensorflow.layers">
+<span id="vgslify-tensorflow-layers-module"></span><h2>vgslify.tensorflow.layers module<a class="headerlink" href="#module-vgslify.tensorflow.layers" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vgslify.tensorflow.layers.</span></span><span class="sig-name descname"><span class="pre">TensorFlowLayerFactory</span></span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory" title="vgslify.core.factory.LayerFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerFactory</span></code></a></p>
+<p>TensorFlowLayerFactory is responsible for creating TensorFlow-specific layers based on parsed
+VGSL (Variable-size Graph Specification Language) specifications. This factory handles the
+creation of various types of layers, including convolutional layers, pooling layers, RNN layers,
+dense layers, activation layers, and more.</p>
+<p>This class abstracts the layer creation logic, allowing the VGSLModelGenerator to dynamically
+build models  without needing to know the specifics of TensorFlow operations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.activation">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">activation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.activation" title="Link to this definition"></a></dt>
+<dd><p>Create an Activation layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Activation layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Activation layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Activation</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">activation_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="s2">&quot;Ar&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">activation_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.core.activation.Activation object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.avgpool2d">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">avgpool2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.avgpool2d" title="Link to this definition"></a></dt>
+<dd><p>Create an AvgPool2D layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the AvgPool2D layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created AvgPool2D layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.AvgPool2D</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">avgpool_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">avgpool2d</span><span class="p">(</span><span class="s2">&quot;Ap2,2,2,2&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">avgpool_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.pooling.average_pooling2d.AveragePooling2D object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.batchnorm">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">batchnorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.batchnorm" title="Link to this definition"></a></dt>
+<dd><p>Create a BatchNormalization layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the BatchNormalization layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created BatchNormalization layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.BatchNormalization</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">batchnorm_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">batchnorm</span><span class="p">(</span><span class="s2">&quot;Bn&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">batchnorm_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.normalization.batch_normalization.BatchNormalization object at</span>
+<span class="go">0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.bidirectional">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bidirectional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.bidirectional" title="Link to this definition"></a></dt>
+<dd><p>Create a Bidirectional RNN layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Bidirectional layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Bidirectional RNN layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Bidirectional</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bidirectional_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">bidirectional</span><span class="p">(</span><span class="s2">&quot;Blr64,D20,Rd10&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bidirectional_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.wrappers.bidirectional.Bidirectional object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.build_final_model">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_final_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VGSL_Model'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.build_final_model" title="Link to this definition"></a></dt>
+<dd><p>Build the final model using the provided input and output layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> (<em>tf.keras.layers.Input</em>) – The input layer of the model.</p></li>
+<li><p><strong>outputs</strong> (<em>tf.keras.layers.Layer</em>) – The output layer (or the final processed layer before output) of the model.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the model, by default “VGSL_Model</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The constructed TensorFlow model.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.models.Model</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inputs</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s2">&quot;None,32,3,32&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">outputs</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">dense</span><span class="p">(</span><span class="s2">&quot;Fr64&quot;</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">build_final_model</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="go">&lt;keras.engine.training.Model object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.conv2d">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">conv2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.conv2d" title="Link to this definition"></a></dt>
+<dd><p>Create a Conv2D layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Conv2D layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Conv2D layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Conv2D</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conv_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="s2">&quot;Cr3,3,64&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">conv_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.convolutional.conv2d.Conv2D object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.dense">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dense</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.dense" title="Link to this definition"></a></dt>
+<dd><p>Create a Dense layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Dense layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Dense layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Dense</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dense_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">dense</span><span class="p">(</span><span class="s2">&quot;Fr64&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dense_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.core.dense.Dense object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.dropout">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dropout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.dropout" title="Link to this definition"></a></dt>
+<dd><p>Create a Dropout layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Dropout layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Dropout layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Dropout</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dropout_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="s2">&quot;D50&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dropout_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.core.dropout.Dropout object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.flatten">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.flatten" title="Link to this definition"></a></dt>
+<dd><p>Create a Flatten layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Flatten layer. Expected format: ‘Flt’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Flatten layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Flatten</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flatten_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="s2">&quot;Flt&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">flatten_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.core.flatten.Flatten object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.gru">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gru</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.gru" title="Link to this definition"></a></dt>
+<dd><p>Create a GRU layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the GRU layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created GRU layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.GRU</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gru_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">gru</span><span class="p">(</span><span class="s2">&quot;Gr64,D20,Rd10&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">gru_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.recurrent.gru.GRU object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.input">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.input" title="Link to this definition"></a></dt>
+<dd><p>Create an Input layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Input layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Input layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Input</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">input_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="s2">&quot;None,32,3,32&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">input_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.core.input.Input object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.lstm">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lstm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.lstm" title="Link to this definition"></a></dt>
+<dd><p>Create an LSTM layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the LSTM layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created LSTM layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.LSTM</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lstm_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="s2">&quot;Lr64,D20,Rd10&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">lstm_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.recurrent.lstm.LSTM object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.maxpooling2d">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">maxpooling2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.maxpooling2d" title="Link to this definition"></a></dt>
+<dd><p>Create a MaxPooling2D layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the MaxPooling2D layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created MaxPooling2D layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.MaxPooling2D</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxpool_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">maxpooling2d</span><span class="p">(</span><span class="s2">&quot;Mp2,2,2,2&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">maxpool_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.pooling.max_pooling2d.MaxPooling2D object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.output">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.output" title="Link to this definition"></a></dt>
+<dd><p>Create an Output layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Output layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Output layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Dense</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the provided VGSL spec string does not match the expected format.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="s2">&quot;O1s10&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">output_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.core.dense.Dense object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.tensorflow.layers.TensorFlowLayerFactory.reshape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#vgslify.tensorflow.layers.TensorFlowLayerFactory.reshape" title="Link to this definition"></a></dt>
+<dd><p>Create a Reshape layer based on the VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for the Reshape layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The created Reshape layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tf.keras.layers.Reshape</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">vgslify.tensorflow.layers</span> <span class="kn">import</span> <span class="n">TensorFlowLayerFactory</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reshape_layer</span> <span class="o">=</span> <span class="n">TensorFlowLayerFactory</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="s2">&quot;R10,10,3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">reshape_layer</span><span class="p">)</span>
+<span class="go">&lt;keras.src.layers.core.reshape.Reshape object at 0x7f8b1c0b1d30&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-vgslify.tensorflow">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-vgslify.tensorflow" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="vgslify.html" class="btn btn-neutral float-left" title="vgslify package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vgslify.core.html" class="btn btn-neutral float-right" title="vgslify.core package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
