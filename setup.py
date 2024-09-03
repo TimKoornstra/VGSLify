@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="vgslify",
-    version="0.9.2",
+    version="0.10.0",
     author="Tim Koornstra",
     author_email="tim.koornstra@gmail.com",
     description="VGSLify is a Python toolkit designed for rapid prototyping "
@@ -21,7 +21,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        "tensorflow >= 2.4.0",
+        "tensorflow >= 2.16.0",
     ],
     python_requires=">=3.9",
 )
