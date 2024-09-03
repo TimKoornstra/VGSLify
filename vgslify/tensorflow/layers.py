@@ -21,55 +21,6 @@ class TensorFlowLayerFactory(LayerFactory):
 
     This class abstracts the layer creation logic, allowing the VGSLModelGenerator to dynamically
     build models  without needing to know the specifics of TensorFlow operations.
-
-    Methods
-    -------
-    create_input(spec: str, channels: int = None) -> tf.keras.layers.Input:
-        Creates an Input layer based on the VGSL specification string.
-
-    create_conv2d(spec: str) -> tf.keras.layers.Conv2D:
-        Creates a Conv2D layer based on the VGSL specification string.
-
-    create_maxpooling2d(spec: str) -> tf.keras.layers.MaxPooling2D:
-        Creates a MaxPooling2D layer based on the VGSL specification string.
-
-    create_avgpool2d(spec: str) -> tf.keras.layers.AvgPool2D:
-        Creates an AvgPooling2D layer based on the VGSL specification string.
-
-    create_lstm(spec: str) -> tf.keras.layers.LSTM:
-        Creates an LSTM layer based on the VGSL specification string.
-
-    create_gru(spec: str) -> tf.keras.layers.GRU:
-        Creates a GRU layer based on the VGSL specification string.
-
-    create_bidirectional(spec: str) -> tf.keras.layers.Bidirectional:
-        Creates a Bidirectional RNN layer (either LSTM or GRU) based on the VGSL specification
-        string.
-
-    create_flatten(spec: str) -> tf.keras.layers.Flatten:
-        Creates a Flatten layer based on the VGSL specification string.
-
-    create_dense(spec: str) -> tf.keras.layers.Dense:
-        Creates a Dense (fully connected) layer based on the VGSL specification string.
-
-    create_dropout(spec: str) -> tf.keras.layers.Dropout:
-        Creates a Dropout layer based on the VGSL specification string.
-
-    create_batchnorm(spec: str) -> tf.keras.layers.BatchNormalization:
-        Creates a BatchNormalization layer based on the VGSL specification string.
-
-    create_activation(spec: str) -> tf.keras.layers.Activation:
-        Creates an Activation layer based on the VGSL specification string.
-
-    create_reshape(spec: str) -> tf.keras.layers.Reshape:
-        Creates a Reshape layer based on the VGSL specification string.
-
-    create_output_layer(spec: str) -> tf.keras.layers.Dense:
-        Creates an output layer based on the VGSL specification string.
-
-    build_final_model(inputs: tf.keras.layers.Input, outputs: tf.keras.layers.Layer) 
-        -> tf.keras.models.Model:
-        Constructs the final TensorFlow model using the provided input and output layers.
     """
     @staticmethod
     def conv2d(spec: str):

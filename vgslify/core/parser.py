@@ -148,8 +148,7 @@ def parse_dense_spec(spec: str) -> DenseConfig:
     Parameters
     ----------
     spec : str
-        VGSL specification for the dense layer. Expected format:
-        `F(s|t|r|l|m)<d>`
+        VGSL specification for the dense layer. Expected format: `F(s|t|r|l|m)<d>`
         - `(s|t|r|l|m)`: Non-linearity type. One of sigmoid, tanh, relu,
           linear, or softmax.
         - `<d>`: Number of outputs (units).
