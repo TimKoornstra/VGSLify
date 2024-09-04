@@ -101,15 +101,20 @@ def tf_to_spec(model: tf.keras.models.Model) -> str:
 
     # Parse the model
     vgsl_parts = []
+    if type(model.layers[0]) != tf.keras.layers.InputLayer:
+        input_layer = tf.keras.layers.InputLayer(input_shape=model.input_shape[1:],
+                                                 batch_size=model.input_shape[0])
+        vgsl_parts.append(parse_input_layer(input_layer))
 
     for idx, layer in enumerate(model.layers):
         layer_type = type(layer)
+        print(layer_type)
         if layer_type in LAYER_PARSERS:
             # Call the corresponding parser function
             spec = LAYER_PARSERS[layer_type](layer)
             if spec:
                 is_output_layer = isinstance(
-                    layer, tf.keras.layers.Dense) and idx == len(model.layers) - 1
+                    layer, tf.keras.layers.Dense) and idx >= len(model.layers) - 1
                 if is_output_layer:
                     spec = parse_dense(layer, is_output=True)
                 vgsl_parts.append(spec)
