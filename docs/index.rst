@@ -12,11 +12,11 @@ VGSLify documentation
    :maxdepth: 2
    :caption: Contents:
 
-   source/modules
    source/vgslify
    source/vgslify.core
-   source/vgslify.tensorflow
    source/vgslify.parser
+   source/vgslify.utils
+   source/vgslify.tensorflow
 
 Indices and tables
 ==================
