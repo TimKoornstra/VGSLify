@@ -131,7 +131,7 @@ In addition to creating complete models, VGSLify also allows you to generate ind
    from vgslify.generator import VGSLModelGenerator
    ```
 
-2. **Generate an Individual Layer:
+2. **Generate an Individual Layer**:
 
    To generate a layer, use the corresponding method from the `TensorFlowLayerFactory`. The factory provides static methods to create layers based on the VGSL specification strings. For instance, to create a Conv2D layer, you would use the `conv2d` method from the `TensorFlowLayerFactory`. Here's how you can generate a convolutional layer:
 
@@ -156,11 +156,11 @@ Once you have trained a TensorFlow model, you might want to convert it back into
    
 2. **Convert to VGSL Spec String**:
 
-   With your model loaded, use the `parse_tf_model` function from VGSLify to convert the model into a VGSL spec string:
+   With your model loaded, use the `model_to_spec` function from VGSLify to convert the model into a VGSL spec string:
 
    ```python
-   from vgslify.parser import parse_tf_model
-   vgsl_spec_string = parse_tf_model(model)
+   from vgslify.utils import model_to_spec
+   vgsl_spec_string = model_to_spec(model)
    print(vgsl_spec_string)
    ```
 
@@ -278,6 +278,15 @@ While the current version of VGSLify supports TensorFlow models, I recognize the
 ### Custom Layer Support
 
 To make VGSLify even more versatile, I'm working on a feature that will allow users to define and integrate custom layers into the VGSL specification. This enhancement will empower users to seamlessly integrate specialized layers or proprietary architectures into their VGSL-defined models, further bridging the gap between rapid prototyping and production-ready models.
+
+### Spec to Code
+
+The Spec to Code feature will generate Python code from a VGSL spec string, allowing users to easily view, customize, and integrate their model architectures into existing codebases. This enhances transparency and flexibility, giving users full control over the generated model, allowing them to optimize and tune it as needed.
+
+### Model to Code
+
+The Model to Code feature will convert trained models back into maintainable Python code, allowing easy integration, modification, and deployment. It will support both TensorFlow and PyTorch, generating framework-specific code based on the model’s architecture.
+
 
 ## Contributing
 

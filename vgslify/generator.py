@@ -11,27 +11,9 @@ class VGSLModelGenerator:
     network, including the input layer, convolutional layers, pooling layers, RNN layers, dense
     layers, and more. The class parses this string, constructs the layers in sequence, and builds
     the final model.
-
-    Parameters
-    ----------
-    model_spec : str
-        The VGSL specification string defining the model architecture.
-        Example format: "None,64,64,3 C3,3,32 Mp2,2,2,2 Flt Bgl256 D50 O1s10"
-    backend : str, optional
-        The backend to use for building the model. Default is "tensorflow".
-        Supported options: "tensorflow". Other backends like "torch" can be implemented in the
-        future.
-
-    Methods
-    -------
-    build_model():
-        Parses the VGSL spec string, constructs the layers, and builds the model.
-
-    construct_layer(spec: str):
-        Constructs a layer based on the provided VGSL specification string.
     """
 
-    def __init__(self, model_spec: str, backend: str = "tensorflow"):
+    def __init__(self, model_spec: str, backend: str = "auto"):
         """
         Initialize the VGSLModelGenerator with a given model specification string.
 
@@ -40,24 +22,28 @@ class VGSLModelGenerator:
         model_spec : str
             The VGSL specification string defining the model architecture.
         backend : str, optional
-            The backend to use for building the model. Default is "tensorflow".
-            Options include "tensorflow" (currently implemented) and "torch" (NotImplemented).
+            The backend to use for building the model. Can be "tensorflow", "torch", or "auto".
+            Default is "auto", which will attempt to automatically detect the available backend.
         """
         self.model_spec = model_spec
         self.history = []
         self.inputs = None
+
+        # Automatically detect backend if set to "auto"
+        if backend == "auto":
+            backend = self._detect_backend()
 
         # Dynamically import and set the layer factory based on the backend
         if backend == "tensorflow":
             from vgslify.tensorflow.layers import TensorFlowLayerFactory as LayerFactory
         elif backend == "torch":
             raise NotImplementedError(
-                "The 'torch' backend is not implemented yet.")
+                "The 'torch' backend is not implemented yet."
+            )
         else:
             raise ValueError(
-                f"Unsupported backend: {backend}. Choose 'tensorflow'.")
+                f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'.")
 
-        # Initialize the layer factory
         self.layer_factory = LayerFactory()
 
         # Create a dictionary that maps prefixes to layer creation methods
@@ -76,6 +62,44 @@ class VGSLModelGenerator:
             'R': self.layer_factory.reshape,
             'O': self.layer_factory.output,
         }
+
+    def _detect_backend(self) -> str:
+        """
+        Detect the backend automatically by checking available libraries.
+        If both TensorFlow and PyTorch are available, TensorFlow is selected by default.
+
+        Returns
+        -------
+        str
+            The detected backend ("tensorflow" or "torch").
+
+        Raises
+        ------
+        ImportError
+            If neither TensorFlow nor PyTorch is available.
+        """
+        try:
+            import tensorflow as tf
+            tf_available = True
+        except ImportError:
+            tf_available = False
+
+        try:
+            import torch
+            torch_available = True
+        except ImportError:
+            torch_available = False
+
+        if tf_available and not torch_available:
+            return "tensorflow"
+        if torch_available and not tf_available:
+            return "torch"
+        if tf_available and torch_available:
+            print("Both TensorFlow and PyTorch are available. Defaulting to TensorFlow.")
+            return "tensorflow"
+        else:
+            raise ImportError(
+                "Neither TensorFlow nor PyTorch is installed. Please install one of them.")
 
     def build_model(self):
         """
