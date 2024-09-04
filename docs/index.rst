@@ -16,6 +16,7 @@ VGSLify documentation
    source/vgslify
    source/vgslify.core
    source/vgslify.tensorflow
+   source/vgslify.parser
 
 Indices and tables
 ==================

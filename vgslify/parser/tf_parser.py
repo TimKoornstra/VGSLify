@@ -46,11 +46,12 @@ def tf_to_spec(model: tf.keras.models.Model) -> str:
     def parse_input_layer(layer):
         input_shape = layer.output.shape if isinstance(
             layer, tf.keras.layers.InputLayer) else layer.input_shape
-        return f"{input_shape[0]},{input_shape[1]},{input_shape[2]},{input_shape[3]}"
+        layer_str = ",".join([str(dim) for dim in input_shape])
+        return layer_str
 
     def parse_conv2d(layer):
         act = get_activation(layer)
-        return f"C{act}{layer.kernel_size[0]},{layer.kernel_size[1]},{layer.filters}"\
+        return f"C{act}{layer.kernel_size[0]},{layer.kernel_size[1]},{layer.filters}" \
             f"{get_stride_spec(layer)}"
 
     def parse_dense(layer, is_output=False):
@@ -64,13 +65,13 @@ def tf_to_spec(model: tf.keras.models.Model) -> str:
         return f"{rnn_type}{direction}{return_sequences}{layer.units}{get_dropout_spec(layer)}"
 
     def parse_bidirectional(layer):
-        wrapped_layer = layer.layer
+        wrapped_layer = layer.forward_layer
         cell_type = 'l' if isinstance(
             wrapped_layer, tf.keras.layers.LSTM) else 'g'
         return f"B{cell_type}{wrapped_layer.units}{get_dropout_spec(wrapped_layer)}"
 
     def parse_pooling(layer, pool_type):
-        return f"{pool_type}{layer.pool_size[0]},{layer.pool_size[1]},{layer.strides[0]},"\
+        return f"{pool_type}{layer.pool_size[0]},{layer.pool_size[1]},{layer.strides[0]}," \
             f"{layer.strides[1]}"
 
     def parse_batchnorm(_):

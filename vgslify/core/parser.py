@@ -433,7 +433,11 @@ def parse_input_spec(spec: str) -> InputConfig:
     Parameters
     ----------
     spec : str
-        VGSL specification for the Input layer. Expected format: `None,<height>,<width>,<channels>`
+        VGSL specification for the Input layer. Supported format: 
+        `<batch_size>,<depth>,<height>,<width>,<channels>` for 4D inputs,
+        `<batch_size>,<height>,<width>,<channels>` for 3D inputs,
+        `<batch_size>,<height>,<width>` for 2D inputs,
+        `<batch_size>,<width>` for 1D inputs.
 
     Returns
     -------
@@ -444,25 +448,32 @@ def parse_input_spec(spec: str) -> InputConfig:
     ------
     ValueError
         If the provided VGSL spec string does not match the expected format.
-
-    Examples
-    --------
-    >>> config = parse_input_spec("None,64,64,3")
-    >>> print(config)
-    InputConfig(batch_size=None, height=64, width=64, channels=3)
     """
-
     try:
-        batch, height, width, depth = map(
-            lambda x: None if x == "None" else int(x), spec.split(","))
+        dims = spec.split(",")
+        if len(dims) == 5:
+            batch, depth, height, width, channels = dims
+        elif len(dims) == 4:
+            batch, height, width, channels = dims
+            depth = None
+        elif len(dims) == 3:
+            batch, height, width = dims
+            depth, channels = None, None
+        elif len(dims) == 2:
+            batch, width = dims
+            height, depth, channels = None, None, None
+        else:
+            raise ValueError(f"Invalid input spec: {spec}")
+
+        return InputConfig(
+            batch_size=None if batch == "None" else int(batch),
+            width=None if width == "None" else int(width),
+            depth=None if depth == "None" else int(depth) if depth else None,
+            height=None if height == "None" else int(
+                height) if height else None,
+            channels=None if channels == "None" else int(
+                channels) if channels else None
+        )
     except ValueError as e:
         raise ValueError(
-            f"Invalid input string format '{spec}'. Expected format: "
-            "'None,<height>,<width>,<channels>'.") from e
-
-    return InputConfig(
-        batch_size=batch,
-        height=height,
-        width=width,
-        channels=depth
-    )
+            f"Invalid input string format '{spec}'. Expected valid VGSL format.") from e

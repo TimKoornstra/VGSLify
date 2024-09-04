@@ -54,6 +54,7 @@ class ReshapeConfig:
 @dataclass
 class InputConfig:
     batch_size: int
+    depth: int
     height: int
     width: int
     channels: int

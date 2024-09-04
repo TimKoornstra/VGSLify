@@ -428,7 +428,11 @@ class TensorFlowLayerFactory(LayerFactory):
         Parameters
         ----------
         spec : str
-            The VGSL specification string for the Input layer.
+            The VGSL specification string for the Input layer. Supported formats:
+            - 1D: `<batch_size>,<width>`
+            - 2D: `<batch_size>,<height>,<width>`
+            - 3D: `<batch_size>,<height>,<width>,<channels>`
+            - 4D: `<batch_size>,<depth>,<height>,<width>,<channels>`
 
         Returns
         -------
@@ -446,10 +450,31 @@ class TensorFlowLayerFactory(LayerFactory):
         >>> input_layer = TensorFlowLayerFactory.input("None,32,3,32")
         >>> print(input_layer)
         <keras.src.layers.core.input.Input object at 0x7f8b1c0b1d30>
+        >>> input_layer = TensorFlowLayerFactory.input("None,128")
+        >>> print(input_layer)
+        <keras.src.layers.core.input.Input object at 0x7f8b1c0b1d30>
+        >>> input_layer = TensorFlowLayerFactory.input("None,16,64,64,3")
+        >>> print(input_layer)
+        <keras.src.layers.core.input.Input object at 0x7f8b1c0b1d30>
         """
         config = parse_input_spec(spec)
-        return tf.keras.Input(shape=(config.height, config.width, config.channels),
-                              batch_size=config.batch_size)
+
+        # Adjust input shape based on the parsed dimensions
+        if config.channels is not None and config.depth is not None:
+            # 4D input: shape = (depth, height, width, channels)
+            input_shape = (config.depth, config.height,
+                           config.width, config.channels)
+        elif config.channels is not None:
+            # 3D input: shape = (height, width, channels)
+            input_shape = (config.height, config.width, config.channels)
+        elif config.height is not None:
+            # 2D input: shape = (height, width)
+            input_shape = (config.height, config.width)
+        else:
+            # 1D input: shape = (width,)
+            input_shape = (config.width,)
+
+        return tf.keras.Input(shape=input_shape, batch_size=config.batch_size)
 
     @staticmethod
     def flatten(spec: str) -> tf.keras.layers.Flatten:
