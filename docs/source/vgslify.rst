@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   vgslify.core
    vgslify.tensorflow
 
 Submodules

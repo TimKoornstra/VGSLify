@@ -6,7 +6,7 @@
 VGSLify documentation
 =====================
 
-`vgslify` is a powerful tool for creating and managing VGSL (Variable Geometry Simplified Language) models. It supports both TensorFlow and PyTorch backends, providing flexibility for various deep learning workflows.
+`vgslify` is a powerful tool for creating and managing VGSL (Variable-size Graph Specification Language) models. It supports both TensorFlow and PyTorch backends, providing flexibility for various deep learning workflows.
 
 .. toctree::
    :maxdepth: 2
