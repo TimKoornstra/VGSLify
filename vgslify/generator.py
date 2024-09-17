@@ -28,6 +28,7 @@ class VGSLModelGenerator:
         self.model_spec = model_spec
         self.history = []
         self.inputs = None
+        self.outputs = None
 
         # Automatically detect backend if set to "auto"
         if backend == "auto":
@@ -97,35 +98,33 @@ class VGSLModelGenerator:
         if tf_available and torch_available:
             print("Both TensorFlow and PyTorch are available. Defaulting to TensorFlow.")
             return "tensorflow"
-        else:
-            raise ImportError(
-                "Neither TensorFlow nor PyTorch is installed. Please install one of them.")
+        raise ImportError(
+            "Neither TensorFlow nor PyTorch is installed. Please install one of them.")
 
     def build_model(self):
         """
         Build the model based on the VGSL spec string.
 
+        This method parses the VGSL specification string, creates each layer 
+        using the layer factory, and constructs the model sequentially.
+
         Returns
         -------
-        model
+        model : Model
             The built model using the specified backend.
         """
-        specs = parse_spec(self.model_spec)  # Parse the spec string
-        for index, spec in enumerate(specs):
-            if index == 0:  # First layer should be the input layer
-                self.inputs = self.layer_factory.input(spec)
-                self.history.append(self.inputs)
-            else:
-                layer = self.construct_layer(spec)
-                self.history.append(layer)
+        # Parse the specification string to get the list of layer specs
+        specs = self._parse_specifications()
 
-        # Example of how to build the model (TensorFlow example)
-        x = self.inputs
-        for layer in self.history[1:]:
-            x = layer(x)
+        # Initialize the model with the first layer (input layer)
+        self._initialize_first_layer(specs[0])
 
-        # Finalize the model creation
-        model = self.layer_factory.build_final_model(self.inputs, x)
+        # Process each subsequent layer in the spec and keep track of the latest layer (output)
+        for spec in specs[1:]:
+            self._process_layer_spec(spec)
+
+        # Finalize and build the model using the last layer as output
+        model = self._finalize_model()
         return model
 
     def construct_layer(self, spec: str):
@@ -148,3 +147,61 @@ class VGSLModelGenerator:
                 return self.layer_constructors[prefix](spec)
 
         raise ValueError(f"Unknown layer specification: {spec}")
+
+    def _parse_specifications(self):
+        """
+        Parse the VGSL specification string into individual layer specifications.
+
+        Returns
+        -------
+        list
+            A list of parsed specifications.
+        """
+        return parse_spec(self.model_spec)
+
+    def _initialize_first_layer(self, first_spec):
+        """
+        Initialize the model by creating the input layer from the first specification.
+
+        Parameters
+        ----------
+        first_spec : str
+            The specification for the input layer.
+        """
+        self.inputs = self.layer_factory.input(first_spec)
+        self.outputs = self.inputs  # The first output is the input layer
+
+        # Store the input layer in history for future layers
+        self.history.append(self.inputs)
+
+    def _process_layer_spec(self, spec):
+        """
+        Process a single layer specification and append it to the model.
+
+        Parameters
+        ----------
+        spec : str
+            The layer specification string.
+        index : int
+            The index of the current layer in the specification list.
+        """
+        if spec.startswith("Rc"):  # Reshape layer with spatial collapse
+            layer = self.layer_factory.reshape(spec, self.history[-1])
+        else:
+            layer = self.construct_layer(spec)
+
+        # Connect the layer to the previous output
+        self.outputs = layer(self.outputs)
+        self.history.append(layer)  # Append each layer to history
+
+    def _finalize_model(self):
+        """
+        Finalize the model by connecting the layers and returning the built model.
+
+        Returns
+        -------
+        Model
+            The final built model.
+        """
+        # Build and return the final model using inputs and outputs
+        return self.layer_factory.build_final_model(self.inputs, self.outputs)

@@ -396,14 +396,19 @@ class TensorFlowLayerFactory(LayerFactory):
         return tf.keras.layers.Activation(activation=activation_function)
 
     @staticmethod
-    def reshape(spec: str) -> tf.keras.layers.Reshape:
+    def reshape(spec: str,
+                prev_layer: tf.keras.layers.Layer = None) -> tf.keras.layers.Reshape:
         """
         Create a Reshape layer based on the VGSL specification string.
 
         Parameters
         ----------
         spec : str
-            The VGSL specification string for the Reshape layer.
+            VGSL specification string for the Reshape layer. Can be:
+            - 'Rc': Collapse spatial dimensions (height and width).
+            - 'R<x>,<y>,<z>': Reshape to the specified target shape.
+        prev_layer : tf.keras.layers.Layer, optional
+            The previous layer in the model, used for spatial collapsing, by default None
 
         Returns
         -------
@@ -417,6 +422,23 @@ class TensorFlowLayerFactory(LayerFactory):
         >>> print(reshape_layer)
         <keras.src.layers.core.reshape.Reshape object at 0x7f8b1c0b1d30>
         """
+        # Handle 'Rc' (collapse spatial dimensions) specification
+        if spec == 'Rc':
+            if prev_layer is None:
+                raise ValueError(
+                    "Previous layer is required for spatial collapsing. None provided.")
+            prev_shape = prev_layer.output.shape  # Get shape of the previous layer
+            if len(prev_shape) < 4:
+                raise ValueError(
+                    f"Previous layer shape {prev_shape} is incompatible for spatial collapsing. "
+                    "Expected at least 4 dimensions."
+                )
+            # Get height and width dimensions
+            height, width = prev_shape[-3] or 1, prev_shape[-2] or 1
+            num_channels = prev_shape[-1]
+            return tf.keras.layers.Reshape((-1, height * width * num_channels))
+
+        # Handle regular reshape (e.g., 'R64,64,3')
         config = parse_reshape_spec(spec)
         return tf.keras.layers.Reshape(target_shape=config.target_shape)
 
@@ -541,4 +563,5 @@ class TensorFlowLayerFactory(LayerFactory):
         """
         model = tf.keras.models.Model(
             inputs=inputs, outputs=outputs, name=name)
+
         return model
