@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="vgslify",
-    version="0.10.0",
+    version="0.10.1",
     author="Tim Koornstra",
     author_email="tim.koornstra@gmail.com",
     description="VGSLify is a Python toolkit designed for rapid prototyping "
