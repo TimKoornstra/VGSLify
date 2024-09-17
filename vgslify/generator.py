@@ -1,4 +1,5 @@
 from vgslify.core.parser import parse_spec
+from typing import List, Any, Optional, Dict
 
 
 class VGSLModelGenerator:
@@ -13,7 +14,7 @@ class VGSLModelGenerator:
     the final model.
     """
 
-    def __init__(self, model_spec: str, backend: str = "auto"):
+    def __init__(self, model_spec: str, backend: str = "auto") -> None:
         """
         Initialize the VGSLModelGenerator with a given model specification string.
 
@@ -25,10 +26,10 @@ class VGSLModelGenerator:
             The backend to use for building the model. Can be "tensorflow", "torch", or "auto".
             Default is "auto", which will attempt to automatically detect the available backend.
         """
-        self.model_spec = model_spec
-        self.history = []
-        self.inputs = None
-        self.outputs = None
+        self.model_spec: str = model_spec
+        self.history: List[Any] = []
+        self.inputs: Optional[Any] = None
+        self.outputs: Optional[Any] = None
 
         # Automatically detect backend if set to "auto"
         if backend == "auto":
@@ -43,12 +44,13 @@ class VGSLModelGenerator:
             )
         else:
             raise ValueError(
-                f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'.")
+                f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'."
+            )
 
-        self.layer_factory = LayerFactory()
+        self.layer_factory: Any = LayerFactory()
 
         # Create a dictionary that maps prefixes to layer creation methods
-        self.layer_constructors = {
+        self.layer_constructors: Dict[str, Any] = {
             'C': self.layer_factory.conv2d,
             'Mp': self.layer_factory.maxpooling2d,
             'Ap': self.layer_factory.avgpool2d,
@@ -99,18 +101,86 @@ class VGSLModelGenerator:
             print("Both TensorFlow and PyTorch are available. Defaulting to TensorFlow.")
             return "tensorflow"
         raise ImportError(
-            "Neither TensorFlow nor PyTorch is installed. Please install one of them.")
+            "Neither TensorFlow nor PyTorch is installed. Please install one of them."
+        )
 
-    def build_model(self):
+    def generate_history(self) -> List[Any]:
+        """
+        Generate the history of layer specifications without building the full model.
+
+        This method parses the VGSL specification string, constructs each layer using
+        the layer factory, and stores them in history, but does not chain them or
+        connect input/output layers.
+
+        Returns
+        -------
+        list
+            A list of layers constructed from the specification string.
+        """
+        specs = self._parse_specifications()
+        history = []
+
+        for spec in specs:
+            layer = self.construct_layer(spec)
+            history.append(layer)
+
+        # Update the instance's history
+        self.history = history
+        return history
+
+    def construct_layer(self, spec: str) -> Any:
+        """
+        Constructs a layer using the layer factory based on the spec string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for a layer.
+
+        Returns
+        -------
+        Any
+            The constructed layer.
+
+        Raises
+        ------
+        ValueError
+            If the layer specification is unknown.
+        """
+        # Find the longest prefix match in the layer_constructors dictionary
+        for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
+            if spec.startswith(prefix):
+                # Return the layer without chaining it to any inputs/outputs
+                return self.layer_constructors[prefix](spec)
+
+        raise ValueError(f"Unknown layer specification: {spec}")
+
+    def build_layers(self) -> List[Any]:
+        """
+        Build the layers as specified, without connecting them to input/output layers.
+
+        Returns
+        -------
+        list
+            A list of constructed layers.
+        """
+        # Parse the specification string to get the list of layer specs
+        specs = self._parse_specifications()
+
+        # Build each layer without chaining them
+        layers = [self.construct_layer(spec) for spec in specs]
+        return layers
+
+    def build_model(self) -> Any:
         """
         Build the model based on the VGSL spec string.
 
-        This method parses the VGSL specification string, creates each layer 
+        This method parses the VGSL specification string, creates each layer
         using the layer factory, and constructs the model sequentially.
 
         Returns
         -------
-        model : Model
+        Any
             The built model using the specified backend.
         """
         # Parse the specification string to get the list of layer specs
@@ -127,39 +197,18 @@ class VGSLModelGenerator:
         model = self._finalize_model()
         return model
 
-    def construct_layer(self, spec: str):
-        """
-        Constructs a layer using the layer factory based on the spec string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for a layer.
-
-        Returns
-        -------
-        Layer
-            The constructed layer.
-        """
-        # Find the longest prefix match in the layer_constructors dictionary
-        for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
-            if spec.startswith(prefix):
-                return self.layer_constructors[prefix](spec)
-
-        raise ValueError(f"Unknown layer specification: {spec}")
-
-    def _parse_specifications(self):
+    def _parse_specifications(self) -> List[str]:
         """
         Parse the VGSL specification string into individual layer specifications.
 
         Returns
         -------
-        list
+        list of str
             A list of parsed specifications.
         """
         return parse_spec(self.model_spec)
 
-    def _initialize_first_layer(self, first_spec):
+    def _initialize_first_layer(self, first_spec: str) -> None:
         """
         Initialize the model by creating the input layer from the first specification.
 
@@ -174,7 +223,7 @@ class VGSLModelGenerator:
         # Store the input layer in history for future layers
         self.history.append(self.inputs)
 
-    def _process_layer_spec(self, spec):
+    def _process_layer_spec(self, spec: str) -> None:
         """
         Process a single layer specification and append it to the model.
 
@@ -182,8 +231,6 @@ class VGSLModelGenerator:
         ----------
         spec : str
             The layer specification string.
-        index : int
-            The index of the current layer in the specification list.
         """
         if spec.startswith("Rc"):  # Reshape layer with spatial collapse
             layer = self.layer_factory.reshape(spec, self.history[-1])
@@ -194,13 +241,13 @@ class VGSLModelGenerator:
         self.outputs = layer(self.outputs)
         self.history.append(layer)  # Append each layer to history
 
-    def _finalize_model(self):
+    def _finalize_model(self) -> Any:
         """
         Finalize the model by connecting the layers and returning the built model.
 
         Returns
         -------
-        Model
+        Any
             The final built model.
         """
         # Build and return the final model using inputs and outputs
