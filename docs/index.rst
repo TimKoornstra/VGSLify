@@ -1,16 +1,40 @@
-.. VGSLify documentation master file, created by
-   sphinx-quickstart on Tue Sep  3 11:58:43 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-VGSLify documentation
+VGSLify Documentation
 =====================
 
 `vgslify` is a powerful tool for creating and managing VGSL (Variable-size Graph Specification Language) models. It supports both TensorFlow and PyTorch backends, providing flexibility for various deep learning workflows.
 
+Getting Started
+---------------
+If you're new to VGSLify, start with these guides:
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started:
+
+   introduction
+   installation
+   getting_started
+   tutorials
+
+User Guides
+-----------
+In-depth tutorials and guides to help you work with VGSLify:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guides:
+
+   advanced_usage
+   examples
+   vgsl_spec_guide
+
+API Reference
+-------------
+Detailed API documentation for developers:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference:
 
    source/vgslify
    source/vgslify.core
@@ -24,3 +48,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

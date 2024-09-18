@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'VGSLify'
 copyright = '2024, Tim Koornstra'
 author = 'Tim Koornstra'
-release = '0.10.0'
+release = '0.11.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -23,12 +23,13 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.mathjax',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
-
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -36,4 +37,4 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
-autodoc_mock_imports = ['tensorflow', 'torch']
+autodoc_mock_imports = ['tensorflow', 'torch', 'vgslify._version']
