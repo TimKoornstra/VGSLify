@@ -121,32 +121,6 @@ class VGSLModelGenerator:
         """
         return self._construct_layer(spec, prev_layer)
 
-    def build_layers(self, model_spec: str) -> List[Any]:
-        """
-        Build the layers as specified, without connecting them to input/output layers.
-
-        Parameters
-        ----------
-        model_spec : str
-            The VGSL specification string defining the model architecture.
-
-        Returns
-        -------
-        list
-            A list of constructed layers.
-        """
-        # Parse the specification string to get the list of layer specs
-        specs = parse_spec(model_spec)
-
-        # Build each layer without chaining them
-        layers = []
-        prev_layer = None
-        for spec in specs:
-            layer = self._construct_layer(spec, prev_layer)
-            layers.append(layer)
-            prev_layer = layer
-        return layers
-
     ### Private Helper Methods ###
 
     def _detect_backend(self, backend: str) -> str:
