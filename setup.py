@@ -1,8 +1,22 @@
 from setuptools import setup, find_packages
+import os
+
+version = "0.10.2"
+
+
+# Function to write the version to a _version.py file
+def write_version_file(version):
+    version_path = os.path.join(os.path.dirname(
+        __file__), 'vgslify', '_version.py')
+    with open(version_path, 'w') as f:
+        f.write(f"__version__ = '{version}'\n")
+
+
+write_version_file(version)
 
 setup(
     name="vgslify",
-    version="0.10.1",
+    version=version,
     author="Tim Koornstra",
     author_email="tim.koornstra@gmail.com",
     description="VGSLify is a Python toolkit designed for rapid prototyping "
