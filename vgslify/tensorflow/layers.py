@@ -427,7 +427,7 @@ class TensorFlowLayerFactory(LayerFactory):
             if prev_layer is None:
                 raise ValueError(
                     "Previous layer is required for spatial collapsing. None provided.")
-            prev_shape = prev_layer.output.shape  # Get shape of the previous layer
+            prev_shape = prev_layer.shape  # Get shape of the previous layer
             if len(prev_shape) < 4:
                 raise ValueError(
                     f"Previous layer shape {prev_shape} is incompatible for spatial collapsing. "

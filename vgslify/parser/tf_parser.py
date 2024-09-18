@@ -80,8 +80,32 @@ def tf_to_spec(model: tf.keras.models.Model) -> str:
     def parse_dropout(layer):
         return f"D{int(layer.rate * 100)}"
 
-    def parse_reshape(_):
-        return "Rc"
+    def parse_reshape(layer, prev_layer):
+        # Get the previous layer shape
+        prev_shape = prev_layer.output.shape
+
+        # Replace None dimensions with 1
+        prev_shape = tuple(
+            dim if dim is not None else 1 for dim in prev_shape)
+
+        # Get the target shape from the Reshape layer
+        target_shape = layer.target_shape
+
+        # Replace None dimensions with 1
+        target_shape = tuple(
+            dim if dim is not None else 1 for dim in target_shape)
+
+        print(prev_shape, target_shape)
+
+        # Determine if this is a spatial collapse
+        if (len(prev_shape) == 4
+                and target_shape == (-1, prev_shape[-3] * prev_shape[-2] * prev_shape[-1])):
+            # This is a spatial collapse
+            return "Rc"
+
+        # This is a general reshape, format it as Rx,y,z
+        reshape_dims = ",".join([str(dim) for dim in target_shape])
+        return f"R{reshape_dims}"
 
     # Mapping layer types to their corresponding parsing functions
     LAYER_PARSERS = {
@@ -108,10 +132,11 @@ def tf_to_spec(model: tf.keras.models.Model) -> str:
 
     for idx, layer in enumerate(model.layers):
         layer_type = type(layer)
-        print(layer_type)
         if layer_type in LAYER_PARSERS:
             # Call the corresponding parser function
-            spec = LAYER_PARSERS[layer_type](layer)
+            prev_layer = model.layers[idx - 1] if idx > 0 else None
+            spec = LAYER_PARSERS[layer_type](layer, prev_layer) \
+                if layer_type == tf.keras.layers.Reshape else LAYER_PARSERS[layer_type](layer)
             if spec:
                 is_output_layer = isinstance(
                     layer, tf.keras.layers.Dense) and idx >= len(model.layers) - 1

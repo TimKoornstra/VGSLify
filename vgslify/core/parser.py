@@ -417,7 +417,7 @@ def parse_reshape_spec(spec: str) -> ReshapeConfig:
     ReshapeConfig(target_shape=(64, 64, 3))
     """
 
-    match = re.match(r'R(\d+),(\d+)(?:,(\d+))?$', spec)
+    match = re.match(r'R(-?\d+),(-?\d+)(?:,(-?\d+))?$', spec)
     if not match:
         raise ValueError(
             f"Reshape layer spec '{spec}' is incorrect. Expected format: R<x>,<y>[,<z>].")

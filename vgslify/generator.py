@@ -1,5 +1,10 @@
+# Imports
+
+# > Standard Libraries
+from typing import Any, Dict, List
+
+# > Internal Libraries
 from vgslify.core.parser import parse_spec
-from typing import List, Any, Optional, Dict
 
 
 class VGSLModelGenerator:
@@ -14,128 +19,95 @@ class VGSLModelGenerator:
     the final model.
     """
 
-    def __init__(self, model_spec: str, backend: str = "auto") -> None:
+    def __init__(self, backend: str = "auto") -> None:
         """
-        Initialize the VGSLModelGenerator with a given model specification string.
+        Initialize the VGSLModelGenerator with the backend and layer factory.
+
+        Parameters
+        ----------
+        backend : str, optional
+            The backend to use for building the model. Can be "tensorflow", "torch", or "auto".
+            Default is "auto", which will attempt to automatically detect the available backend.
+        """
+        self.backend = self._detect_backend(backend)
+        self.layer_factory, self.layer_constructors = self._initialize_backend_and_factory(
+            self.backend)
+
+    def generate_model(self, model_spec: str) -> Any:
+        """
+        Build the model based on the VGSL spec string.
+
+        This method parses the VGSL specification string, creates each layer
+        using the layer factory, and constructs the model sequentially.
 
         Parameters
         ----------
         model_spec : str
             The VGSL specification string defining the model architecture.
-        backend : str, optional
-            The backend to use for building the model. Can be "tensorflow", "torch", or "auto".
-            Default is "auto", which will attempt to automatically detect the available backend.
-        """
-        self.model_spec: str = model_spec
-        self.history: List[Any] = []
-        self.inputs: Optional[Any] = None
-        self.outputs: Optional[Any] = None
-
-        # Automatically detect backend if set to "auto"
-        if backend == "auto":
-            backend = self._detect_backend()
-
-        # Dynamically import and set the layer factory based on the backend
-        if backend == "tensorflow":
-            from vgslify.tensorflow.layers import TensorFlowLayerFactory as LayerFactory
-        elif backend == "torch":
-            raise NotImplementedError(
-                "The 'torch' backend is not implemented yet."
-            )
-        else:
-            raise ValueError(
-                f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'."
-            )
-
-        self.layer_factory: Any = LayerFactory()
-
-        # Create a dictionary that maps prefixes to layer creation methods
-        self.layer_constructors: Dict[str, Any] = {
-            'C': self.layer_factory.conv2d,
-            'Mp': self.layer_factory.maxpooling2d,
-            'Ap': self.layer_factory.avgpool2d,
-            'L': self.layer_factory.lstm,
-            'G': self.layer_factory.gru,
-            'B': self.layer_factory.bidirectional,
-            'Flt': self.layer_factory.flatten,
-            'F': self.layer_factory.dense,
-            'D': self.layer_factory.dropout,
-            'Bn': self.layer_factory.batchnorm,
-            'A': self.layer_factory.activation,
-            'R': self.layer_factory.reshape,
-            'O': self.layer_factory.output,
-        }
-
-    def _detect_backend(self) -> str:
-        """
-        Detect the backend automatically by checking available libraries.
-        If both TensorFlow and PyTorch are available, TensorFlow is selected by default.
 
         Returns
         -------
-        str
-            The detected backend ("tensorflow" or "torch").
-
-        Raises
-        ------
-        ImportError
-            If neither TensorFlow nor PyTorch is available.
+        Any
+            The built model using the specified backend.
         """
-        try:
-            import tensorflow as tf
-            tf_available = True
-        except ImportError:
-            tf_available = False
+        # Parse the specification string
+        specs = parse_spec(model_spec)
 
-        try:
-            import torch
-            torch_available = True
-        except ImportError:
-            torch_available = False
+        # Initialize the first layer (input layer)
+        inputs = self.layer_factory.input(specs[0])
+        outputs = inputs
 
-        if tf_available and not torch_available:
-            return "tensorflow"
-        if torch_available and not tf_available:
-            return "torch"
-        if tf_available and torch_available:
-            print("Both TensorFlow and PyTorch are available. Defaulting to TensorFlow.")
-            return "tensorflow"
-        raise ImportError(
-            "Neither TensorFlow nor PyTorch is installed. Please install one of them."
-        )
+        # Build the model by iterating through each layer specification
+        prev_layer = inputs
+        for spec in specs[1:]:
+            outputs = self._construct_and_chain_layer(
+                spec, outputs, prev_layer)
+            prev_layer = outputs  # Keep track of the previous layer for `Rc`
 
-    def generate_history(self) -> List[Any]:
+        # Build and return the final model
+        return self.layer_factory.build_final_model(inputs, outputs)
+
+    def generate_history(self, model_spec: str) -> List[Any]:
         """
         Generate the history of layer specifications without building the full model.
 
         This method parses the VGSL specification string, constructs each layer using
-        the layer factory, and stores them in history, but does not chain them or
-        connect input/output layers.
+        the layer factory, and stores them in a list, but does not chain them or connect
+        input/output layers.
+
+        Parameters
+        ----------
+        model_spec : str
+            The VGSL specification string defining the model architecture.
 
         Returns
         -------
         list
             A list of layers constructed from the specification string.
         """
-        specs = self._parse_specifications()
+        # Parse the specification string
+        specs = parse_spec(model_spec)
         history = []
 
+        # Build each layer and store in history
+        prev_layer = None
         for spec in specs:
-            layer = self.construct_layer(spec)
+            layer = self._construct_layer(spec, prev_layer)
             history.append(layer)
+            prev_layer = layer
 
-        # Update the instance's history
-        self.history = history
         return history
 
-    def construct_layer(self, spec: str) -> Any:
+    def construct_layer(self, spec: str, prev_layer: Any = None) -> Any:
         """
-        Constructs a layer using the layer factory based on the spec string.
+        Constructs a single layer using the layer factory based on the spec string.
 
         Parameters
         ----------
         spec : str
             The VGSL specification string for a layer.
+        prev_layer : Any, optional
+            The previous layer, required for spatial collapsing ('Rc').
 
         Returns
         -------
@@ -145,19 +117,18 @@ class VGSLModelGenerator:
         Raises
         ------
         ValueError
-            If the layer specification is unknown.
+            If the layer specification is unknown or if 'Rc' requires the previous layer's shape.
         """
-        # Find the longest prefix match in the layer_constructors dictionary
-        for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
-            if spec.startswith(prefix):
-                # Return the layer without chaining it to any inputs/outputs
-                return self.layer_constructors[prefix](spec)
+        return self._construct_layer(spec, prev_layer)
 
-        raise ValueError(f"Unknown layer specification: {spec}")
-
-    def build_layers(self) -> List[Any]:
+    def build_layers(self, model_spec: str) -> List[Any]:
         """
         Build the layers as specified, without connecting them to input/output layers.
+
+        Parameters
+        ----------
+        model_spec : str
+            The VGSL specification string defining the model architecture.
 
         Returns
         -------
@@ -165,90 +136,142 @@ class VGSLModelGenerator:
             A list of constructed layers.
         """
         # Parse the specification string to get the list of layer specs
-        specs = self._parse_specifications()
+        specs = parse_spec(model_spec)
 
         # Build each layer without chaining them
-        layers = [self.construct_layer(spec) for spec in specs]
+        layers = []
+        prev_layer = None
+        for spec in specs:
+            layer = self._construct_layer(spec, prev_layer)
+            layers.append(layer)
+            prev_layer = layer
         return layers
 
-    def build_model(self) -> Any:
-        """
-        Build the model based on the VGSL spec string.
+    ### Private Helper Methods ###
 
-        This method parses the VGSL specification string, creates each layer
-        using the layer factory, and constructs the model sequentially.
+    def _detect_backend(self, backend: str) -> str:
+        """
+        Detect the backend automatically by checking available libraries.
+        If both TensorFlow and PyTorch are available, TensorFlow is selected by default.
+
+        Parameters
+        ----------
+        backend : str
+            The backend to use for building the model. Can be "tensorflow", "torch", or "auto".
+
+        Returns
+        -------
+        str
+            The detected or provided backend ("tensorflow" or "torch").
+        """
+        if backend != "auto":
+            return backend
+
+        try:
+            import tensorflow as tf
+            return "tensorflow"
+        except ImportError:
+            pass
+
+        try:
+            import torch
+            return "torch"
+        except ImportError:
+            pass
+
+        raise ImportError(
+            "Neither TensorFlow nor PyTorch is installed. Please install one of them.")
+
+    def _initialize_backend_and_factory(self, backend: str) -> tuple:
+        """
+        Initialize the backend and return the layer factory and constructor map.
+
+        Parameters
+        ----------
+        backend : str
+            The backend to use for building the model.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the layer factory and layer constructors dictionary.
+        """
+        if backend == "tensorflow":
+            from vgslify.tensorflow.layers import TensorFlowLayerFactory as LayerFactory
+        elif backend == "torch":
+            raise NotImplementedError(
+                "The 'torch' backend is not implemented yet.")
+        else:
+            raise ValueError(
+                f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'.")
+
+        layer_factory = LayerFactory()
+
+        layer_constructors: Dict[str, Any] = {
+            'C': layer_factory.conv2d,
+            'Mp': layer_factory.maxpooling2d,
+            'Ap': layer_factory.avgpool2d,
+            'L': layer_factory.lstm,
+            'G': layer_factory.gru,
+            'B': layer_factory.bidirectional,
+            'Flt': layer_factory.flatten,
+            'F': layer_factory.dense,
+            'D': layer_factory.dropout,
+            'Bn': layer_factory.batchnorm,
+            'A': layer_factory.activation,
+            'R': layer_factory.reshape,
+            'O': layer_factory.output,
+            'Rc': layer_factory.reshape,
+        }
+
+        return layer_factory, layer_constructors
+
+    def _construct_layer(self, spec: str, prev_layer: Any = None) -> Any:
+        """
+        Constructs a layer using the layer factory based on the specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for a layer.
+        prev_layer : Any, optional
+            The previous layer, required for spatial collapsing ('Rc').
 
         Returns
         -------
         Any
-            The built model using the specified backend.
+            The constructed layer.
+
+        Raises
+        ------
+        ValueError
+            If the layer specification is unknown or if 'Rc' requires the previous layer's shape.
         """
-        # Parse the specification string to get the list of layer specs
-        specs = self._parse_specifications()
+        for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
+            if spec.startswith(prefix):
+                if prefix == 'Rc':
+                    return self.layer_constructors[prefix](spec, prev_layer)
+                return self.layer_constructors[prefix](spec)
 
-        # Initialize the model with the first layer (input layer)
-        self._initialize_first_layer(specs[0])
+        raise ValueError(f"Unknown layer specification: {spec}")
 
-        # Process each subsequent layer in the spec and keep track of the latest layer (output)
-        for spec in specs[1:]:
-            self._process_layer_spec(spec)
-
-        # Finalize and build the model using the last layer as output
-        model = self._finalize_model()
-        return model
-
-    def _parse_specifications(self) -> List[str]:
+    def _construct_and_chain_layer(self, spec: str, outputs: Any, prev_layer: Any = None) -> Any:
         """
-        Parse the VGSL specification string into individual layer specifications.
-
-        Returns
-        -------
-        list of str
-            A list of parsed specifications.
-        """
-        return parse_spec(self.model_spec)
-
-    def _initialize_first_layer(self, first_spec: str) -> None:
-        """
-        Initialize the model by creating the input layer from the first specification.
-
-        Parameters
-        ----------
-        first_spec : str
-            The specification for the input layer.
-        """
-        self.inputs = self.layer_factory.input(first_spec)
-        self.outputs = self.inputs  # The first output is the input layer
-
-        # Store the input layer in history for future layers
-        self.history.append(self.inputs)
-
-    def _process_layer_spec(self, spec: str) -> None:
-        """
-        Process a single layer specification and append it to the model.
+        Constructs and chains a layer to the given outputs.
 
         Parameters
         ----------
         spec : str
             The layer specification string.
-        """
-        if spec.startswith("Rc"):  # Reshape layer with spatial collapse
-            layer = self.layer_factory.reshape(spec, self.history[-1])
-        else:
-            layer = self.construct_layer(spec)
-
-        # Connect the layer to the previous output
-        self.outputs = layer(self.outputs)
-        self.history.append(layer)  # Append each layer to history
-
-    def _finalize_model(self) -> Any:
-        """
-        Finalize the model by connecting the layers and returning the built model.
+        outputs : Any
+            The current output of the previous layer to which the new layer will be connected.
+        prev_layer : Any, optional
+            The previous layer, required for spatial collapsing ('Rc').
 
         Returns
         -------
         Any
-            The final built model.
+            The updated outputs after chaining the new layer.
         """
-        # Build and return the final model using inputs and outputs
-        return self.layer_factory.build_final_model(self.inputs, self.outputs)
+        layer = self._construct_layer(spec, prev_layer)
+        return layer(outputs)
