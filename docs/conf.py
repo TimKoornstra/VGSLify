@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'VGSLify'
 copyright = '2024, Tim Koornstra'
 author = 'Tim Koornstra'
-release = '0.11.0'
+release = '0.12.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
