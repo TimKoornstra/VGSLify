@@ -182,8 +182,3 @@ Step-by-Step Instructions
       plt.legend()
       plt.show()
 
-Next Steps
-----------
-
-Now that you've built CNN and LSTM models using VGSLify, explore the [advanced tutorials](advanced_usage.html) for more complex examples and best practices for model optimization and deployment.
-

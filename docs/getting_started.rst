@@ -94,5 +94,5 @@ Once you’ve built and explored a basic model, you can dive deeper into VGSLify
 - Switching between TensorFlow and PyTorch backends (PyTorch support coming soon).
 - Integrating VGSLify models into larger deep learning workflows.
 
-Check out the [API reference](api_reference.html) for detailed information on all available classes, methods, and utilities in VGSLify.
+Check out the `API reference <source/vgslify.html>`_ for detailed information on all available classes, methods, and utilities in VGSLify.
 

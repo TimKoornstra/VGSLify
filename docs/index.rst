@@ -26,9 +26,8 @@ Explore advanced usage, examples, and details on the VGSL specification:
    :maxdepth: 2
    :caption: User Guides:
 
-   examples
-   advanced_usage
    supported_layers
+   convert_to_vgsl_spec
 
 API Reference
 -------------
