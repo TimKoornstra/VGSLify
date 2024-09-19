@@ -81,7 +81,7 @@ pip install --upgrade vgslify
 
 VGSL operates through short definition strings. For instance:
 
-`None,None,64,1 Cr3,3,32 Mp2,2,2,2 Cr3,3,64 Mp2,2,2,2 Rc Fc64 D20 Lrs128 D20 Lrs64 D20 Fs192`
+`None,None,64,1 Cr3,3,32 Mp2,2,2,2 Cr3,3,64 Mp2,2,2,2 Rc Fc64 D20 Lrs128 D20 Lrs64 D20 Fs92`
 
 In this example, the string defines a neural network with input layers, convolutional layers, pooling, reshaping, fully connected layers, LSTM and output layers. Each segment of the string corresponds to a specific layer or operation in the neural network. Moreover, VGSL provides the flexibility to specify the type of activation function for certain layers, enhancing customization.
 
@@ -130,7 +130,7 @@ Using VGSLify, you can rapidly prototype TensorFlow models using the Variable-si
    After initializing the model generator, you can pass the VGSL specification string to the `generate_model()` method to build the model. Here's an example where we create a TensorFlow model with a convolutional layer, max-pooling layer, and an output softmax layer:
 
    ```python
-   vgsl_spec = "None,64,None,1 Cr3,3,32 Mp2,2,2,2 O1s92"
+   vgsl_spec = "None,64,None,1 Cr3,3,32 Mp2,2,2,2 Fs92"
    model = vgsl_gn.generate_model(vgsl_spec)
    model.summary()
    ```
@@ -179,7 +179,7 @@ In addition to creating complete models, VGSLify allows you to generate individu
     Here’s how you can use it:
 
     ```python
-    vgsl_spec = "None,64,None,1 Cr3,3,32 Mp2,2,2,2 O1s92"
+    vgsl_spec = "None,64,None,1 Cr3,3,32 Mp2,2,2,2 Fs92"
     history = vgsl_gn.generate_history(vgsl_spec)
 
     for layer in history:
