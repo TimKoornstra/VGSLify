@@ -81,7 +81,7 @@ pip install --upgrade vgslify
 
 VGSL operates through short definition strings. For instance:
 
-`None,None,64,1 Cr3,3,32 Mp2,2,2,2 Cr3,3,64 Mp2,2,2,2 Rc Fc64 D20 Lrs128 D20 Lrs64 D20 O1s92`
+`None,None,64,1 Cr3,3,32 Mp2,2,2,2 Cr3,3,64 Mp2,2,2,2 Rc Fc64 D20 Lrs128 D20 Lrs64 D20 Fs192`
 
 In this example, the string defines a neural network with input layers, convolutional layers, pooling, reshaping, fully connected layers, LSTM and output layers. Each segment of the string corresponds to a specific layer or operation in the neural network. Moreover, VGSL provides the flexibility to specify the type of activation function for certain layers, enhancing customization.
 
@@ -215,106 +215,7 @@ This provides a concise representation of your model's architecture in VGSL form
 
 ## Supported Layers and Their Specifications
 
-### Overview
-
-Below is a concise table providing a summary of each supported layer:
-
-| **Layer**                                 | **Spec**                                     | **Example**      | **Description**                                                                                    |
-|-------------------------------------------|----------------------------------------------|------------------|----------------------------------------------------------------------------------------------------|
-| [Input](#input)                           | `batch,height,width,depth`                   | `None,64,None,1` | Input layer with variable batch size & width, and 1 channel depth                                  |
-| [Output](#output)                         | `O(2\|1\|0)(l\|s)`                           | `O1s10`          | Dense layer with a 1D sequence, 10 output classes, and softmax activation                          |
-| [Conv2D](#conv2d)                         | `C(s\|t\|r\|l\|m),<x>,<y>[,<s_x>,<s_y>],<d>` | `Cr3,3,64`       | Conv2D layer with ReLU activation, 3x3 filter size, 1x1 stride, and 64 filters                     |
-| [Dense (Fully Connected, FC)](#dense)     | `F(s\|t\|r\|l\|m)<d>`                        | `Fs64`           | Dense layer with softmax activation and 64 units                                                   |
-| [LSTM](#lstm)                             | `L(f\|r)[s]<n>[,D<rate>][,Rd<rate>]`         | `Lf64sD25Rd10`   | LSTM cell (forward-only) with 64 units, return sequences, 0.25 dropout, and 0.10 recurrent dropout |
-| [GRU](#gru)                               | `G(f\|r)[s]<n>[,D<rate>][,Rd<rate>]`         | `Gr64s,D20,Rd15` | GRU cell (reverse-only) with 64 units, return sequences, 0.20 dropout, and 0.15 recurrent dropout  |
-| [Bidirectional](#bidirectional)           | `B(g\|l)<n>[,D<rate>][,Rd<rate>]`            | `Bl256,D15,Rd10` | Bidirectional layer wrapping an LSTM RNN with 256 units, 0.15 dropout, and 0.10 recurrent dropout  |
-| [BatchNormalization](#batchnormalization) | `Bn`                                         | `Bn`             | BatchNormalization layer                                                                           |
-| [MaxPooling2D](#maxpooling2d)             | `Mp<x>,<y>,<s_x>,<s_y>`                      | `Mp2,2,1,1`      | MaxPooling2D layer with 2x2 pool size and 1x1 strides                                              |
-| [AvgPooling2D](#avgpooling2d)             | `Ap<x>,<y>,<s_x>,<s_y>`                      | `Ap2,2,2,2`      | AveragePooling2D layer with 2x2 pool size and 2x2 strides                                          |
-| [Dropout](#dropout)                       | `D<rate>`                                    | `D25`            | Dropout layer with a dropout rate of 0.25                                                          |
-| [Reshape](#reshape)                       | `Rc`                                         | `Rc`             | Reshape layer returns a new (collapsed) tf.Tensor based on the previous layer outputs              |
-
-*Note*: In the specs, the `|` symbol indicates options. For example, in `O(2 | 1 | 0)(l | s)`, it means the output layer could be `O2l`, `O1s`, etc. Arguments between the `[` and `]` symbol indicate that this is optional. The `[s]` in RNN layers activates `return_sequences`.
-
-For more detailed information about each layer and its associated VGSL spec, see the following sections:
-
----
-
-### Layer Details
-
-#### Input
-
-- **Spec**: `batch,height,width,depth`
-- **Description**: Represents the TensorFlow input layer, based on standard TF tensor dimensions.
-- **Example**: `None,64,None,1` creates a `tf.keras.layers.Input` with a variable batch size, height of 64, variable width, and a depth of 1 (input channels).
-
-#### Output
-
-- **Spec**: `O(2|1|0)(l|s)<n>`
-- **Description**: Output layer providing either a 2D vector (heat) map of the input (`2`), a 1D sequence of vector values (`1`) or a 0D single vector value (`0`) with `n` classes. Currently, only a 1D sequence of vector values is supported. 
-- **Example**: `O1s10` creates a Dense layer with a 1D sequence as output with 10 classes and softmax.
-
-#### Conv2D
-
-- **Spec**: `C(s|t|r|l|m)<x>,<y>[,<s_x>,<s_y>],<d>`
-- **Description**: Convolutional layer using a `x`,`y` window and `d` filters. Optionally, the stride window can be set with (`s_x`, `s_y`).
-- **Examples**: 
-  - `Cr3,3,64` creates a Conv2D layer with a ReLU activation function, a 3x3 filter, 1x1 stride, and 64 filters.
-  - `Cr3,3,1,3,128` creates a Conv2D layer with a ReLU activation function, a 3x3 filter, 1x3 strides, and 128 filters.
-
-#### Dense
-
-- **Spec**: `F(s|t|r|e|l|m)<d>`
-- **Description**: Fully-connected layer with `s|t|r|e|l|m` non-linearity and `d` units.
-- **Example**: `Fs64` creates a FC layer with softmax non-linearity and 64 units.
-
-#### LSTM
-
-- **Spec**: `L(f|r)[s]<n>[,D<rate>][,Rd<rate>]]`
-- **Description**: LSTM cell running either forward-only (`f`) or reversed-only (`r`), with `n` units. Optionally, the `rate` can be set for the `dropout` and/or the `recurrent_dropout`, where `rate` indicates a percentage between 0 and 100.
-- **Example**: `Lf64` creates a forward-only LSTM cell with 64 units.
-
-#### GRU
-
-- **Spec**: `G(f|r)[s]<n>[,D<rate>][,Rd<rate>]`
-- **Description**: GRU cell running either forward-only (`f`) or reversed-only (`r`), with `n` units. Optionally, the `rate` can be set for the `dropout` and/or the `recurrent_dropout`, where `rate` indicates a percentage between 0 and 100.
-- **Example**: `Gf64` creates a forward-only GRU cell with 64 units.
-
-#### Bidirectional
-
-- **Spec**: `B(g|l)<n>[,D<rate>][,Rd<rate>]`
-- **Description**: Bidirectional layer wrapping either a LSTM (`l`) or GRU (`g`) RNN layer, running in both directions, with `n` units. Optionally, the `rate` can be set for the `dropout` and/or the `recurrent_dropout`, where `rate` indicates a percentage between 0 and 100.
-- **Example**: `Bl256` creates a Bidirectional RNN layer using a LSTM Cell with 256 units.
-
-#### BatchNormalization
-
-- **Spec**: `Bn`
-- **Description**: A technique often used to standardize the inputs to a layer for each mini-batch. Helps stabilize the learning process.
-- **Example**: `Bn` applies a transformation maintaining mean output close to 0 and output standard deviation close to 1.
-
-#### MaxPooling2D
-
-- **Spec**: `Mp<x>,<y>,<s_x>,<s_y>`
-- **Description**: Downsampling technique using a `x`,`y` window. The window is shifted by strides `s_x`, `s_y`.
-- **Example**: `Mp2,2,2,2` creates a MaxPooling2D layer with pool size (2,2) and strides of (2,2).
-
-#### AvgPooling2D
-
-- **Spec**: `Ap<x>,<y>,<s_x>,<s_y>`
-- **Description**: Downsampling technique using a `x`,`y` window. The window is shifted by strides `s_x`, `s_y`.
-- **Example**: `Ap2,2,2,2` creates an AveragePooling2D layer with pool size (2,2) and strides of (2,2).
-
-#### Dropout
-
-- **Spec**: `D<rate>`
-- **Description**: Regularization layer that sets input units to 0 at a rate of `rate` during training. Used to prevent overfitting.
-- **Example**: `D50` creates a Dropout layer with a dropout rate of 0.5 (`D`/100).
-
-#### Reshape
-
-- **Spec**: `Rc`
-- **Description**: Reshapes the output tensor from the previous layer, making it compatible with RNN layers.
-- **Example**: `Rc` applies a specific transformation: `layers.Reshape((-1, prev_layer_y * prev_layer_x))`.
+VGSLify supports a wide range of layers, including convolutional, pooling, LSTM, GRU, and more. For a detailed list and specifications of all supported layers, please refer to the [Supported Layers Documentation](https://timkoornstra.github.io/VGSLify/supported_layers.html).
 
 ## Future Work
 
