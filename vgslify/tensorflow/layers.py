@@ -405,7 +405,7 @@ class TensorFlowLayerFactory(LayerFactory):
         ----------
         spec : str
             VGSL specification string for the Reshape layer. Can be:
-            - 'Rc': Collapse spatial dimensions (height and width).
+            - 'Rc': Collapse spatial dimensions (height, width, and channels).
             - 'R<x>,<y>,<z>': Reshape to the specified target shape.
         prev_layer : tf.keras.layers.Layer, optional
             The previous layer in the model, used for spatial collapsing, by default None
@@ -415,6 +415,12 @@ class TensorFlowLayerFactory(LayerFactory):
         tf.keras.layers.Reshape
             The created Reshape layer.
 
+        Raises
+        ------
+        ValueError
+            If the previous layer is required for spatial collapsing but is not provided,
+            or if the provided shape is incompatible for spatial collapsing.
+
         Examples
         --------
         >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
@@ -423,20 +429,30 @@ class TensorFlowLayerFactory(LayerFactory):
         <keras.src.layers.core.reshape.Reshape object at 0x7f8b1c0b1d30>
         """
         # Handle 'Rc' (collapse spatial dimensions) specification
-        if spec == 'Rc':
+        if spec.startswith('Rc'):
             if prev_layer is None:
                 raise ValueError(
                     "Previous layer is required for spatial collapsing. None provided.")
             prev_shape = prev_layer.shape  # Get shape of the previous layer
-            if len(prev_shape) < 4:
+            if len(prev_shape) != 4:
                 raise ValueError(
                     f"Previous layer shape {prev_shape} is incompatible for spatial collapsing. "
-                    "Expected at least 4 dimensions."
+                    "Expected shape of 4 dimensions (batch_size, height, width, channels)."
                 )
-            # Get height and width dimensions
-            height, width = prev_shape[-3] or 1, prev_shape[-2] or 1
-            num_channels = prev_shape[-1]
-            return tf.keras.layers.Reshape((-1, height * width * num_channels))
+
+            # Extract height, width, and channels
+            height, width, num_channels = prev_shape[-3] or 1, prev_shape[-2] or 1, prev_shape[-1] or 1
+
+            # Handle Rc2: flatten to (batch_size, flattened_features)
+            if spec == 'Rc2':
+                flattened_features = height * width * num_channels
+                return tf.keras.layers.Reshape((flattened_features,))
+
+            # Handle Rc3: reshape to (batch_size, timesteps, features) for RNN compatibility
+            if spec == 'Rc3':
+                return tf.keras.layers.Reshape((-1, height * width * num_channels))
+
+            raise ValueError(f"Unsupported Rc variant: {spec}")
 
         # Handle regular reshape (e.g., 'R64,64,3')
         config = parse_reshape_spec(spec)
