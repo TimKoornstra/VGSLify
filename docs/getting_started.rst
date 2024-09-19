@@ -4,50 +4,95 @@ Getting Started
 Overview
 --------
 
-- Introduction to VGSL specifications.
-  - VGSL strings represent deep learning models.
-  - Example of a VGSL string for a basic model.
-  
-- Key functionality of VGSLify:
-  - Building models with a single line.
-  - Switching between TensorFlow and PyTorch backends.
+VGSLify makes it incredibly simple to define, build, and train deep learning models using the Variable-size Graph Specification Language (VGSL). VGSL strings serve as compact representations of neural network architectures, allowing you to build models in a single line. 
+
+VGSLify abstracts the complexity of backend-specific syntax, enabling seamless switching between TensorFlow and, in future releases, PyTorch. This flexibility allows you to focus on model architecture and training without worrying about framework-specific implementations.
+
+What is a VGSL Specification?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A VGSL specification string concisely defines a neural network's architecture. The string encodes all layers, including input, convolutional layers, pooling, fully connected layers, and more. Each part of the string corresponds to a different component of the model.
+
+For example, the following VGSL string defines a simple convolutional neural network:
+
+``None,28,28,1 Cr3,3,32 Mp2,2,2,2 Rc Fr64 D20 Fs10``
+
+This string represents a model with an input layer, a convolutional layer, a max pooling layer, a reshape layer, a dense (fully connected) layer, dropout, and an output layer. The model's structure is encoded entirely within this single line.
+
+Key functionality of VGSLify includes:
+
+- **Building models with a single line**: You can define complex architectures with a VGSL string, reducing the need for verbose code.
+- **Switching between TensorFlow and PyTorch**: VGSLify supports both TensorFlow and (planned) PyTorch, allowing you to easily switch between backends.
 
 Simple Example: Building a Model
 --------------------------------
 
-1. Import VGSLModelGenerator:
+Let’s walk through building a simple deep learning model using VGSLify. 
+
+1. **Import the VGSLModelGenerator**:
+
+   The `VGSLModelGenerator` class is the core component for building models from VGSL strings. Begin by importing it:
 
    .. code-block:: python
 
       from vgslify.generator import VGSLModelGenerator
 
-2. Define the VGSL spec string:
+2. **Define the VGSL Specification String**:
+
+   The VGSL spec string encodes the structure of the model. In this example, we will define a simple convolutional neural network suitable for handling MNIST digit images (28x28 grayscale):
 
    .. code-block:: python
 
-      vgsl_spec = "None,28,28,1 Cr3,3,32 Mp2,2,2,2 Rc Fc64 D20 O1s10"
+      vgsl_spec = "None,28,28,1 Cr3,3,32 Mp2,2,2,2 Rc2 Fr64 D20 Fs10"
 
-3. Build the model:
+3. **Build and View the Model**:
+
+   Initialize the `VGSLModelGenerator` and use it to build the model based on the VGSL spec string:
 
    .. code-block:: python
 
-      vgsl_gn = VGSLModelGenerator(backend="tensorflow")
+      vgsl_gn = VGSLModelGenerator(backend="tensorflow")  # Set backend to TensorFlow
       model = vgsl_gn.generate_model(vgsl_spec)
-      model.summary()
+      model.summary()  # View the model architecture
+
+   This will generate the model and display a summary of its architecture, including all layers defined by the VGSL spec string.
 
 Explanation of Layers
 ---------------------
 
-- **Input Layer**: ``None,28,28,1`` defines the input shape (e.g., for MNIST images).
-- **Convolutional Layer**: ``Cr3,3,32`` adds a 2D convolution layer.
-- **MaxPooling Layer**: ``Mp2,2,2,2`` reduces the spatial dimensions.
-- **Reshape Layer**: ``Rc`` reshapes the data to feed into a dense layer.
-- **Fully Connected Layer**: ``Fc64`` adds a dense layer with 64 units.
-- **Dropout Layer**: ``D20`` applies a 20% dropout to prevent overfitting.
-- **Output Layer**: ``O1s10`` represents the output layer for 10 classes with softmax activation.
+Let’s break down the layers defined by the VGSL specification string in our example:
+
+- **Input Layer**: ``None,28,28,1`` 
+  - This defines the input shape of the model, which corresponds to grayscale images of size 28x28 pixels. The first dimension (`None`) allows for a variable batch size.
+  
+- **Convolutional Layer**: ``Cr3,3,32`` 
+  - This adds a 2D convolutional layer with a 3x3 kernel and 32 output filters, using ReLU activation (`r` for ReLU).
+
+- **MaxPooling Layer**: ``Mp2,2,2,2`` 
+  - This reduces the spatial dimensions by applying 2x2 max pooling with a stride of 2x2, which downsamples the input by taking the maximum value over each 2x2 window.
+
+- **Reshape Layer**: ``Rc2`` 
+  - Reshapes the output from the previous layer, collapsing the spatial dimensions into a single vector suitable for fully connected layers.
+
+- **Fully Connected Layer**: ``Fc64`` 
+  - Adds a fully connected layer (dense layer) with 64 units.
+
+- **Dropout Layer**: ``D20`` 
+  - Applies dropout with a 20% rate to prevent overfitting by randomly setting a portion of the inputs to zero during training.
+
+- **Output Layer**: ``Fs10`` 
+  - Represents the output layer with 10 units (for 10 classes, such as the digits in MNIST) using softmax activation.
+
+This VGSL string provides a concise, human-readable format for specifying complex model architectures. VGSLify automatically translates this specification into a deep learning model that can be trained using TensorFlow.
 
 Next Steps
 ----------
 
-- Link to tutorials for more advanced examples.
+Once you’ve built and explored a basic model, you can dive deeper into VGSLify's capabilities. Follow the [tutorials](tutorials.html) to explore more advanced use cases such as:
+
+- Using different VGSL spec strings to define custom architectures.
+- Switching between TensorFlow and PyTorch backends (PyTorch support coming soon).
+- Integrating VGSLify models into larger deep learning workflows.
+
+Check out the [API reference](api_reference.html) for detailed information on all available classes, methods, and utilities in VGSLify.
 
