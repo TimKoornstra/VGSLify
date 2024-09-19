@@ -7,9 +7,8 @@ import tensorflow as tf
 from vgslify.core.factory import LayerFactory
 from vgslify.core.parser import (parse_conv2d_spec, parse_pooling2d_spec,
                                  parse_dense_spec, parse_rnn_spec,
-                                 parse_dropout_spec, parse_output_layer_spec,
-                                 parse_activation_spec, parse_reshape_spec,
-                                 parse_input_spec)
+                                 parse_dropout_spec, parse_activation_spec,
+                                 parse_reshape_spec, parse_input_spec)
 
 
 class TensorFlowLayerFactory(LayerFactory):
@@ -301,40 +300,6 @@ class TensorFlowLayerFactory(LayerFactory):
         """
         config = parse_dropout_spec(spec)
         return tf.keras.layers.Dropout(rate=config.rate)
-
-    @staticmethod
-    def output(spec: str) -> tf.keras.layers.Dense:
-        """
-        Create an Output layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Output layer.
-
-        Returns
-        -------
-        tf.keras.layers.Dense
-            The created Output layer.
-
-        Raises
-        ------
-        ValueError
-            If the provided VGSL spec string does not match the expected format.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> output_layer = TensorFlowLayerFactory.output("O1s10")
-        >>> print(output_layer)
-        <keras.src.layers.core.dense.Dense object at 0x7f8b1c0b1d30>
-        """
-        config = parse_output_layer_spec(spec)
-        return tf.keras.layers.Dense(
-            units=config.units,
-            activation=config.activation,
-            kernel_initializer=tf.keras.initializers.GlorotNormal()
-        )
 
     @staticmethod
     def batchnorm(spec: str) -> tf.keras.layers.BatchNormalization:

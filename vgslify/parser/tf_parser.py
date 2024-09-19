@@ -54,10 +54,9 @@ def tf_to_spec(model: tf.keras.models.Model) -> str:
         return f"C{act}{layer.kernel_size[0]},{layer.kernel_size[1]},{layer.filters}" \
             f"{get_stride_spec(layer)}"
 
-    def parse_dense(layer, is_output=False):
+    def parse_dense(layer):
         act = get_activation(layer)
-        prefix = "O1" if is_output else "F"
-        return f"{prefix}{act}{layer.units}"
+        return f"F{act}{layer.units}"
 
     def parse_rnn(layer, rnn_type):
         direction = 'r' if layer.go_backwards else 'f'
@@ -138,10 +137,6 @@ def tf_to_spec(model: tf.keras.models.Model) -> str:
             spec = LAYER_PARSERS[layer_type](layer, prev_layer) \
                 if layer_type == tf.keras.layers.Reshape else LAYER_PARSERS[layer_type](layer)
             if spec:
-                is_output_layer = isinstance(
-                    layer, tf.keras.layers.Dense) and idx >= len(model.layers) - 1
-                if is_output_layer:
-                    spec = parse_dense(layer, is_output=True)
                 vgsl_parts.append(spec)
         else:
             raise ValueError(

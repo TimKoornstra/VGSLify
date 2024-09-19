@@ -40,13 +40,6 @@ class DropoutConfig:
 
 
 @dataclass
-class OutputLayerConfig:
-    dimensionality: int
-    activation: str
-    units: int
-
-
-@dataclass
 class ReshapeConfig:
     target_shape: tuple
 

@@ -1,7 +1,6 @@
 import re
 from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
-                                 RNNConfig, DropoutConfig, OutputLayerConfig,
-                                 ReshapeConfig, InputConfig)
+                                 RNNConfig, DropoutConfig, ReshapeConfig, InputConfig)
 from vgslify.core.utils import get_activation_function
 
 
@@ -302,54 +301,6 @@ def parse_dropout_spec(spec: str) -> DropoutConfig:
         raise ValueError("Dropout rate must be in the range [0, 100].")
 
     return DropoutConfig(rate=dropout_rate / 100)
-
-
-def parse_output_layer_spec(spec: str) -> OutputLayerConfig:
-    """
-    Parses a VGSL specification string for an Output layer and returns the parsed configuration.
-
-    Parameters
-    ----------
-    spec : str
-        VGSL specification for the Output layer. Expected format:
-        `O(2|1|0)(l|s)<n>`
-        - `(2|1|0)`: Dimensionality of the output.
-        - `(l|s)`: Non-linearity type.
-        - `<n>`: Number of output classes.
-
-    Returns
-    -------
-    OutputLayerConfig
-        Parsed configuration for the Output layer.
-
-    Raises
-    ------
-    ValueError
-        If the provided VGSL spec string does not match the expected format.
-
-    Examples
-    --------
-    >>> config = parse_output_layer_spec("O1s10")
-    >>> print(config)
-    OutputLayerConfig(dimensionality=1, activation='softmax', units=10)
-    """
-
-    match = re.match(r'O([210])([a-z])(\d+)$', spec)
-    if not match:
-        raise ValueError(
-            f"Output layer {spec} is of unexpected format. Expected format: O[210](l|s)<n>."
-        )
-
-    dimensionality, activation_char, units = match.groups()
-    units = int(units)
-
-    activation = get_activation_function(activation_char)
-
-    return OutputLayerConfig(
-        dimensionality=int(dimensionality),
-        activation=activation,
-        units=units
-    )
 
 
 def parse_activation_spec(spec: str) -> str:

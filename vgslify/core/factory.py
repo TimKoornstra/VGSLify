@@ -156,26 +156,6 @@ class LayerFactory(ABC):
 
     @staticmethod
     @abstractmethod
-    def output(spec: str):
-        """
-        Create the output layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the output layer.
-        output_classes : int, optional
-            The number of output classes to override the VGSL specification.
-
-        Returns
-        -------
-        Layer
-            The created output layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
     def batchnorm(spec: str):
         """
         Create a BatchNormalization layer based on the VGSL specification string.

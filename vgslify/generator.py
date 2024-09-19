@@ -194,7 +194,6 @@ class VGSLModelGenerator:
             'Bn': layer_factory.batchnorm,
             'A': layer_factory.activation,
             'R': layer_factory.reshape,
-            'O': layer_factory.output,
             'Rc': layer_factory.reshape,
         }
 
