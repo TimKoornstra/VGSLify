@@ -11,7 +11,7 @@ class VGSLModelGenerator:
     """
     VGSLModelGenerator constructs a neural network model based on a VGSL (Variable-size Graph
     Specification Language) specification string. This class supports dynamic model generation
-    for different backends, with current support for TensorFlow.
+    for different backends, with current support for TensorFlow and PyTorch.
 
     The generator takes a VGSL specification string that defines the architecture of the neural
     network, including the input layer, convolutional layers, pooling layers, RNN layers, dense
@@ -21,7 +21,7 @@ class VGSLModelGenerator:
 
     def __init__(self, backend: str = "auto") -> None:
         """
-        Initialize the VGSLModelGenerator with the backend and layer factory.
+        Initialize the VGSLModelGenerator with the backend.
 
         Parameters
         ----------
@@ -30,7 +30,7 @@ class VGSLModelGenerator:
             Default is "auto", which will attempt to automatically detect the available backend.
         """
         self.backend = self._detect_backend(backend)
-        self.layer_factory, self.layer_constructors = self._initialize_backend_and_factory(
+        self.layer_factory_class, self.layer_constructors = self._initialize_backend_and_factory(
             self.backend)
 
     def generate_model(self, model_spec: str) -> Any:
@@ -50,22 +50,21 @@ class VGSLModelGenerator:
         Any
             The built model using the specified backend.
         """
+        # Create a new instance of the layer factory for this model
+        layer_factory = self.layer_factory_class()
+
         # Parse the specification string
         specs = parse_spec(model_spec)
 
         # Initialize the first layer (input layer)
-        inputs = self.layer_factory.input(specs[0])
-        outputs = inputs
+        layer_factory.input(specs[0])
 
         # Build the model by iterating through each layer specification
-        prev_layer = inputs
         for spec in specs[1:]:
-            outputs = self._construct_and_chain_layer(
-                spec, outputs, prev_layer)
-            prev_layer = outputs  # Keep track of the previous layer for `Rc`
+            self._construct_layer(spec, layer_factory)
 
         # Build and return the final model
-        return self.layer_factory.build_final_model(inputs, outputs)
+        return layer_factory.build_final_model()
 
     def generate_history(self, model_spec: str) -> List[Any]:
         """
@@ -85,20 +84,22 @@ class VGSLModelGenerator:
         list
             A list of layers constructed from the specification string.
         """
+        # Create a new instance of the layer factory
+        layer_factory = self.layer_factory_class()
+
         # Parse the specification string
         specs = parse_spec(model_spec)
+
         history = []
 
         # Build each layer and store in history
-        prev_layer = None
         for spec in specs:
-            layer = self._construct_layer(spec, prev_layer)
+            layer = self._construct_layer(spec, layer_factory)
             history.append(layer)
-            prev_layer = layer
 
         return history
 
-    def construct_layer(self, spec: str, prev_layer: Any = None) -> Any:
+    def construct_layer(self, spec: str) -> Any:
         """
         Constructs a single layer using the layer factory based on the spec string.
 
@@ -106,8 +107,6 @@ class VGSLModelGenerator:
         ----------
         spec : str
             The VGSL specification string for a layer.
-        prev_layer : Any, optional
-            The previous layer, required for spatial collapsing ('Rc').
 
         Returns
         -------
@@ -117,9 +116,11 @@ class VGSLModelGenerator:
         Raises
         ------
         ValueError
-            If the layer specification is unknown or if 'Rc' requires the previous layer's shape.
+            If the layer specification is unknown.
         """
-        return self._construct_layer(spec, prev_layer)
+        # Create a new instance of the layer factory
+        layer_factory = self.layer_factory_class()
+        return self._construct_layer(spec, layer_factory)
 
     ### Private Helper Methods ###
 
@@ -158,7 +159,7 @@ class VGSLModelGenerator:
 
     def _initialize_backend_and_factory(self, backend: str) -> tuple:
         """
-        Initialize the backend and return the layer factory and constructor map.
+        Initialize the backend and return the layer factory class and constructor map.
 
         Parameters
         ----------
@@ -168,38 +169,39 @@ class VGSLModelGenerator:
         Returns
         -------
         tuple
-            A tuple containing the layer factory and layer constructors dictionary.
+            A tuple containing the layer factory class and layer constructors dictionary.
         """
-        if backend == "tensorflow":
-            from vgslify.tensorflow.layers import TensorFlowLayerFactory as LayerFactory
-        elif backend == "torch":
-            raise NotImplementedError(
-                "The 'torch' backend is not implemented yet.")
-        else:
-            raise ValueError(
-                f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'.")
-
-        layer_factory = LayerFactory()
+        try:
+            if backend == "tensorflow":
+                from vgslify.tensorflow.layers import TensorFlowLayerFactory as LayerFactory
+            elif backend == "torch":
+                from vgslify.torch.layers import TorchLayerFactory as LayerFactory
+            else:
+                raise ValueError(
+                    f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'.")
+        except ImportError:
+            raise ImportError(
+                f"Backend '{backend}' is not available. Please install the required library.")
 
         layer_constructors: Dict[str, Any] = {
-            'C': layer_factory.conv2d,
-            'Mp': layer_factory.maxpooling2d,
-            'Ap': layer_factory.avgpool2d,
-            'L': layer_factory.lstm,
-            'G': layer_factory.gru,
-            'B': layer_factory.bidirectional,
-            'Flt': layer_factory.flatten,
-            'F': layer_factory.dense,
-            'D': layer_factory.dropout,
-            'Bn': layer_factory.batchnorm,
-            'A': layer_factory.activation,
-            'R': layer_factory.reshape,
-            'Rc': layer_factory.reshape,
+            'C': LayerFactory.conv2d,
+            'Mp': LayerFactory.maxpooling2d,
+            'Ap': LayerFactory.avgpool2d,
+            'L': LayerFactory.lstm,
+            'G': LayerFactory.gru,
+            'B': LayerFactory.bidirectional,
+            'Flt': LayerFactory.flatten,
+            'F': LayerFactory.dense,
+            'D': LayerFactory.dropout,
+            'Bn': LayerFactory.batchnorm,
+            'A': LayerFactory.activation,
+            'R': LayerFactory.reshape,
+            'Rc': LayerFactory.reshape,
         }
 
-        return layer_factory, layer_constructors
+        return LayerFactory, layer_constructors
 
-    def _construct_layer(self, spec: str, prev_layer: Any = None) -> Any:
+    def _construct_layer(self, spec: str, layer_factory) -> Any:
         """
         Constructs a layer using the layer factory based on the specification string.
 
@@ -207,8 +209,8 @@ class VGSLModelGenerator:
         ----------
         spec : str
             The VGSL specification string for a layer.
-        prev_layer : Any, optional
-            The previous layer, required for spatial collapsing ('Rc').
+        layer_factory : Any
+            The layer factory instance to use for constructing the layer.
 
         Returns
         -------
@@ -218,33 +220,12 @@ class VGSLModelGenerator:
         Raises
         ------
         ValueError
-            If the layer specification is unknown or if 'Rc' requires the previous layer's shape.
+            If the layer specification is unknown.
         """
         for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
             if spec.startswith(prefix):
-                if prefix == 'Rc':
-                    return self.layer_constructors[prefix](spec, prev_layer)
-                return self.layer_constructors[prefix](spec)
+                layer_constructor = getattr(
+                    layer_factory, self.layer_constructors[prefix].__name__)
+                return layer_constructor(spec)
 
         raise ValueError(f"Unknown layer specification: {spec}")
-
-    def _construct_and_chain_layer(self, spec: str, outputs: Any, prev_layer: Any = None) -> Any:
-        """
-        Constructs and chains a layer to the given outputs.
-
-        Parameters
-        ----------
-        spec : str
-            The layer specification string.
-        outputs : Any
-            The current output of the previous layer to which the new layer will be connected.
-        prev_layer : Any, optional
-            The previous layer, required for spatial collapsing ('Rc').
-
-        Returns
-        -------
-        Any
-            The updated outputs after chaining the new layer.
-        """
-        layer = self._construct_layer(spec, prev_layer)
-        return layer(outputs)

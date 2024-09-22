@@ -1,7 +1,8 @@
 # Imports
 
 # > Third-party dependencies
-import tensorflow as tf
+import torch
+import torch.nn as nn
 
 # > Internal dependencies
 from vgslify.core.factory import LayerFactory
@@ -11,9 +12,9 @@ from vgslify.core.parser import (parse_conv2d_spec, parse_pooling2d_spec,
                                  parse_reshape_spec, parse_input_spec)
 
 
-class TensorFlowLayerFactory(LayerFactory):
+class TorchLayerFactory(LayerFactory):
     """
-    TensorFlowLayerFactory is responsible for creating TensorFlow-specific layers based on parsed
+    TorchLayerFactory is responsible for creating PyTorch-specific layers based on parsed
     VGSL (Variable-size Graph Specification Language) specifications. This factory handles the
     creation of various types of layers, including convolutional layers, pooling layers, RNN layers,
     dense layers, activation layers, and more.
@@ -23,8 +24,37 @@ class TensorFlowLayerFactory(LayerFactory):
 
     def __init__(self):
         super().__init__()
-        self.layers = []
-        self.shape = None  # Shape excluding batch size
+
+    def _get_activation_layer(self, activation_name: str):
+        """
+        Return a PyTorch activation layer based on the activation name.
+
+        Parameters
+        ----------
+        activation_name : str
+            Name of the activation function.
+
+        Returns
+        -------
+        torch.nn.Module
+            The activation layer.
+
+        Raises
+        ------
+        ValueError
+            If the activation_name is not recognized.
+        """
+        activations = {
+            'softmax': nn.Softmax(dim=1),
+            'tanh': nn.Tanh(),
+            'relu': nn.ReLU(),
+            'linear': nn.Identity(),
+            'sigmoid': nn.Sigmoid(),
+        }
+        if activation_name in activations:
+            return activations[activation_name]
+        else:
+            raise ValueError(f"Unsupported activation: {activation_name}")
 
     def conv2d(self, spec: str):
         """
@@ -37,26 +67,80 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created Conv2D layer.
+
+        Raises
+        ------
+        ValueError
+            If the provided VGSL spec string does not match the expected format.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory()
+        >>> factory.set_input_shape((3, 32, 32))
+        >>> conv_layer = factory.conv2d("Cr3,3,64")
+        >>> print(conv_layer)
+        Sequential(
+          (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=same)
+          (1): ReLU()
+        )
         """
         config = parse_conv2d_spec(spec)
         if self.shape is None:
             raise ValueError("Input shape must be set before adding layers.")
 
-        conv_layer = tf.keras.layers.Conv2D(
-            filters=config.filters,
+        in_channels = self.shape[0]  # Assuming channels-first
+
+        # Check if padding='same' is supported (PyTorch >=1.7)
+        padding = 'same' if torch.__version__ >= '1.7' else self._compute_same_padding(
+            config.kernel_size, config.strides)
+
+        conv_layer = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=config.filters,
             kernel_size=config.kernel_size,
-            strides=config.strides,
-            padding='same',
-            activation=config.activation
+            stride=config.strides,
+            padding=padding
         )
 
         self.layers.append(conv_layer)
+
+        # Handle activation
+        if config.activation:
+            activation_layer = self._get_activation_layer(config.activation)
+            self.layers.append(activation_layer)
+
         # Update shape
         self.shape = self._compute_conv_output_shape(self.shape, config)
+        return conv_layer, activation_layer or None
 
-        return conv_layer
+    def _compute_same_padding(self, kernel_size, stride):
+        """
+        Compute the padding size to achieve 'same' padding.
+
+        Parameters
+        ----------
+        kernel_size : int or tuple
+            Size of the kernel.
+        stride : int or tuple
+            Stride of the convolution.
+
+        Returns
+        -------
+        tuple
+            Padding size for height and width dimensions.
+        """
+        if isinstance(kernel_size, int):
+            kernel_size = (kernel_size, kernel_size)
+        if isinstance(stride, int):
+            stride = (stride, stride)
+        padding = []
+        for k, s in zip(kernel_size, stride):
+            p = ((k - 1) // 2)
+            padding.append(p)
+        return tuple(padding)
 
     def _compute_conv_output_shape(self, input_shape, config):
         """
@@ -65,7 +149,7 @@ class TensorFlowLayerFactory(LayerFactory):
         Parameters
         ----------
         input_shape : tuple
-            The input shape (H, W, C).
+            The input shape (C, H, W).
         config : Any
             The configuration object returned by parse_conv2d_spec.
 
@@ -74,18 +158,16 @@ class TensorFlowLayerFactory(LayerFactory):
         tuple
             The output shape after the convolution.
         """
-        H_in, W_in, C_in = input_shape
+        C_in, H_in, W_in = input_shape
         C_out = config.filters
 
         # For 'same' padding
-        H_out = int((H_in + config.strides[0] - 1) //
-                    config.strides[0]) if H_in is not None else None
-        W_out = int((W_in + config.strides[1] - 1) //
-                    config.strides[1]) if W_in is not None else None
+        H_out = int((H_in + config.strides[0] - 1) // config.strides[0])
+        W_out = int((W_in + config.strides[1] - 1) // config.strides[1])
 
-        return (H_out, W_out, C_out)
+        return (C_out, H_out, W_out)
 
-    def maxpooling2d(self, spec: str) -> tf.keras.layers.Layer:
+    def maxpooling2d(self, spec: str) -> nn.Module:
         """
         Create a MaxPooling2D layer based on the VGSL specification string.
 
@@ -96,21 +178,22 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created MaxPooling2D layer.
         """
         config = parse_pooling2d_spec(spec)
-        layer = tf.keras.layers.MaxPooling2D(
-            pool_size=config.pool_size,
-            strides=config.strides,
-            padding='same'
+        padding = self._compute_same_padding(config.pool_size, config.strides)
+        layer = nn.MaxPool2d(
+            kernel_size=config.pool_size,
+            stride=config.strides,
+            padding=padding
         )
         self.layers.append(layer)
         # Update shape
         self.shape = self._compute_pool_output_shape(self.shape, config)
         return layer
 
-    def avgpool2d(self, spec: str) -> tf.keras.layers.Layer:
+    def avgpool2d(self, spec: str) -> nn.Module:
         """
         Create an AvgPool2D layer based on the VGSL specification string.
 
@@ -121,14 +204,15 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created AvgPool2D layer.
         """
         config = parse_pooling2d_spec(spec)
-        layer = tf.keras.layers.AvgPool2D(
-            pool_size=config.pool_size,
-            strides=config.strides,
-            padding='same'
+        padding = self._compute_same_padding(config.pool_size, config.strides)
+        layer = nn.AvgPool2d(
+            kernel_size=config.pool_size,
+            stride=config.strides,
+            padding=padding
         )
         self.layers.append(layer)
         # Update shape
@@ -142,7 +226,7 @@ class TensorFlowLayerFactory(LayerFactory):
         Parameters
         ----------
         input_shape : tuple
-            The input shape (H, W, C).
+            The input shape (C, H, W).
         config : Any
             The configuration object returned by parse_pooling2d_spec.
 
@@ -151,16 +235,15 @@ class TensorFlowLayerFactory(LayerFactory):
         tuple
             The output shape after pooling.
         """
-        H_in, W_in, C_in = input_shape
+        C_in, H_in, W_in = input_shape
+        C_out = C_in
 
-        H_out = int((H_in + config.strides[0] - 1) //
-                    config.strides[0]) if H_in is not None else None
-        W_out = int((W_in + config.strides[1] - 1) //
-                    config.strides[1]) if W_in is not None else None
+        H_out = int((H_in + config.strides[0] - 1) // config.strides[0])
+        W_out = int((W_in + config.strides[1] - 1) // config.strides[1])
 
-        return (H_out, W_out, C_in)
+        return (C_out, H_out, W_out)
 
-    def dense(self, spec: str) -> tf.keras.layers.Layer:
+    def dense(self, spec: str) -> nn.Module:
         """
         Create a Dense layer based on the VGSL specification string.
 
@@ -171,25 +254,31 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created Dense layer.
         """
         config = parse_dense_spec(spec)
         if self.shape is None:
             raise ValueError("Input shape must be set before adding layers.")
 
-        dense_layer = tf.keras.layers.Dense(
-            units=config.units,
-            activation=config.activation
+        in_features = int(torch.prod(torch.tensor(self.shape)).item())
+        linear_layer = nn.Linear(
+            in_features=in_features,
+            out_features=config.units,
         )
-        self.layers.append(dense_layer)
+
+        self.layers.append(linear_layer)
+
+        # Handle activation
+        if config.activation:
+            activation_layer = self._get_activation_layer(config.activation)
+            self.layers.append(activation_layer)
 
         # Update shape
         self.shape = (config.units,)
+        return linear_layer, activation_layer or None
 
-        return dense_layer
-
-    def lstm(self, spec: str) -> tf.keras.layers.Layer:
+    def lstm(self, spec: str):
         """
         Create an LSTM layer based on the VGSL specification string.
 
@@ -200,31 +289,29 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.LSTM
             The created LSTM layer.
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
             raise ValueError("Input shape must be set before adding layers.")
 
-        lstm_layer = tf.keras.layers.LSTM(
-            units=config.units,
-            return_sequences=config.return_sequences,
-            go_backwards=config.go_backwards,
+        input_size = self.shape[-1]
+        layer = nn.LSTM(
+            input_size=input_size,
+            hidden_size=config.units,
+            num_layers=1,
+            batch_first=True,
             dropout=config.dropout,
-            recurrent_dropout=config.recurrent_dropout
+            bidirectional=False
         )
-        self.layers.append(lstm_layer)
+        self.layers.append(layer)
 
         # Update shape
-        if config.return_sequences:
-            self.shape = (self.shape[0], config.units)
-        else:
-            self.shape = (config.units,)
+        self.shape = (self.shape[0], config.units)
+        return layer
 
-        return lstm_layer
-
-    def gru(self, spec: str) -> tf.keras.layers.Layer:
+    def gru(self, spec: str):
         """
         Create a GRU layer based on the VGSL specification string.
 
@@ -235,31 +322,29 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.GRU
             The created GRU layer.
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
             raise ValueError("Input shape must be set before adding layers.")
 
-        gru_layer = tf.keras.layers.GRU(
-            units=config.units,
-            return_sequences=config.return_sequences,
-            go_backwards=config.go_backwards,
+        input_size = self.shape[-1]
+        layer = nn.GRU(
+            input_size=input_size,
+            hidden_size=config.units,
+            num_layers=1,
+            batch_first=True,
             dropout=config.dropout,
-            recurrent_dropout=config.recurrent_dropout
+            bidirectional=False
         )
-        self.layers.append(gru_layer)
+        self.layers.append(layer)
 
         # Update shape
-        if config.return_sequences:
-            self.shape = (self.shape[0], config.units)
-        else:
-            self.shape = (config.units,)
+        self.shape = (self.shape[0], config.units)
+        return layer
 
-        return gru_layer
-
-    def bidirectional(self, spec: str) -> tf.keras.layers.Layer:
+    def bidirectional(self, spec: str) -> nn.Module:
         """
         Create a Bidirectional RNN layer based on the VGSL specification string.
 
@@ -270,34 +355,31 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created Bidirectional RNN layer.
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
             raise ValueError("Input shape must be set before adding layers.")
 
-        rnn_layer_class = tf.keras.layers.LSTM if config.rnn_type == 'l' else tf.keras.layers.GRU
+        input_size = self.shape[-1]
+        rnn_layer = nn.LSTM if config.rnn_type == 'l' else nn.GRU
 
-        rnn_layer = rnn_layer_class(
-            units=config.units,
-            return_sequences=True,
+        layer = rnn_layer(
+            input_size=input_size,
+            hidden_size=config.units,
+            num_layers=1,
+            batch_first=True,
             dropout=config.dropout,
-            recurrent_dropout=config.recurrent_dropout
+            bidirectional=True
         )
-
-        bidirectional_layer = tf.keras.layers.Bidirectional(
-            rnn_layer,
-            merge_mode='concat'
-        )
-        self.layers.append(bidirectional_layer)
+        self.layers.append(layer)
 
         # Update shape
         self.shape = (self.shape[0], config.units * 2)
+        return layer
 
-        return bidirectional_layer
-
-    def dropout(self, spec: str) -> tf.keras.layers.Layer:
+    def dropout(self, spec: str) -> nn.Dropout:
         """
         Create a Dropout layer based on the VGSL specification string.
 
@@ -308,16 +390,16 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Dropout
             The created Dropout layer.
         """
         config = parse_dropout_spec(spec)
-        layer = tf.keras.layers.Dropout(rate=config.rate)
+        layer = nn.Dropout(p=config.rate)
         self.layers.append(layer)
         # Shape remains the same
         return layer
 
-    def batchnorm(self, spec: str) -> tf.keras.layers.Layer:
+    def batchnorm(self, spec: str) -> nn.Module:
         """
         Create a BatchNormalization layer based on the VGSL specification string.
 
@@ -328,19 +410,31 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created BatchNormalization layer.
         """
         if spec != 'Bn':
             raise ValueError(
                 f"BatchNormalization layer spec '{spec}' is incorrect. Expected 'Bn'.")
 
-        layer = tf.keras.layers.BatchNormalization()
+        if self.shape is None:
+            raise ValueError("Input shape must be set before adding layers.")
+
+        num_features = self.shape[0]  # Assuming channels-first for Conv layers
+
+        # Decide which BatchNorm layer to use based on the expected input dimensions
+        if len(self.shape) == 3:
+            layer = nn.BatchNorm2d(num_features)
+        elif len(self.shape) == 2:
+            layer = nn.BatchNorm1d(num_features)
+        else:
+            raise ValueError("Unsupported input shape for BatchNorm layer.")
+
         self.layers.append(layer)
         # Shape remains the same
         return layer
 
-    def activation(self, spec: str) -> tf.keras.layers.Layer:
+    def activation(self, spec: str) -> nn.Module:
         """
         Create an Activation layer based on the VGSL specification string.
 
@@ -351,27 +445,29 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created Activation layer.
         """
         activation_function = parse_activation_spec(spec)
-        layer = tf.keras.layers.Activation(activation=activation_function)
+        layer = self._get_activation_layer(activation_function)
         self.layers.append(layer)
         # Shape remains the same
         return layer
 
-    def reshape(self, spec: str) -> tf.keras.layers.Layer:
+    def reshape(self, spec: str) -> nn.Module:
         """
         Create a Reshape layer based on the VGSL specification string.
 
         Parameters
         ----------
         spec : str
-            VGSL specification string for the Reshape layer.
+            VGSL specification string for the Reshape layer. Can be:
+            - 'Rc': Collapse spatial dimensions (height, width, and channels).
+            - 'R<x>,<y>,<z>': Reshape to the specified target shape.
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Module
             The created Reshape layer.
         """
         if self.shape is None:
@@ -381,19 +477,20 @@ class TensorFlowLayerFactory(LayerFactory):
         if spec.startswith('Rc'):
             if spec == 'Rc2':
                 # Flatten to (batch_size, -1)
-                layer = tf.keras.layers.Flatten()
+                layer = nn.Flatten()
                 self.layers.append(layer)
-                self.shape = (int(tf.reduce_prod(self.shape).numpy()),)
+                self.shape = (
+                    int(torch.prod(torch.tensor(self.shape)).item()),)
                 return layer
 
             elif spec == 'Rc3':
-                # Reshape to (batch_size, timesteps, features) for RNN compatibility
-                H, W, C = self.shape
-                timesteps = H * W
+                # Reshape to (batch_size, seq_length, features)
+                C, H, W = self.shape
+                seq_length = H * W
                 features = C
-                layer = tf.keras.layers.Reshape((timesteps, features))
+                layer = self.Reshape(features, seq_length)
                 self.layers.append(layer)
-                self.shape = (timesteps, features)
+                self.shape = (seq_length, features)
                 return layer
 
             else:
@@ -401,14 +498,22 @@ class TensorFlowLayerFactory(LayerFactory):
 
         # Handle regular reshape (e.g., 'R64,64,3')
         config = parse_reshape_spec(spec)
-        layer = tf.keras.layers.Reshape(target_shape=config.target_shape)
+        layer = self.Reshape(*config.target_shape)
         self.layers.append(layer)
         self.shape = config.target_shape
         return layer
 
-    def input(self, spec: str) -> tf.keras.layers.Input:
+    class Reshape(nn.Module):
+        def __init__(self, *args):
+            super().__init__()
+            self.target_shape = args
+
+        def forward(self, x):
+            return x.view(x.size(0), *self.target_shape)
+
+    def input(self, spec: str):
         """
-        Create an Input layer based on the VGSL specification string.
+        Parses the input specification and sets the initial shape.
 
         Parameters
         ----------
@@ -417,19 +522,19 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.layers.Input
-            The created Input layer.
+        tuple
+            The input shape (excluding batch size).
         """
         config = parse_input_spec(spec)
 
         # Adjust input shape based on the parsed dimensions
         if config.channels is not None and config.depth is not None:
-            # 4D input: shape = (depth, height, width, channels)
-            input_shape = (config.depth, config.height,
-                           config.width, config.channels)
+            # 4D input: shape = (channels, depth, height, width)
+            input_shape = (config.channels, config.depth,
+                           config.height, config.width)
         elif config.channels is not None:
-            # 3D input: shape = (height, width, channels)
-            input_shape = (config.height, config.width, config.channels)
+            # 3D input: shape = (channels, height, width)
+            input_shape = (config.channels, config.height, config.width)
         elif config.height is not None:
             # 2D input: shape = (height, width)
             input_shape = (config.height, config.width)
@@ -438,36 +543,33 @@ class TensorFlowLayerFactory(LayerFactory):
             input_shape = (config.width,)
 
         self.shape = input_shape
-        input_layer = tf.keras.Input(
-            shape=input_shape, batch_size=config.batch_size)
-        self.layers.append(input_layer)
-        return input_layer
+        return input_shape
 
-    def flatten(self, spec: str) -> tf.keras.layers.Layer:
+    def flatten(self, spec: str) -> nn.Flatten:
         """
         Create a Flatten layer based on the VGSL specification string.
 
         Parameters
         ----------
         spec : str
-            The VGSL specification string for the Flatten layer.
+            The VGSL specification string for the Flatten layer. Expected format: 'Flt'.
 
         Returns
         -------
-        tf.keras.layers.Layer
+        torch.nn.Flatten
             The created Flatten layer.
         """
         if spec != "Flt":
             raise ValueError(
                 f"Flatten layer spec '{spec}' is incorrect. Expected 'Flt'.")
 
-        layer = tf.keras.layers.Flatten()
+        layer = nn.Flatten()
         self.layers.append(layer)
         # Update shape
-        self.shape = (int(tf.reduce_prod(self.shape).numpy()),)
+        self.shape = (int(torch.prod(torch.tensor(self.shape)).item()),)
         return layer
 
-    def build_final_model(self, name: str = "VGSL_Model") -> tf.keras.models.Model:
+    def build_final_model(self, name: str = "VGSL_Model") -> nn.Module:
         """
         Build the final model using the accumulated layers.
 
@@ -478,13 +580,17 @@ class TensorFlowLayerFactory(LayerFactory):
 
         Returns
         -------
-        tf.keras.models.Model
-            The constructed TensorFlow model.
+        torch.nn.Module
+            The constructed PyTorch model.
         """
-        inputs = self.layers[0]
-        outputs = inputs
-        for layer in self.layers[1:]:
-            outputs = layer(outputs)
-        model = tf.keras.models.Model(
-            inputs=inputs, outputs=outputs, name=name)
+        class VGSLModel(nn.Module):
+            def __init__(self, layers):
+                super().__init__()
+                self.model = nn.Sequential(*layers)
+
+            def forward(self, x):
+                return self.model(x)
+
+        model = VGSLModel(self.layers)
+        model.__class__.__name__ = name
         return model

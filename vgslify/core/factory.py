@@ -3,265 +3,109 @@ from abc import ABC, abstractmethod
 
 class LayerFactory(ABC):
     """
-    Abstract base class for creating neural network layers from VGSL specifications.
-    This class defines the interface that must be implemented by concrete factories
-    for different frameworks (e.g., TensorFlow, PyTorch).
+    Abstract base class for creating neural network layers from VGSL
+    specifications. This class defines the interface that must be implemented
+    by concrete factories for different frameworks (e.g., TensorFlow, PyTorch).
 
-    All methods are static to allow direct layer creation without instantiating the factory.
+    It also provides common methods for output shape calculations to be used by
+    subclasses.
     """
 
-    @staticmethod
+    def __init__(self):
+        self.layers = []
+        self.shape = None  # Shape excluding batch size
+
     @abstractmethod
-    def conv2d(spec: str):
+    def conv2d(self, spec: str):
+        pass
+
+    @abstractmethod
+    def maxpooling2d(self, spec: str):
+        pass
+
+    @abstractmethod
+    def avgpool2d(self, spec: str):
+        pass
+
+    @abstractmethod
+    def dense(self, spec: str):
+        pass
+
+    @abstractmethod
+    def lstm(self, spec: str):
+        pass
+
+    @abstractmethod
+    def gru(self, spec: str):
+        pass
+
+    @abstractmethod
+    def bidirectional(self, spec: str):
+        pass
+
+    @abstractmethod
+    def dropout(self, spec: str):
+        pass
+
+    @abstractmethod
+    def batchnorm(self, spec: str):
+        pass
+
+    @abstractmethod
+    def activation(self, spec: str):
+        pass
+
+    @abstractmethod
+    def reshape(self, spec: str):
+        pass
+
+    @abstractmethod
+    def input(self, spec: str):
+        pass
+
+    @abstractmethod
+    def flatten(self, spec: str):
+        pass
+
+    @abstractmethod
+    def build_final_model(self, name):
+        pass
+
+    def _compute_conv_output_shape(self, input_shape, config):
         """
-        Create a Conv2D layer based on the VGSL specification string.
+        Computes the output shape of a convolutional layer.
 
         Parameters
         ----------
-        spec : str
-            The VGSL specification string for the Conv2D layer.
+        input_shape : tuple
+            The input shape, format depends on the backend (e.g., (C, H, W) for
+            PyTorch or (H, W, C) for TensorFlow).
+        config : Any
+            The configuration object returned by parse_conv2d_spec.
 
         Returns
         -------
-        Layer
-            The created Conv2D layer.
+        tuple
+            The output shape after the convolution.
         """
-        pass
+        raise NotImplementedError(
+            "This method should be implemented by subclasses.")
 
-    @staticmethod
-    @abstractmethod
-    def maxpooling2d(spec: str):
+    def _compute_pool_output_shape(self, input_shape, config):
         """
-        Create a MaxPooling2D layer based on the VGSL specification string.
+        Computes the output shape of a pooling layer.
 
         Parameters
         ----------
-        spec : str
-            The VGSL specification string for the MaxPooling2D layer.
+        input_shape : tuple
+            The input shape.
+        config : Any
+            The configuration object returned by parse_pooling2d_spec.
 
         Returns
         -------
-        Layer
-            The created MaxPooling2D layer.
+        tuple
+            The output shape after pooling.
         """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def avgpool2d(spec: str):
-        """
-        Create an AvgPooling2D layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the AvgPooling2D layer.
-
-        Returns
-        -------
-        Layer
-            The created AvgPooling2D layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def dense(spec: str):
-        """
-        Create a Dense (fully connected) layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Dense layer.
-
-        Returns
-        -------
-        Layer
-            The created Dense layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def lstm(spec: str):
-        """
-        Create an LSTM layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the LSTM layer.
-
-        Returns
-        -------
-        Layer
-            The created LSTM layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def gru(spec: str):
-        """
-        Create a GRU layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the GRU layer.
-
-        Returns
-        -------
-        Layer
-            The created GRU layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def bidirectional(spec: str):
-        """
-        Create a Bidirectional RNN layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Bidirectional RNN layer.
-
-        Returns
-        -------
-        Layer
-            The created Bidirectional RNN layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def dropout(spec: str):
-        """
-        Create a Dropout layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Dropout layer.
-
-        Returns
-        -------
-        Layer
-            The created Dropout layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def batchnorm(spec: str):
-        """
-        Create a BatchNormalization layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the BatchNormalization layer.
-
-        Returns
-        -------
-        Layer
-            The created BatchNormalization layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def activation(spec: str):
-        """
-        Create an Activation layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Activation layer.
-
-        Returns
-        -------
-        Layer
-            The created Activation layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def reshape(spec: str):
-        """
-        Create a Reshape layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Reshape layer.
-
-        Returns
-        -------
-        Layer
-            The created Reshape layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def input(spec: str):
-        """
-        Create the input layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the input layer.
-
-        Returns
-        -------
-        Layer
-            The created input layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def flatten(spec: str):
-        """
-        Create a Flatten layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Flatten layer.
-
-        Returns
-        -------
-        Layer
-            The created Flatten layer.
-        """
-        pass
-
-    @staticmethod
-    @abstractmethod
-    def build_final_model(inputs, outputs, name):
-        """
-        Build the final model using the specified backend.
-
-        Parameters
-        ----------
-        inputs : Layer
-            The input layer of the model.
-        outputs : Layer
-            The output layer of the model.
-        name : str
-            The name of the model.
-
-        Returns
-        -------
-        model
-            The built model using the specified backend.
-        """
-        pass
+        raise NotImplementedError(
+            "This method should be implemented by subclasses.")
