@@ -7,7 +7,7 @@ Submodules
 vgslify.torch.layers module
 --------------------------------
 
-.. automodule:: vgslify.tensorflow.layers
+.. automodule:: vgslify.torch.layers
    :members:
    :undoc-members:
    :show-inheritance:
