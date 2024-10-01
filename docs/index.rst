@@ -42,6 +42,7 @@ For developers looking for more technical details, the following API documentati
    source/vgslify.parser
    source/vgslify.utils
    source/vgslify.tensorflow
+   source/vgslify.torch
 
 Indices and tables
 ==================
