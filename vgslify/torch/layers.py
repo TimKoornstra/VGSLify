@@ -22,6 +22,15 @@ class TorchLayerFactory(LayerFactory):
     dense layers, activation layers, and more.
 
     This class maintains an internal state to track the shape of the tensor as layers are added.
+
+    Attributes
+    ----------
+    layers : list
+        A list of PyTorch layers that have been added to the factory.
+    shape : tuple of int
+        The current shape of the tensor, excluding the batch size.
+    _input_shape : tuple of int or None
+        The original input shape provided during initialization.
     """
 
     def __init__(self, input_shape: Tuple[int, ...] = None):
