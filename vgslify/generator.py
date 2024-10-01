@@ -32,6 +32,7 @@ class VGSLModelGenerator:
         self.backend = self._detect_backend(backend)
         self.layer_factory_class, self.layer_constructors = self._initialize_backend_and_factory(
             self.backend)
+        self.layer_factory = self.layer_factory_class()
 
     def generate_model(self, model_spec: str) -> Any:
         """
@@ -50,21 +51,7 @@ class VGSLModelGenerator:
         Any
             The built model using the specified backend.
         """
-        # Create a new instance of the layer factory for this model
-        layer_factory = self.layer_factory_class()
-
-        # Parse the specification string
-        specs = parse_spec(model_spec)
-
-        # Initialize the first layer (input layer)
-        layer_factory.input(specs[0])
-
-        # Build the model by iterating through each layer specification
-        for spec in specs[1:]:
-            self._construct_layer(spec, layer_factory)
-
-        # Build and return the final model
-        return layer_factory.build_final_model()
+        return self._process_layers(model_spec, return_history=False)
 
     def generate_history(self, model_spec: str) -> List[Any]:
         """
@@ -84,20 +71,48 @@ class VGSLModelGenerator:
         list
             A list of layers constructed from the specification string.
         """
-        # Create a new instance of the layer factory
-        layer_factory = self.layer_factory_class()
+        return self._process_layers(model_spec, return_history=True)
+
+    def _process_layers(self, model_spec: str, return_history: bool = False) -> Any:
+        """
+        Process the VGSL specification string to build the model or generate a history of layers.
+
+        Parameters
+        ----------
+        model_spec : str
+            The VGSL specification string defining the model architecture.
+        return_history : bool, optional
+            If True, returns a list of constructed layers (history) instead of the final model.
+
+        Returns
+        -------
+        Any
+            The built model using the specified backend if `return_history` is False.
+            Otherwise, a list of constructed layers.
+        """
+        # Create a new instance of the layer factory for this model
+        self.layer_factory = self.layer_factory_class()
 
         # Parse the specification string
         specs = parse_spec(model_spec)
 
-        history = []
+        # Initialize the first layer (input layer)
+        input_layer = self.layer_factory.input(specs[0])
 
-        # Build each layer and store in history
-        for spec in specs:
-            layer = self._construct_layer(spec, layer_factory)
-            history.append(layer)
+        # Initialize history if required
+        history = [input_layer] if return_history else None
 
-        return history
+        # Process each layer specification
+        for spec in specs[1:]:
+            layer = self._construct_layer(spec, self.layer_factory)
+            if return_history:
+                history.append(layer)
+
+        if return_history:
+            return history
+
+        # Build and return the final model
+        return self.layer_factory.build_final_model()
 
     def construct_layer(self, spec: str) -> Any:
         """
