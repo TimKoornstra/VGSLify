@@ -1,5 +1,8 @@
 # Imports
 
+# > Standard library
+from typing import Tuple
+
 # > Third-party dependencies
 import tensorflow as tf
 
@@ -7,8 +10,7 @@ import tensorflow as tf
 from vgslify.core.factory import LayerFactory
 from vgslify.core.parser import (parse_conv2d_spec, parse_pooling2d_spec,
                                  parse_dense_spec, parse_rnn_spec,
-                                 parse_dropout_spec, parse_activation_spec,
-                                 parse_reshape_spec, parse_input_spec)
+                                 parse_input_spec)
 
 
 class TensorFlowLayerFactory(LayerFactory):
@@ -23,8 +25,6 @@ class TensorFlowLayerFactory(LayerFactory):
 
     def __init__(self):
         super().__init__()
-        self.layers = []
-        self.shape = None  # Shape excluding batch size
 
     def conv2d(self, spec: str):
         """
@@ -54,36 +54,10 @@ class TensorFlowLayerFactory(LayerFactory):
 
         self.layers.append(conv_layer)
         # Update shape
-        self.shape = self._compute_conv_output_shape(self.shape, config)
+        self.shape = self._compute_conv_output_shape(
+            self.shape, config, data_format='channels_last')
 
         return conv_layer
-
-    def _compute_conv_output_shape(self, input_shape, config):
-        """
-        Computes the output shape of a convolutional layer.
-
-        Parameters
-        ----------
-        input_shape : tuple
-            The input shape (H, W, C).
-        config : Any
-            The configuration object returned by parse_conv2d_spec.
-
-        Returns
-        -------
-        tuple
-            The output shape after the convolution.
-        """
-        H_in, W_in, C_in = input_shape
-        C_out = config.filters
-
-        # For 'same' padding
-        H_out = int((H_in + config.strides[0] - 1) //
-                    config.strides[0]) if H_in is not None else None
-        W_out = int((W_in + config.strides[1] - 1) //
-                    config.strides[1]) if W_in is not None else None
-
-        return (H_out, W_out, C_out)
 
     def maxpooling2d(self, spec: str) -> tf.keras.layers.Layer:
         """
@@ -107,7 +81,8 @@ class TensorFlowLayerFactory(LayerFactory):
         )
         self.layers.append(layer)
         # Update shape
-        self.shape = self._compute_pool_output_shape(self.shape, config)
+        self.shape = self._compute_pool_output_shape(
+            self.shape, config, data_format='channels_last')
         return layer
 
     def avgpool2d(self, spec: str) -> tf.keras.layers.Layer:
@@ -132,33 +107,9 @@ class TensorFlowLayerFactory(LayerFactory):
         )
         self.layers.append(layer)
         # Update shape
-        self.shape = self._compute_pool_output_shape(self.shape, config)
+        self.shape = self._compute_pool_output_shape(
+            self.shape, config, data_format='channels_last')
         return layer
-
-    def _compute_pool_output_shape(self, input_shape, config):
-        """
-        Computes the output shape of a pooling layer.
-
-        Parameters
-        ----------
-        input_shape : tuple
-            The input shape (H, W, C).
-        config : Any
-            The configuration object returned by parse_pooling2d_spec.
-
-        Returns
-        -------
-        tuple
-            The output shape after pooling.
-        """
-        H_in, W_in, C_in = input_shape
-
-        H_out = int((H_in + config.strides[0] - 1) //
-                    config.strides[0]) if H_in is not None else None
-        W_out = int((W_in + config.strides[1] - 1) //
-                    config.strides[1]) if W_in is not None else None
-
-        return (H_out, W_out, C_in)
 
     def dense(self, spec: str) -> tf.keras.layers.Layer:
         """
@@ -297,26 +248,6 @@ class TensorFlowLayerFactory(LayerFactory):
 
         return bidirectional_layer
 
-    def dropout(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a Dropout layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Dropout layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created Dropout layer.
-        """
-        config = parse_dropout_spec(spec)
-        layer = tf.keras.layers.Dropout(rate=config.rate)
-        self.layers.append(layer)
-        # Shape remains the same
-        return layer
-
     def batchnorm(self, spec: str) -> tf.keras.layers.Layer:
         """
         Create a BatchNormalization layer based on the VGSL specification string.
@@ -338,72 +269,6 @@ class TensorFlowLayerFactory(LayerFactory):
         layer = tf.keras.layers.BatchNormalization()
         self.layers.append(layer)
         # Shape remains the same
-        return layer
-
-    def activation(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create an Activation layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Activation layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created Activation layer.
-        """
-        activation_function = parse_activation_spec(spec)
-        layer = tf.keras.layers.Activation(activation=activation_function)
-        self.layers.append(layer)
-        # Shape remains the same
-        return layer
-
-    def reshape(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a Reshape layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            VGSL specification string for the Reshape layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created Reshape layer.
-        """
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        # Handle 'Rc' (collapse spatial dimensions) specification
-        if spec.startswith('Rc'):
-            if spec == 'Rc2':
-                # Flatten to (batch_size, -1)
-                layer = tf.keras.layers.Flatten()
-                self.layers.append(layer)
-                self.shape = (int(tf.reduce_prod(self.shape).numpy()),)
-                return layer
-
-            elif spec == 'Rc3':
-                # Reshape to (batch_size, timesteps, features) for RNN compatibility
-                H, W, C = self.shape
-                timesteps = H * W
-                features = C
-                layer = tf.keras.layers.Reshape((timesteps, features))
-                self.layers.append(layer)
-                self.shape = (timesteps, features)
-                return layer
-
-            else:
-                raise ValueError(f"Unsupported Rc variant: {spec}")
-
-        # Handle regular reshape (e.g., 'R64,64,3')
-        config = parse_reshape_spec(spec)
-        layer = tf.keras.layers.Reshape(target_shape=config.target_shape)
-        self.layers.append(layer)
-        self.shape = config.target_shape
         return layer
 
     def input(self, spec: str) -> tf.keras.layers.Input:
@@ -488,3 +353,63 @@ class TensorFlowLayerFactory(LayerFactory):
         model = tf.keras.models.Model(
             inputs=inputs, outputs=outputs, name=name)
         return model
+
+    def _create_dropout_layer(self, rate: float):
+        """
+        Create a TensorFlow Dropout layer.
+
+        Parameters
+        ----------
+        rate : float
+            Dropout rate, between 0 and 1.
+
+        Returns
+        -------
+        tf.keras.layers.Dropout
+            The created Dropout layer.
+        """
+        return tf.keras.layers.Dropout(rate=rate)
+
+    def _create_activation_layer(self, activation_function: str):
+        """
+        Create a TensorFlow activation layer.
+
+        Parameters
+        ----------
+        activation_function : str
+            Name of the activation function. Supported values are 'softmax', 'tanh', 'relu',
+            'linear', 'sigmoid', etc.
+
+        Returns
+        -------
+        tf.keras.layers.Layer
+            The created activation layer.
+        """
+        return tf.keras.layers.Activation(activation=activation_function)
+
+    def _create_reshape_layer(self, target_shape: Tuple[int, ...]):
+        """
+        Create a TensorFlow Reshape layer.
+
+        Parameters
+        ----------
+        target_shape : tuple
+            The target shape to reshape to, excluding the batch size.
+
+        Returns
+        -------
+        tf.keras.layers.Layer
+            The created Reshape layer.
+        """
+        return tf.keras.layers.Reshape(target_shape=target_shape)
+
+    def _create_flatten_layer(self):
+        """
+        Create a TensorFlow Flatten layer.
+
+        Returns
+        -------
+        tf.keras.layers.Layer
+            The created Flatten layer.
+        """
+        return tf.keras.layers.Flatten()

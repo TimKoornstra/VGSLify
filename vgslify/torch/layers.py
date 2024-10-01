@@ -1,5 +1,8 @@
 # Imports
 
+# > Standard library
+from typing import Tuple
+
 # > Third-party dependencies
 import torch
 import torch.nn as nn
@@ -8,8 +11,7 @@ import torch.nn as nn
 from vgslify.core.factory import LayerFactory
 from vgslify.core.parser import (parse_conv2d_spec, parse_pooling2d_spec,
                                  parse_dense_spec, parse_rnn_spec,
-                                 parse_dropout_spec, parse_activation_spec,
-                                 parse_reshape_spec, parse_input_spec)
+                                 parse_input_spec)
 
 
 class TorchLayerFactory(LayerFactory):
@@ -113,7 +115,8 @@ class TorchLayerFactory(LayerFactory):
             self.layers.append(activation_layer)
 
         # Update shape
-        self.shape = self._compute_conv_output_shape(self.shape, config)
+        self.shape = self._compute_conv_output_shape(
+            self.shape, config, data_format='channels_first')
         return conv_layer, activation_layer or None
 
     def _compute_same_padding(self, kernel_size, stride):
@@ -142,31 +145,6 @@ class TorchLayerFactory(LayerFactory):
             padding.append(p)
         return tuple(padding)
 
-    def _compute_conv_output_shape(self, input_shape, config):
-        """
-        Computes the output shape of a convolutional layer.
-
-        Parameters
-        ----------
-        input_shape : tuple
-            The input shape (C, H, W).
-        config : Any
-            The configuration object returned by parse_conv2d_spec.
-
-        Returns
-        -------
-        tuple
-            The output shape after the convolution.
-        """
-        C_in, H_in, W_in = input_shape
-        C_out = config.filters
-
-        # For 'same' padding
-        H_out = int((H_in + config.strides[0] - 1) // config.strides[0])
-        W_out = int((W_in + config.strides[1] - 1) // config.strides[1])
-
-        return (C_out, H_out, W_out)
-
     def maxpooling2d(self, spec: str) -> nn.Module:
         """
         Create a MaxPooling2D layer based on the VGSL specification string.
@@ -190,7 +168,8 @@ class TorchLayerFactory(LayerFactory):
         )
         self.layers.append(layer)
         # Update shape
-        self.shape = self._compute_pool_output_shape(self.shape, config)
+        self.shape = self._compute_pool_output_shape(self.shape, config,
+                                                     data_format='channels_first')
         return layer
 
     def avgpool2d(self, spec: str) -> nn.Module:
@@ -216,32 +195,9 @@ class TorchLayerFactory(LayerFactory):
         )
         self.layers.append(layer)
         # Update shape
-        self.shape = self._compute_pool_output_shape(self.shape, config)
+        self.shape = self._compute_pool_output_shape(
+            self.shape, config, data_format='channels_first')
         return layer
-
-    def _compute_pool_output_shape(self, input_shape, config):
-        """
-        Computes the output shape of a pooling layer.
-
-        Parameters
-        ----------
-        input_shape : tuple
-            The input shape (C, H, W).
-        config : Any
-            The configuration object returned by parse_pooling2d_spec.
-
-        Returns
-        -------
-        tuple
-            The output shape after pooling.
-        """
-        C_in, H_in, W_in = input_shape
-        C_out = C_in
-
-        H_out = int((H_in + config.strides[0] - 1) // config.strides[0])
-        W_out = int((W_in + config.strides[1] - 1) // config.strides[1])
-
-        return (C_out, H_out, W_out)
 
     def dense(self, spec: str) -> nn.Module:
         """
@@ -379,26 +335,6 @@ class TorchLayerFactory(LayerFactory):
         self.shape = (self.shape[0], config.units * 2)
         return layer
 
-    def dropout(self, spec: str) -> nn.Dropout:
-        """
-        Create a Dropout layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Dropout layer.
-
-        Returns
-        -------
-        torch.nn.Dropout
-            The created Dropout layer.
-        """
-        config = parse_dropout_spec(spec)
-        layer = nn.Dropout(p=config.rate)
-        self.layers.append(layer)
-        # Shape remains the same
-        return layer
-
     def batchnorm(self, spec: str) -> nn.Module:
         """
         Create a BatchNormalization layer based on the VGSL specification string.
@@ -433,83 +369,6 @@ class TorchLayerFactory(LayerFactory):
         self.layers.append(layer)
         # Shape remains the same
         return layer
-
-    def activation(self, spec: str) -> nn.Module:
-        """
-        Create an Activation layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Activation layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created Activation layer.
-        """
-        activation_function = parse_activation_spec(spec)
-        layer = self._get_activation_layer(activation_function)
-        self.layers.append(layer)
-        # Shape remains the same
-        return layer
-
-    def reshape(self, spec: str) -> nn.Module:
-        """
-        Create a Reshape layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            VGSL specification string for the Reshape layer. Can be:
-            - 'Rc': Collapse spatial dimensions (height, width, and channels).
-            - 'R<x>,<y>,<z>': Reshape to the specified target shape.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created Reshape layer.
-        """
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        # Handle 'Rc' (collapse spatial dimensions) specification
-        if spec.startswith('Rc'):
-            if spec == 'Rc2':
-                # Flatten to (batch_size, -1)
-                layer = nn.Flatten()
-                self.layers.append(layer)
-                self.shape = (
-                    int(torch.prod(torch.tensor(self.shape)).item()),)
-                return layer
-
-            elif spec == 'Rc3':
-                # Reshape to (batch_size, seq_length, features)
-                C, H, W = self.shape
-                seq_length = H * W
-                features = C
-                layer = self.Reshape(features, seq_length)
-                self.layers.append(layer)
-                self.shape = (seq_length, features)
-                return layer
-
-            else:
-                raise ValueError(f"Unsupported Rc variant: {spec}")
-
-        # Handle regular reshape (e.g., 'R64,64,3')
-        config = parse_reshape_spec(spec)
-        layer = self.Reshape(*config.target_shape)
-        self.layers.append(layer)
-        self.shape = config.target_shape
-        return layer
-
-    class Reshape(nn.Module):
-        def __init__(self, *args):
-            super().__init__()
-            self.target_shape = args
-
-        def forward(self, x):
-            return x.view(x.size(0), *self.target_shape)
 
     def input(self, spec: str):
         """
@@ -583,14 +442,113 @@ class TorchLayerFactory(LayerFactory):
         torch.nn.Module
             The constructed PyTorch model.
         """
-        class VGSLModel(nn.Module):
-            def __init__(self, layers):
-                super().__init__()
-                self.model = nn.Sequential(*layers)
 
-            def forward(self, x):
-                return self.model(x)
-
-        model = VGSLModel(self.layers)
+        # model = VGSLModel(self.layers)
+        # TODO: Implement VGSLModel class
+        model = nn.Sequential(*self.layers)
         model.__class__.__name__ = name
         return model
+
+    def _create_dropout_layer(self, rate: float):
+        """
+        Create a PyTorch Dropout layer.
+
+        Parameters
+        ----------
+        rate : float
+            Dropout rate, between 0 and 1.
+
+        Returns
+        -------
+        nn.Dropout
+            The created Dropout layer.
+        """
+        return nn.Dropout(p=rate)
+
+    def _create_activation_layer(self, activation_function: str):
+        """
+        Create a PyTorch activation layer.
+
+        Parameters
+        ----------
+        activation_function : str
+            Name of the activation function. Supported values are 'softmax', 'tanh', 'relu',
+            'linear', 'sigmoid'.
+
+        Returns
+        -------
+        nn.Module
+            The created activation layer.
+
+        Raises
+        ------
+        ValueError
+            If the activation function is not supported.
+        """
+        activations = {
+            'softmax': nn.Softmax(dim=1),
+            'tanh': nn.Tanh(),
+            'relu': nn.ReLU(),
+            'linear': nn.Identity(),
+            'sigmoid': nn.Sigmoid(),
+        }
+        if activation_function in activations:
+            return activations[activation_function]
+        else:
+            raise ValueError(f"Unsupported activation: {activation_function}")
+
+    def _create_reshape_layer(self, target_shape: Tuple[int, ...]):
+        """
+        Create a PyTorch Reshape layer.
+
+        Parameters
+        ----------
+        target_shape : tuple
+            The target shape to reshape to, excluding the batch size.
+
+        Returns
+        -------
+        nn.Module
+            The created Reshape layer.
+        """
+        return self.Reshape(*target_shape)
+
+    class Reshape(nn.Module):
+        def __init__(self, *args):
+            """
+            PyTorch custom Reshape layer.
+
+            Parameters
+            ----------
+            *args : int
+                Dimensions of the target shape excluding the batch size.
+            """
+            super().__init__()
+            self.target_shape = args
+
+        def forward(self, x):
+            """
+            Forward pass for reshaping the input tensor.
+
+            Parameters
+            ----------
+            x : torch.Tensor
+                Input tensor to reshape.
+
+            Returns
+            -------
+            torch.Tensor
+                Reshaped tensor.
+            """
+            return x.view(x.size(0), *self.target_shape)
+
+    def _create_flatten_layer(self):
+        """
+        Create a PyTorch Flatten layer.
+
+        Returns
+        -------
+        nn.Flatten
+            The created Flatten layer.
+        """
+        return nn.Flatten()
