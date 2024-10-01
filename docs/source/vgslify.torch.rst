@@ -1,10 +1,10 @@
-vgslify.tensorflow package
+vgslify.torch package
 ==========================
 
 Submodules
 ----------
 
-vgslify.tensorflow.layers module
+vgslify.torch.layers module
 --------------------------------
 
 .. automodule:: vgslify.tensorflow.layers
@@ -15,7 +15,7 @@ vgslify.tensorflow.layers module
 Module contents
 ---------------
 
-.. automodule:: vgslify.tensorflow
+.. automodule:: vgslify.torch
    :members:
    :undoc-members:
    :show-inheritance:
