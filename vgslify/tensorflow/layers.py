@@ -308,30 +308,6 @@ class TensorFlowLayerFactory(LayerFactory):
         self.layers.append(input_layer)
         return input_layer
 
-    def flatten(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a Flatten layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Flatten layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created Flatten layer.
-        """
-        if spec != "Flt":
-            raise ValueError(
-                f"Flatten layer spec '{spec}' is incorrect. Expected 'Flt'.")
-
-        layer = tf.keras.layers.Flatten()
-        self.layers.append(layer)
-        # Update shape
-        self.shape = (int(tf.reduce_prod(self.shape).numpy()),)
-        return layer
-
     def build_final_model(self, name: str = "VGSL_Model") -> tf.keras.models.Model:
         """
         Build the final model using the accumulated layers.

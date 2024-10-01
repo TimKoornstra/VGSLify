@@ -1,7 +1,11 @@
+# Imports
+
+# > Standard Libraries
 from abc import ABC, abstractmethod
 from typing import Any, Tuple
 import math
 
+# > Internal dependencies
 from vgslify.core.parser import (parse_dropout_spec, parse_activation_spec,
                                  parse_reshape_spec)
 
@@ -68,7 +72,7 @@ class LayerFactory(ABC):
         ----------
         spec : str
             VGSL specification string for the Reshape layer. Can be:
-            - 'Rc': Collapse spatial dimensions (height, width, and channels).
+            - 'Rc(2|3)': Collapse spatial dimensions (height, width, and channels).
             - 'R<x>,<y>,<z>': Reshape to the specified target shape.
 
         Returns
@@ -112,6 +116,30 @@ class LayerFactory(ABC):
         self.shape = config.target_shape
         return layer
 
+    def flatten(self, spec: str):
+        """
+        Create a Flatten layer based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the Flatten layer.
+
+        Returns
+        -------
+        Any
+            The created Flatten layer.
+        """
+        if spec != "Flt":
+            raise ValueError(
+                f"Flatten layer spec '{spec}' is incorrect. Expected 'Flt'.")
+
+        layer = self._create_flatten_layer()
+        self.layers.append(layer)
+        # Update shape
+        self.shape = (self._compute_flatten_shape(self.shape),)
+        return layer
+
     @abstractmethod
     def conv2d(self, spec: str):
         pass
@@ -146,10 +174,6 @@ class LayerFactory(ABC):
 
     @abstractmethod
     def input(self, spec: str):
-        pass
-
-    @abstractmethod
-    def flatten(self, spec: str):
         pass
 
     @abstractmethod

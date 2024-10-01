@@ -404,30 +404,6 @@ class TorchLayerFactory(LayerFactory):
         self.shape = input_shape
         return input_shape
 
-    def flatten(self, spec: str) -> nn.Flatten:
-        """
-        Create a Flatten layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Flatten layer. Expected format: 'Flt'.
-
-        Returns
-        -------
-        torch.nn.Flatten
-            The created Flatten layer.
-        """
-        if spec != "Flt":
-            raise ValueError(
-                f"Flatten layer spec '{spec}' is incorrect. Expected 'Flt'.")
-
-        layer = nn.Flatten()
-        self.layers.append(layer)
-        # Update shape
-        self.shape = (int(torch.prod(torch.tensor(self.shape)).item()),)
-        return layer
-
     def build_final_model(self, name: str = "VGSL_Model") -> nn.Module:
         """
         Build the final model using the accumulated layers.

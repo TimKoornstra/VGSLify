@@ -1,4 +1,9 @@
+# Imports
+
+# > Standard Libraries
 import re
+
+# > Internal dependencies
 from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
                                  RNNConfig, DropoutConfig, ReshapeConfig, InputConfig)
 from vgslify.core.utils import get_activation_function
