@@ -210,7 +210,7 @@ def parse_rnn_spec(spec: str) -> RNNConfig:
     ----------
     spec : str
         VGSL specification for the RNN layer. Expected format:
-        For LSTM/GRU: `L(f|r)[s]<n>[,D<rate>,Rd<rate>]`
+        For LSTM/GRU: `(L|G)(f|r)[s]<n>[,D<rate>,Rd<rate>]`
         For Bidirectional: `B(g|l)<n>[,D<rate>,Rd<rate>]`
 
     Returns

@@ -20,9 +20,16 @@ class LayerFactory(ABC):
     subclasses.
     """
 
-    def __init__(self):
+    def __init__(self, input_shape: Tuple[int, ...] = None):
         self.layers = []
-        self.shape = None  # Shape excluding batch size
+
+        # Make sure the input shape is valid
+        if input_shape is not None and not all(isinstance(dim, int) for dim in input_shape):
+            raise ValueError("Input shape must be a tuple of integers.")
+
+        # Set the input shape if provided
+        self.shape = input_shape
+        self._input_shape = input_shape
 
     def dropout(self, spec: str):
         """

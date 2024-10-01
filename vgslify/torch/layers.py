@@ -24,39 +24,8 @@ class TorchLayerFactory(LayerFactory):
     This class maintains an internal state to track the shape of the tensor as layers are added.
     """
 
-    def __init__(self):
-        super().__init__()
-
-    def _get_activation_layer(self, activation_name: str):
-        """
-        Return a PyTorch activation layer based on the activation name.
-
-        Parameters
-        ----------
-        activation_name : str
-            Name of the activation function.
-
-        Returns
-        -------
-        torch.nn.Module
-            The activation layer.
-
-        Raises
-        ------
-        ValueError
-            If the activation_name is not recognized.
-        """
-        activations = {
-            'softmax': nn.Softmax(dim=1),
-            'tanh': nn.Tanh(),
-            'relu': nn.ReLU(),
-            'linear': nn.Identity(),
-            'sigmoid': nn.Sigmoid(),
-        }
-        if activation_name in activations:
-            return activations[activation_name]
-        else:
-            raise ValueError(f"Unsupported activation: {activation_name}")
+    def __init__(self, input_shape: Tuple[int, ...] = None):
+        super().__init__(input_shape)
 
     def conv2d(self, spec: str):
         """
@@ -80,8 +49,7 @@ class TorchLayerFactory(LayerFactory):
         Examples
         --------
         >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory()
-        >>> factory.set_input_shape((3, 32, 32))
+        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
         >>> conv_layer = factory.conv2d("Cr3,3,64")
         >>> print(conv_layer)
         Sequential(
@@ -119,32 +87,6 @@ class TorchLayerFactory(LayerFactory):
             self.shape, config, data_format='channels_first')
         return conv_layer, activation_layer or None
 
-    def _compute_same_padding(self, kernel_size, stride):
-        """
-        Compute the padding size to achieve 'same' padding.
-
-        Parameters
-        ----------
-        kernel_size : int or tuple
-            Size of the kernel.
-        stride : int or tuple
-            Stride of the convolution.
-
-        Returns
-        -------
-        tuple
-            Padding size for height and width dimensions.
-        """
-        if isinstance(kernel_size, int):
-            kernel_size = (kernel_size, kernel_size)
-        if isinstance(stride, int):
-            stride = (stride, stride)
-        padding = []
-        for k, s in zip(kernel_size, stride):
-            p = ((k - 1) // 2)
-            padding.append(p)
-        return tuple(padding)
-
     def maxpooling2d(self, spec: str) -> nn.Module:
         """
         Create a MaxPooling2D layer based on the VGSL specification string.
@@ -158,6 +100,14 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.Module
             The created MaxPooling2D layer.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
+        >>> maxpool_layer = factory.maxpooling2d("Mp2,2,2,2")
+        >>> print(maxpool_layer)
+        MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=same)
         """
         config = parse_pooling2d_spec(spec)
         padding = self._compute_same_padding(config.pool_size, config.strides)
@@ -185,6 +135,14 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.Module
             The created AvgPool2D layer.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
+        >>> avgpool_layer = factory.avgpool2d("Ap2,2,2,2")
+        >>> print(avgpool_layer)
+        AvgPool2d(kernel_size=(2, 2), stride=(2, 2), padding=same)
         """
         config = parse_pooling2d_spec(spec)
         padding = self._compute_same_padding(config.pool_size, config.strides)
@@ -212,6 +170,16 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.Module
             The created Dense layer.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(32,))
+        >>> dense_layer, activation = factory.dense("Dl64")
+        >>> print(dense_layer)
+        Linear(in_features=32, out_features=64, bias=True)
+        >>> print(activation)
+        ReLU()
         """
         config = parse_dense_spec(spec)
         if self.shape is None:
@@ -247,6 +215,14 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.LSTM
             The created LSTM layer.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(10, 32))
+        >>> lstm_layer = factory.lstm("Lf64")
+        >>> print(lstm_layer)
+        LSTM(32, 64, batch_first=True)
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
@@ -280,6 +256,14 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.GRU
             The created GRU layer.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(10, 32))
+        >>> gru_layer = factory.gru("Gf64")
+        >>> print(gru_layer)
+        GRU(32, 64, batch_first=True)
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
@@ -313,6 +297,14 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.Module
             The created Bidirectional RNN layer.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(10, 32))
+        >>> bidirectional_layer = factory.bidirectional("Bl64")
+        >>> print(bidirectional_layer)
+        LSTM(32, 64, batch_first=True, bidirectional=True)
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
@@ -348,6 +340,14 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.Module
             The created BatchNormalization layer.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
+        >>> batchnorm_layer = factory.batchnorm("Bn")
+        >>> print(batchnorm_layer)
+        BatchNorm2d(3, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         """
         if spec != 'Bn':
             raise ValueError(
@@ -383,6 +383,14 @@ class TorchLayerFactory(LayerFactory):
         -------
         tuple
             The input shape (excluding batch size).
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory()
+        >>> input_shape = factory.input("3,32,32")
+        >>> print(input_shape)
+        (32, 32)
         """
         config = parse_input_spec(spec)
 
@@ -402,6 +410,7 @@ class TorchLayerFactory(LayerFactory):
             input_shape = (config.width,)
 
         self.shape = input_shape
+        self._input_shape = input_shape
         return input_shape
 
     def build_final_model(self, name: str = "VGSL_Model") -> nn.Module:
@@ -417,13 +426,95 @@ class TorchLayerFactory(LayerFactory):
         -------
         torch.nn.Module
             The constructed PyTorch model.
+
+        Raises
+        ------
+        ValueError
+            If no layers have been added to the model.
+        ValueError
+            If no input shape has been specified for the model.
+
+        Examples
+        --------
+        >>> from vgslify.torch.layers import TorchLayerFactory
+        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
+        >>> factory.conv2d("Cr3,3,64")
+        >>> factory.maxpooling2d("Mp2,2,2,2")
+        >>> model = factory.build_final_model()
+        >>> print(model)
+        VGSL_Model(
+          (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=same)
+          (1): ReLU()
+          (2): MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=same)
+        )
         """
+        if not self.layers:
+            raise ValueError("No layers added to the model.")
+        if not self._input_shape:
+            raise ValueError("No input shape specified for the model.")
 
         # model = VGSLModel(self.layers)
         # TODO: Implement VGSLModel class
         model = nn.Sequential(*self.layers)
         model.__class__.__name__ = name
         return model
+
+    def _compute_same_padding(self, kernel_size, stride):
+        """
+        Compute the padding size to achieve 'same' padding.
+
+        Parameters
+        ----------
+        kernel_size : int or tuple
+            Size of the kernel.
+        stride : int or tuple
+            Stride of the convolution.
+
+        Returns
+        -------
+        tuple
+            Padding size for height and width dimensions.
+        """
+        if isinstance(kernel_size, int):
+            kernel_size = (kernel_size, kernel_size)
+        if isinstance(stride, int):
+            stride = (stride, stride)
+        padding = []
+        for k, s in zip(kernel_size, stride):
+            p = ((k - 1) // 2)
+            padding.append(p)
+        return tuple(padding)
+
+    def _get_activation_layer(self, activation_name: str):
+        """
+        Return a PyTorch activation layer based on the activation name.
+
+        Parameters
+        ----------
+        activation_name : str
+            Name of the activation function.
+
+        Returns
+        -------
+        torch.nn.Module
+            The activation layer.
+
+        Raises
+        ------
+        ValueError
+            If the activation_name is not recognized.
+        """
+        activations = {
+            'softmax': nn.Softmax(dim=1),
+            'tanh': nn.Tanh(),
+            'relu': nn.ReLU(),
+            'linear': nn.Identity(),
+            'sigmoid': nn.Sigmoid(),
+        }
+        if activation_name in activations:
+            return activations[activation_name]
+        else:
+            raise ValueError(f"Unsupported activation: {activation_name}")
 
     def _create_dropout_layer(self, rate: float):
         """

@@ -23,8 +23,8 @@ class TensorFlowLayerFactory(LayerFactory):
     This class maintains an internal state to track the shape of the tensor as layers are added.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, input_shape: Tuple[int, ...] = None):
+        super().__init__(input_shape)
 
     def conv2d(self, spec: str):
         """
@@ -39,6 +39,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created Conv2D layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
+        >>> conv_layer = factory.conv2d("Cr3,3,64")
+        >>> print(conv_layer)
+        <keras.src.layers.convolutional.conv2d.Conv2D object at ...>
         """
         config = parse_conv2d_spec(spec)
         if self.shape is None:
@@ -72,6 +80,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created MaxPooling2D layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
+        >>> maxpool_layer = factory.maxpooling2d("Mp2,2,2,2")
+        >>> print(maxpool_layer)
+        <keras.src.layers.pooling.max_pooling2d.MaxPooling2D object at ...>
         """
         config = parse_pooling2d_spec(spec)
         layer = tf.keras.layers.MaxPooling2D(
@@ -98,6 +114,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created AvgPool2D layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
+        >>> avgpool_layer = factory.avgpool2d("Ap2,2,2,2")
+        >>> print(avgpool_layer)
+        <keras.src.layers.pooling.average_pooling2d.AveragePooling2D object at ...>
         """
         config = parse_pooling2d_spec(spec)
         layer = tf.keras.layers.AvgPool2D(
@@ -124,6 +148,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created Dense layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(32,))
+        >>> dense_layer = factory.dense("Dr64")
+        >>> print(dense_layer)
+        <keras.src.layers.core.dense.Dense object at ...>
         """
         config = parse_dense_spec(spec)
         if self.shape is None:
@@ -153,6 +185,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created LSTM layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(10, 32))
+        >>> lstm_layer = factory.lstm("Lf64")
+        >>> print(lstm_layer)
+        <keras.src.layers.rnn.lstm.LSTM object at ...>
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
@@ -188,6 +228,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created GRU layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(10, 32))
+        >>> gru_layer = factory.gru("Gf64")
+        >>> print(gru_layer)
+        <keras.src.layers.rnn.gru.GRU object at ...>
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
@@ -223,6 +271,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created Bidirectional RNN layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(10, 32))
+        >>> bidirectional_layer = factory.bidirectional("Bl64")
+        >>> print(bidirectional_layer)
+        <keras.src.layers.rnn.bidirectional.Bidirectional object at ...>
         """
         config = parse_rnn_spec(spec)
         if self.shape is None:
@@ -261,6 +317,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Layer
             The created BatchNormalization layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
+        >>> batchnorm_layer = factory.batchnorm("Bn")
+        >>> print(batchnorm_layer)
+        <keras.src.layers.normalization.batch_normalization.BatchNormalization object at ...>
         """
         if spec != 'Bn':
             raise ValueError(
@@ -284,6 +348,14 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.layers.Input
             The created Input layer.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory()
+        >>> input_layer = factory.input("32,32,3")
+        >>> print(input_layer)
+        <keras.src.engine.input_layer.InputLayer object at ...>
         """
         config = parse_input_spec(spec)
 
@@ -303,6 +375,7 @@ class TensorFlowLayerFactory(LayerFactory):
             input_shape = (config.width,)
 
         self.shape = input_shape
+        self._input_shape = input_shape
         input_layer = tf.keras.Input(
             shape=input_shape, batch_size=config.batch_size)
         self.layers.append(input_layer)
@@ -321,7 +394,35 @@ class TensorFlowLayerFactory(LayerFactory):
         -------
         tf.keras.models.Model
             The constructed TensorFlow model.
+
+        Raises
+        ------
+        ValueError
+            If no layers have been added to the model.
+        ValueError
+            If no input shape has been specified for the model.
+
+        Examples
+        --------
+        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
+        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
+        >>> factory.conv2d("Cr3,3,64")
+        >>> factory.maxpooling2d("Mp2,2,2,2")
+        >>> model = factory.build_final_model()
+        >>> model.summary()
+        Model: "VGSL_Model"
+        ...
         """
+        if not self.layers:
+            raise ValueError("No layers added to the model.")
+        if not self._input_shape:
+            raise ValueError("No input shape specified for the model.")
+
+        # If we do not have an input layer, add one
+        if not isinstance(self.layers[0], tf.keras.layers.InputLayer):
+            input_layer = tf.keras.Input(shape=self._input_shape)
+            self.layers.insert(0, input_layer)
+
         inputs = self.layers[0]
         outputs = inputs
         for layer in self.layers[1:]:
