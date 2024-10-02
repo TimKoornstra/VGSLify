@@ -34,14 +34,14 @@ Layer Specifications
 **Pooling2D Layer**
 ^^^^^^^^^^^^^^^^^^^
 
-- **VGSL Spec**: `<p>(<x>,<y>,<s_x>,<s_y>)`
+- **VGSL Spec**: `<p>(<x>,<y>[,<s_x>,<s_y>])`
 
   - `Mp` for max-pooling, `Ap` for average pooling.
 
-- **Description**: Specifies a pooling operation, which reduces the spatial dimensions by applying a window of `<x>` by `<y>` and strides of `<s_x>,<s_y>`.
-- **Example**: `Mp2,2,2,2`
+- **Description**: Specifies a pooling operation, which reduces the spatial dimensions by applying a window of `<x>` by `<y>` and strides of `<s_x>,<s_y>`. If strides are not specified, they default to the pool size.
+- **Example**: `Mp2,2,1,1`
 
-  - Defines a max-pooling layer with a pool size of 2x2 and strides of 2x2.
+  - Defines a max-pooling layer with a pool size of 2x2 and strides of 1x1.
 
 **Dense (Fully Connected) Layer**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

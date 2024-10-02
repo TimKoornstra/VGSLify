@@ -106,9 +106,9 @@ def parse_pooling2d_spec(spec: str) -> Pooling2DConfig:
     ----------
     spec : str
         VGSL specification for the pooling layer. Expected format:
-        `Mp<x>,<y>,<s_x>,<s_y>` or `Ap<x>,<y>,<s_x>,<s_y>`
+        `Mp<x>,<y>[,<s_x>,<s_y>]` or `Ap<x>,<y>[,<s_x>,<s_y>]`
         - <x>,<y>: Pool size.
-        - <s_x>,<s_y>: Strides.
+        - <s_x>,<s_y>: Strides. If not specified, defaults to pool size.
 
     Returns
     -------
@@ -122,20 +122,29 @@ def parse_pooling2d_spec(spec: str) -> Pooling2DConfig:
 
     Examples
     --------
-    >>> config = parse_pooling2d_spec("Mp2,2,2,2")
+    >>> config = parse_pooling2d_spec("Mp2,2")
     >>> print(config)
     Pooling2DConfig(pool_size=(2, 2), strides=(2, 2))
+    >>> config = parse_pooling2d_spec("Mp2,2,1,1")
+    >>> print(config)
+    Pooling2DConfig(pool_size=(2, 2), strides=(1, 1))
     """
 
     # Extract pooling and stride parameters
     pool_stride_params = [int(match) for match in re.findall(r'-?\d+', spec)]
 
     # Check if the parameters are as expected
-    if len(pool_stride_params) != 4:
+    if len(pool_stride_params) not in [2, 4]:
         raise ValueError(f"Pooling layer {spec} does not have the expected number of parameters. "
-                         "Expected format: <p><x>,<y>,<stride_x>,<stride_y>")
+                         "Expected format: <p><x>,<y>[,<stride_x>,<stride_y>]")
 
-    pool_x, pool_y, stride_x, stride_y = pool_stride_params
+    pool_x, pool_y = pool_stride_params[:2]
+
+    # If strides are not specified, set them equal to the pool size
+    if len(pool_stride_params) == 2:
+        stride_x, stride_y = pool_x, pool_y
+    else:
+        stride_x, stride_y = pool_stride_params[2:]
 
     # Check if pool and stride values are valid
     if pool_x <= 0 or pool_y <= 0 or stride_x <= 0 or stride_y <= 0:
