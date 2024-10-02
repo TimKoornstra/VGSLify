@@ -34,393 +34,7 @@ class TorchLayerFactory(LayerFactory):
     """
 
     def __init__(self, input_shape: Tuple[int, ...] = None):
-        super().__init__(input_shape)
-
-    def conv2d(self, spec: str):
-        """
-        Create a Conv2D layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Conv2D layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created Conv2D layer.
-
-        Raises
-        ------
-        ValueError
-            If the provided VGSL spec string does not match the expected format.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
-        >>> conv_layer = factory.conv2d("Cr3,3,64")
-        >>> print(conv_layer)
-        Sequential(
-          (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=same)
-          (1): ReLU()
-        )
-        """
-        config = parse_conv2d_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        in_channels = self.shape[0]  # Assuming channels-first
-
-        # Check if padding='same' is supported (PyTorch >=1.7)
-        padding = 'same' if torch.__version__ >= '1.7' else self._compute_same_padding(
-            config.kernel_size, config.strides)
-
-        conv_layer = nn.Conv2d(
-            in_channels=in_channels,
-            out_channels=config.filters,
-            kernel_size=config.kernel_size,
-            stride=config.strides,
-            padding=padding
-        )
-
-        self.layers.append(conv_layer)
-
-        # Handle activation
-        if config.activation:
-            activation_layer = self._get_activation_layer(config.activation)
-            self.layers.append(activation_layer)
-
-        # Update shape
-        self.shape = self._compute_conv_output_shape(
-            self.shape, config, data_format='channels_first')
-        return conv_layer, activation_layer or None
-
-    def maxpooling2d(self, spec: str) -> nn.Module:
-        """
-        Create a MaxPooling2D layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the MaxPooling2D layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created MaxPooling2D layer.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
-        >>> maxpool_layer = factory.maxpooling2d("Mp2,2,2,2")
-        >>> print(maxpool_layer)
-        MaxPool2d(kernel_size=(2, 2), stride=(2, 2), padding=same)
-        """
-        config = parse_pooling2d_spec(spec)
-        padding = self._compute_same_padding(config.pool_size, config.strides)
-        layer = nn.MaxPool2d(
-            kernel_size=config.pool_size,
-            stride=config.strides,
-            padding=padding
-        )
-        self.layers.append(layer)
-        # Update shape
-        self.shape = self._compute_pool_output_shape(self.shape, config,
-                                                     data_format='channels_first')
-        return layer
-
-    def avgpool2d(self, spec: str) -> nn.Module:
-        """
-        Create an AvgPool2D layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the AvgPool2D layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created AvgPool2D layer.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
-        >>> avgpool_layer = factory.avgpool2d("Ap2,2,2,2")
-        >>> print(avgpool_layer)
-        AvgPool2d(kernel_size=(2, 2), stride=(2, 2), padding=same)
-        """
-        config = parse_pooling2d_spec(spec)
-        padding = self._compute_same_padding(config.pool_size, config.strides)
-        layer = nn.AvgPool2d(
-            kernel_size=config.pool_size,
-            stride=config.strides,
-            padding=padding
-        )
-        self.layers.append(layer)
-        # Update shape
-        self.shape = self._compute_pool_output_shape(
-            self.shape, config, data_format='channels_first')
-        return layer
-
-    def dense(self, spec: str) -> nn.Module:
-        """
-        Create a Dense layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Dense layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created Dense layer.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(32,))
-        >>> dense_layer, activation = factory.dense("Dl64")
-        >>> print(dense_layer)
-        Linear(in_features=32, out_features=64, bias=True)
-        >>> print(activation)
-        ReLU()
-        """
-        config = parse_dense_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        in_features = int(torch.prod(torch.tensor(self.shape)).item())
-        linear_layer = nn.Linear(
-            in_features=in_features,
-            out_features=config.units,
-        )
-
-        self.layers.append(linear_layer)
-
-        # Handle activation
-        if config.activation:
-            activation_layer = self._get_activation_layer(config.activation)
-            self.layers.append(activation_layer)
-
-        # Update shape
-        self.shape = (config.units,)
-        return linear_layer, activation_layer or None
-
-    def lstm(self, spec: str):
-        """
-        Create an LSTM layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the LSTM layer.
-
-        Returns
-        -------
-        torch.nn.LSTM
-            The created LSTM layer.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(10, 32))
-        >>> lstm_layer = factory.lstm("Lf64")
-        >>> print(lstm_layer)
-        LSTM(32, 64, batch_first=True)
-        """
-        config = parse_rnn_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        input_size = self.shape[-1]
-        layer = nn.LSTM(
-            input_size=input_size,
-            hidden_size=config.units,
-            num_layers=1,
-            batch_first=True,
-            dropout=config.dropout,
-            bidirectional=False
-        )
-        self.layers.append(layer)
-
-        # Update shape
-        self.shape = (self.shape[0], config.units)
-        return layer
-
-    def gru(self, spec: str):
-        """
-        Create a GRU layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the GRU layer.
-
-        Returns
-        -------
-        torch.nn.GRU
-            The created GRU layer.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(10, 32))
-        >>> gru_layer = factory.gru("Gf64")
-        >>> print(gru_layer)
-        GRU(32, 64, batch_first=True)
-        """
-        config = parse_rnn_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        input_size = self.shape[-1]
-        layer = nn.GRU(
-            input_size=input_size,
-            hidden_size=config.units,
-            num_layers=1,
-            batch_first=True,
-            dropout=config.dropout,
-            bidirectional=False
-        )
-        self.layers.append(layer)
-
-        # Update shape
-        self.shape = (self.shape[0], config.units)
-        return layer
-
-    def bidirectional(self, spec: str) -> nn.Module:
-        """
-        Create a Bidirectional RNN layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Bidirectional layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created Bidirectional RNN layer.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(10, 32))
-        >>> bidirectional_layer = factory.bidirectional("Bl64")
-        >>> print(bidirectional_layer)
-        LSTM(32, 64, batch_first=True, bidirectional=True)
-        """
-        config = parse_rnn_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        input_size = self.shape[-1]
-        rnn_layer = nn.LSTM if config.rnn_type == 'l' else nn.GRU
-
-        layer = rnn_layer(
-            input_size=input_size,
-            hidden_size=config.units,
-            num_layers=1,
-            batch_first=True,
-            dropout=config.dropout,
-            bidirectional=True
-        )
-        self.layers.append(layer)
-
-        # Update shape
-        self.shape = (self.shape[0], config.units * 2)
-        return layer
-
-    def batchnorm(self, spec: str) -> nn.Module:
-        """
-        Create a BatchNormalization layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the BatchNormalization layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created BatchNormalization layer.
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory(input_shape=(3, 32, 32))
-        >>> batchnorm_layer = factory.batchnorm("Bn")
-        >>> print(batchnorm_layer)
-        BatchNorm2d(3, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        """
-        if spec != 'Bn':
-            raise ValueError(
-                f"BatchNormalization layer spec '{spec}' is incorrect. Expected 'Bn'.")
-
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        num_features = self.shape[0]  # Assuming channels-first for Conv layers
-
-        # Decide which BatchNorm layer to use based on the expected input dimensions
-        if len(self.shape) == 3:
-            layer = nn.BatchNorm2d(num_features)
-        elif len(self.shape) == 2:
-            layer = nn.BatchNorm1d(num_features)
-        else:
-            raise ValueError("Unsupported input shape for BatchNorm layer.")
-
-        self.layers.append(layer)
-        # Shape remains the same
-        return layer
-
-    def input(self, spec: str):
-        """
-        Parses the input specification and sets the initial shape.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Input layer.
-
-        Returns
-        -------
-        tuple
-            The input shape (excluding batch size).
-
-        Examples
-        --------
-        >>> from vgslify.torch.layers import TorchLayerFactory
-        >>> factory = TorchLayerFactory()
-        >>> input_shape = factory.input("3,32,32")
-        >>> print(input_shape)
-        (32, 32)
-        """
-        config = parse_input_spec(spec)
-
-        # Adjust input shape based on the parsed dimensions
-        if config.channels is not None and config.depth is not None:
-            # 4D input: shape = (channels, depth, height, width)
-            input_shape = (config.channels, config.depth,
-                           config.height, config.width)
-        elif config.channels is not None:
-            # 3D input: shape = (channels, height, width)
-            input_shape = (config.channels, config.height, config.width)
-        elif config.height is not None:
-            # 2D input: shape = (height, width)
-            input_shape = (config.height, config.width)
-        else:
-            # 1D input: shape = (width,)
-            input_shape = (config.width,)
-
-        self.shape = input_shape
-        self._input_shape = input_shape
-        return input_shape
+        super().__init__(input_shape, data_format='channels_last')
 
     def build_final_model(self, name: str = "VGSL_Model") -> nn.Module:
         """
@@ -524,6 +138,76 @@ class TorchLayerFactory(LayerFactory):
             return activations[activation_name]
         else:
             raise ValueError(f"Unsupported activation: {activation_name}")
+
+    def _create_conv2d_layer(self, config):
+        padding = 'same' if torch.__version__ >= '1.7' else self._compute_same_padding(
+            config.kernel_size, config.strides)
+        return nn.Conv2d(
+            in_channels=self.shape[0],
+            out_channels=config.filters,
+            kernel_size=config.kernel_size,
+            stride=config.strides,
+            padding=padding
+        )
+
+    def _create_pooling2d_layer(self, config):
+        padding = self._compute_same_padding(config.pool_size, config.strides)
+        pool_layer = nn.MaxPool2d if config.pool_type == 'max' else nn.AvgPool2d
+        return pool_layer(
+            kernel_size=config.pool_size,
+            stride=config.strides,
+            padding=padding
+        )
+
+    def _create_dense_layer(self, config):
+        return nn.Linear(self.shape[0], config.units)
+
+    def _create_rnn_layer(self, config):
+        if config.rnn_type == 'L':
+            return nn.LSTM(
+                input_size=self.shape[-1],
+                hidden_size=config.units,
+                num_layers=1,
+                batch_first=True,
+                dropout=config.dropout,
+                bidirectional=False
+            )
+        elif config.rnn_type == 'G':
+            return nn.GRU(
+                input_size=self.shape[-1],
+                hidden_size=config.units,
+                num_layers=1,
+                batch_first=True,
+                dropout=config.dropout,
+                bidirectional=False
+            )
+        else:
+            raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
+
+    def _create_bidirectional_layer(self, config):
+        rnn_layer = nn.LSTM if config.rnn_type == 'L' else nn.GRU
+
+        return rnn_layer(
+            input_size=self.shape[-1],
+            hidden_size=config.units,
+            num_layers=1,
+            batch_first=True,
+            dropout=config.dropout,
+            bidirectional=True
+        )
+
+    def _create_input_layer(self, config, input_shape: Tuple[int, ...]):
+        # PyTorch doesn't require a separate input layer.
+        # This is only for reference and compatibility.
+        return None
+
+    def _create_batchnorm_layer(self):
+        if len(self.shape) == 3:
+            return nn.BatchNorm2d(self.shape[0])
+        elif len(self.shape) == 2:
+            return nn.BatchNorm1d(self.shape[0])
+        else:
+            raise ValueError("Unsupported input shape for BatchNorm layer.")
 
     def _create_dropout_layer(self, rate: float):
         """

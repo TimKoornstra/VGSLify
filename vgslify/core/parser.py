@@ -130,6 +130,14 @@ def parse_pooling2d_spec(spec: str) -> Pooling2DConfig:
     Pooling2DConfig(pool_size=(2, 2), strides=(1, 1))
     """
 
+    # Extract pooling type
+    pool_type = spec[0:1]
+    if pool_type not in ['M', 'A']:
+        raise ValueError(f"Invalid pooling type '{pool_type}' in {spec}. "
+                         "Expected 'Mp' for MaxPooling or 'Ap' for AveragePooling.")
+
+    pool_type = 'max' if pool_type == 'Mp' else 'avg'
+
     # Extract pooling and stride parameters
     pool_stride_params = [int(match) for match in re.findall(r'-?\d+', spec)]
 
@@ -151,7 +159,9 @@ def parse_pooling2d_spec(spec: str) -> Pooling2DConfig:
         raise ValueError(f"Invalid values for pooling or stride in {spec}. "
                          "All values should be positive integers.")
 
-    return Pooling2DConfig(pool_size=(pool_x, pool_y), strides=(stride_x, stride_y))
+    return Pooling2DConfig(pool_type=pool_type,
+                           pool_size=(pool_x, pool_y),
+                           strides=(stride_x, stride_y))
 
 
 def parse_dense_spec(spec: str) -> DenseConfig:

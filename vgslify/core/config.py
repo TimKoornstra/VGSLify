@@ -14,6 +14,7 @@ class Conv2DConfig:
 
 @dataclass
 class Pooling2DConfig:
+    pool_type: str
     pool_size: tuple
     strides: tuple
 

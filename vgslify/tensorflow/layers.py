@@ -33,362 +33,7 @@ class TensorFlowLayerFactory(LayerFactory):
     """
 
     def __init__(self, input_shape: Tuple[int, ...] = None):
-        super().__init__(input_shape)
-
-    def conv2d(self, spec: str):
-        """
-        Create a Conv2D layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Conv2D layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created Conv2D layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
-        >>> conv_layer = factory.conv2d("Cr3,3,64")
-        >>> print(conv_layer)
-        <keras.src.layers.convolutional.conv2d.Conv2D object at ...>
-        """
-        config = parse_conv2d_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        conv_layer = tf.keras.layers.Conv2D(
-            filters=config.filters,
-            kernel_size=config.kernel_size,
-            strides=config.strides,
-            padding='same',
-            activation=config.activation
-        )
-
-        self.layers.append(conv_layer)
-        # Update shape
-        self.shape = self._compute_conv_output_shape(
-            self.shape, config, data_format='channels_last')
-
-        return conv_layer
-
-    def maxpooling2d(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a MaxPooling2D layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the MaxPooling2D layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created MaxPooling2D layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
-        >>> maxpool_layer = factory.maxpooling2d("Mp2,2,2,2")
-        >>> print(maxpool_layer)
-        <keras.src.layers.pooling.max_pooling2d.MaxPooling2D object at ...>
-        """
-        config = parse_pooling2d_spec(spec)
-        layer = tf.keras.layers.MaxPooling2D(
-            pool_size=config.pool_size,
-            strides=config.strides,
-            padding='same'
-        )
-        self.layers.append(layer)
-        # Update shape
-        self.shape = self._compute_pool_output_shape(
-            self.shape, config, data_format='channels_last')
-        return layer
-
-    def avgpool2d(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create an AvgPool2D layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the AvgPool2D layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created AvgPool2D layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
-        >>> avgpool_layer = factory.avgpool2d("Ap2,2,2,2")
-        >>> print(avgpool_layer)
-        <keras.src.layers.pooling.average_pooling2d.AveragePooling2D object at ...>
-        """
-        config = parse_pooling2d_spec(spec)
-        layer = tf.keras.layers.AvgPool2D(
-            pool_size=config.pool_size,
-            strides=config.strides,
-            padding='same'
-        )
-        self.layers.append(layer)
-        # Update shape
-        self.shape = self._compute_pool_output_shape(
-            self.shape, config, data_format='channels_last')
-        return layer
-
-    def dense(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a Dense layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Dense layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created Dense layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(32,))
-        >>> dense_layer = factory.dense("Dr64")
-        >>> print(dense_layer)
-        <keras.src.layers.core.dense.Dense object at ...>
-        """
-        config = parse_dense_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        dense_layer = tf.keras.layers.Dense(
-            units=config.units,
-            activation=config.activation
-        )
-        self.layers.append(dense_layer)
-
-        # Update shape
-        self.shape = (config.units,)
-
-        return dense_layer
-
-    def lstm(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create an LSTM layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the LSTM layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created LSTM layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(10, 32))
-        >>> lstm_layer = factory.lstm("Lf64")
-        >>> print(lstm_layer)
-        <keras.src.layers.rnn.lstm.LSTM object at ...>
-        """
-        config = parse_rnn_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        lstm_layer = tf.keras.layers.LSTM(
-            units=config.units,
-            return_sequences=config.return_sequences,
-            go_backwards=config.go_backwards,
-            dropout=config.dropout,
-            recurrent_dropout=config.recurrent_dropout
-        )
-        self.layers.append(lstm_layer)
-
-        # Update shape
-        if config.return_sequences:
-            self.shape = (self.shape[0], config.units)
-        else:
-            self.shape = (config.units,)
-
-        return lstm_layer
-
-    def gru(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a GRU layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the GRU layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created GRU layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(10, 32))
-        >>> gru_layer = factory.gru("Gf64")
-        >>> print(gru_layer)
-        <keras.src.layers.rnn.gru.GRU object at ...>
-        """
-        config = parse_rnn_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        gru_layer = tf.keras.layers.GRU(
-            units=config.units,
-            return_sequences=config.return_sequences,
-            go_backwards=config.go_backwards,
-            dropout=config.dropout,
-            recurrent_dropout=config.recurrent_dropout
-        )
-        self.layers.append(gru_layer)
-
-        # Update shape
-        if config.return_sequences:
-            self.shape = (self.shape[0], config.units)
-        else:
-            self.shape = (config.units,)
-
-        return gru_layer
-
-    def bidirectional(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a Bidirectional RNN layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Bidirectional layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created Bidirectional RNN layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(10, 32))
-        >>> bidirectional_layer = factory.bidirectional("Bl64")
-        >>> print(bidirectional_layer)
-        <keras.src.layers.rnn.bidirectional.Bidirectional object at ...>
-        """
-        config = parse_rnn_spec(spec)
-        if self.shape is None:
-            raise ValueError("Input shape must be set before adding layers.")
-
-        rnn_layer_class = tf.keras.layers.LSTM if config.rnn_type == 'l' else tf.keras.layers.GRU
-
-        rnn_layer = rnn_layer_class(
-            units=config.units,
-            return_sequences=True,
-            dropout=config.dropout,
-            recurrent_dropout=config.recurrent_dropout
-        )
-
-        bidirectional_layer = tf.keras.layers.Bidirectional(
-            rnn_layer,
-            merge_mode='concat'
-        )
-        self.layers.append(bidirectional_layer)
-
-        # Update shape
-        self.shape = (self.shape[0], config.units * 2)
-
-        return bidirectional_layer
-
-    def batchnorm(self, spec: str) -> tf.keras.layers.Layer:
-        """
-        Create a BatchNormalization layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the BatchNormalization layer.
-
-        Returns
-        -------
-        tf.keras.layers.Layer
-            The created BatchNormalization layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
-        >>> batchnorm_layer = factory.batchnorm("Bn")
-        >>> print(batchnorm_layer)
-        <keras.src.layers.normalization.batch_normalization.BatchNormalization object at ...>
-        """
-        if spec != 'Bn':
-            raise ValueError(
-                f"BatchNormalization layer spec '{spec}' is incorrect. Expected 'Bn'.")
-
-        layer = tf.keras.layers.BatchNormalization()
-        self.layers.append(layer)
-        # Shape remains the same
-        return layer
-
-    def input(self, spec: str) -> tf.keras.layers.Input:
-        """
-        Create an Input layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Input layer.
-
-        Returns
-        -------
-        tf.keras.layers.Input
-            The created Input layer.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory()
-        >>> input_layer = factory.input("32,32,3")
-        >>> print(input_layer)
-        <keras.src.engine.input_layer.InputLayer object at ...>
-        """
-        config = parse_input_spec(spec)
-
-        # Adjust input shape based on the parsed dimensions
-        if config.channels is not None and config.depth is not None:
-            # 4D input: shape = (depth, height, width, channels)
-            input_shape = (config.depth, config.height,
-                           config.width, config.channels)
-        elif config.channels is not None:
-            # 3D input: shape = (height, width, channels)
-            input_shape = (config.height, config.width, config.channels)
-        elif config.height is not None:
-            # 2D input: shape = (height, width)
-            input_shape = (config.height, config.width)
-        else:
-            # 1D input: shape = (width,)
-            input_shape = (config.width,)
-
-        self.shape = input_shape
-        self._input_shape = input_shape
-        input_layer = tf.keras.Input(
-            shape=input_shape, batch_size=config.batch_size)
-        self.layers.append(input_layer)
-        return input_layer
+        super().__init__(input_shape, data_format='channels_first')
 
     def build_final_model(self, name: str = "VGSL_Model") -> tf.keras.models.Model:
         """
@@ -439,6 +84,83 @@ class TensorFlowLayerFactory(LayerFactory):
         model = tf.keras.models.Model(
             inputs=inputs, outputs=outputs, name=name)
         return model
+
+    def _create_conv2d_layer(self, config):
+        return tf.keras.layers.Conv2D(
+            filters=config.filters,
+            kernel_size=config.kernel_size,
+            strides=config.strides,
+            padding='same',
+            activation=None
+        )
+
+    def _create_pooling2d_layer(self, config):
+        if config.pool_type == 'max':
+            return tf.keras.layers.MaxPooling2D(
+                pool_size=config.pool_size,
+                strides=config.strides,
+                padding='same'
+            )
+        if config.pool_type == 'avg':
+            return tf.keras.layers.AvgPool2D(
+                pool_size=config.pool_size,
+                strides=config.strides,
+                padding='same'
+            )
+
+    def _create_dense_layer(self, config):
+        return tf.keras.layers.Dense(
+            units=config.units,
+            activation=None
+        )
+
+    def _create_rnn_layer(self, config):
+        if config.rnn_type == 'L':
+            return tf.keras.layers.LSTM(
+                units=config.units,
+                return_sequences=config.return_sequences,
+                go_backwards=config.go_backwards,
+                dropout=config.dropout,
+                recurrent_dropout=config.recurrent_dropout
+            )
+        elif config.rnn_type == 'G':
+            return tf.keras.layers.GRU(
+                units=config.units,
+                return_sequences=config.return_sequences,
+                go_backwards=config.go_backwards,
+                dropout=config.dropout,
+                recurrent_dropout=config.recurrent_dropout
+            )
+        else:
+            raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
+
+    def _create_bidirectional_layer(self, config):
+        rnn_layer_class = tf.keras.layers.LSTM if config.rnn_type == 'L' else tf.keras.layers.GRU
+
+        return tf.keras.layers.Bidirectional(
+            rnn_layer_class(
+                units=config.units,
+                return_sequences=True,
+                dropout=config.dropout,
+                recurrent_dropout=config.recurrent_dropout
+            ),
+            merge_mode='concat'
+        )
+
+    def _create_input_layer(self, config, input_shape: Tuple[int, ...]):
+        # Create a TensorFlow Input layer with the given input shape.
+        return tf.keras.Input(shape=input_shape, batch_size=config.batch_size)
+
+    def _create_batchnorm_layer(self):
+        """
+        Create a TensorFlow BatchNormalization layer.
+
+        Returns
+        -------
+        tf.keras.layers.BatchNormalization
+            The created BatchNormalization layer.
+        """
+        return tf.keras.layers.BatchNormalization()
 
     def _create_dropout_layer(self, rate: float):
         """
