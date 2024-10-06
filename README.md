@@ -1,5 +1,9 @@
 # VGSLify: Variable-size Graph Specification for TensorFlow & PyTorch
 
+![PyPI](https://img.shields.io/pypi/v/vgslify)
+![Downloads](https://pepy.tech/badge/vgslify)
+![License](https://img.shields.io/pypi/l/vgslify)
+
 VGSLify is a powerful toolkit designed to simplify the process of defining, training, and interpreting deep learning models using the Variable-size Graph Specification Language (VGSL). Inspired by [Tesseract's VGSL specs](https://tesseract-ocr.github.io/tessdoc/tess4/VGSLSpecs.html), VGSLify introduces a set of enhancements and provides a streamlined interface for both TensorFlow and, in future releases, PyTorch.
 
 ## Table of Contents
