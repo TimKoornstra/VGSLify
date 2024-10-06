@@ -135,7 +135,7 @@ def test_invalid_batchnorm():
 def test_build_final_model():
     inputs = TensorFlowLayerFactory.input("None,32,32,3")
     outputs = TensorFlowLayerFactory.conv2d("Cr3,3,64")(inputs)
-    model = TensorFlowLayerFactory.build_final_model(inputs, outputs)
+    model = TensorFlowLayerFactory.build(inputs, outputs)
     assert isinstance(model, tf.keras.models.Model)
     assert model.input_shape == (None, 32, 32, 3)
     assert model.output_shape == (None, 32, 32, 64)

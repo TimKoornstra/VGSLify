@@ -8,19 +8,15 @@ import tensorflow as tf
 
 # > Internal dependencies
 from vgslify.core.factory import LayerFactory
-from vgslify.core.parser import (parse_conv2d_spec, parse_pooling2d_spec,
-                                 parse_dense_spec, parse_rnn_spec,
-                                 parse_input_spec)
 
 
 class TensorFlowLayerFactory(LayerFactory):
     """
     TensorFlowLayerFactory is responsible for creating TensorFlow-specific layers based on parsed
-    VGSL (Variable-size Graph Specification Language) specifications. This factory handles the
-    creation of various types of layers, including convolutional layers, pooling layers, RNN layers,
-    dense layers, activation layers, and more.
+    VGSL (Variable-size Graph Specification Language) specifications.
 
-    This class maintains an internal state to track the shape of the tensor as layers are added.
+    This factory handles the creation of various types of layers, including convolutional layers,
+    pooling layers, RNN layers, dense layers, activation layers, and more.
 
     Attributes
     ----------
@@ -33,9 +29,17 @@ class TensorFlowLayerFactory(LayerFactory):
     """
 
     def __init__(self, input_shape: Tuple[int, ...] = None):
+        """
+        Initialize the TensorFlowLayerFactory.
+
+        Parameters
+        ----------
+        input_shape : tuple of int, optional
+            The input shape for the model, excluding batch size.
+        """
         super().__init__(input_shape, data_format='channels_first')
 
-    def build_final_model(self, name: str = "VGSL_Model") -> tf.keras.models.Model:
+    def build(self, name: str = "VGSL_Model") -> tf.keras.models.Model:
         """
         Build the final model using the accumulated layers.
 
@@ -55,17 +59,6 @@ class TensorFlowLayerFactory(LayerFactory):
             If no layers have been added to the model.
         ValueError
             If no input shape has been specified for the model.
-
-        Examples
-        --------
-        >>> from vgslify.tensorflow.layers import TensorFlowLayerFactory
-        >>> factory = TensorFlowLayerFactory(input_shape=(32, 32, 3))
-        >>> factory.conv2d("Cr3,3,64")
-        >>> factory.maxpooling2d("Mp2,2,2,2")
-        >>> model = factory.build_final_model()
-        >>> model.summary()
-        Model: "VGSL_Model"
-        ...
         """
         if not self.layers:
             raise ValueError("No layers added to the model.")
@@ -85,7 +78,39 @@ class TensorFlowLayerFactory(LayerFactory):
             inputs=inputs, outputs=outputs, name=name)
         return model
 
-    def _create_conv2d_layer(self, config):
+    # Layer creation methods
+    def _input(self, config, input_shape: Tuple[int, ...]):
+        """
+        Create a TensorFlow Input layer.
+
+        Parameters
+        ----------
+        config : object
+            Configuration object containing batch_size.
+        input_shape : tuple of int
+            The input shape for the layer.
+
+        Returns
+        -------
+        tf.keras.layers.Input
+            The created Input layer.
+        """
+        return tf.keras.Input(shape=input_shape, batch_size=config.batch_size)
+
+    def _conv2d(self, config):
+        """
+        Create a TensorFlow Conv2D layer.
+
+        Parameters
+        ----------
+        config : object
+            Configuration object containing filters, kernel_size, and strides.
+
+        Returns
+        -------
+        tf.keras.layers.Conv2D
+            The created Conv2D layer.
+        """
         return tf.keras.layers.Conv2D(
             filters=config.filters,
             kernel_size=config.kernel_size,
@@ -94,7 +119,20 @@ class TensorFlowLayerFactory(LayerFactory):
             activation=None
         )
 
-    def _create_pooling2d_layer(self, config):
+    def _pooling2d(self, config):
+        """
+        Create a TensorFlow Pooling2D layer.
+
+        Parameters
+        ----------
+        config : object
+            Configuration object containing pool_type, pool_size, and strides.
+
+        Returns
+        -------
+        tf.keras.layers.Layer
+            The created Pooling2D layer (either MaxPooling2D or AveragePooling2D).
+        """
         if config.pool_type == 'max':
             return tf.keras.layers.MaxPooling2D(
                 pool_size=config.pool_size,
@@ -102,19 +140,51 @@ class TensorFlowLayerFactory(LayerFactory):
                 padding='same'
             )
         if config.pool_type == 'avg':
-            return tf.keras.layers.AvgPool2D(
+            return tf.keras.layers.AveragePooling2D(
                 pool_size=config.pool_size,
                 strides=config.strides,
                 padding='same'
             )
 
-    def _create_dense_layer(self, config):
+    def _dense(self, config):
+        """
+        Create a TensorFlow Dense layer.
+
+        Parameters
+        ----------
+        config : object
+            Configuration object containing units.
+
+        Returns
+        -------
+        tf.keras.layers.Dense
+            The created Dense layer.
+        """
         return tf.keras.layers.Dense(
             units=config.units,
             activation=None
         )
 
-    def _create_rnn_layer(self, config):
+    def _rnn(self, config):
+        """
+        Create a TensorFlow RNN layer (LSTM or GRU).
+
+        Parameters
+        ----------
+        config : object
+            Configuration object containing rnn_type, units, return_sequences,
+            go_backwards, dropout, and recurrent_dropout.
+
+        Returns
+        -------
+        tf.keras.layers.Layer
+            The created RNN layer (either LSTM or GRU).
+
+        Raises
+        ------
+        ValueError
+            If an unsupported RNN type is specified.
+        """
         if config.rnn_type == 'L':
             return tf.keras.layers.LSTM(
                 units=config.units,
@@ -134,7 +204,20 @@ class TensorFlowLayerFactory(LayerFactory):
         else:
             raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
 
-    def _create_bidirectional_layer(self, config):
+    def _bidirectional(self, config):
+        """
+        Create a TensorFlow Bidirectional RNN layer.
+
+        Parameters
+        ----------
+        config : object
+            Configuration object containing rnn_type, units, dropout, and recurrent_dropout.
+
+        Returns
+        -------
+        tf.keras.layers.Bidirectional
+            The created Bidirectional RNN layer.
+        """
         rnn_layer_class = tf.keras.layers.LSTM if config.rnn_type == 'L' else tf.keras.layers.GRU
 
         return tf.keras.layers.Bidirectional(
@@ -147,11 +230,7 @@ class TensorFlowLayerFactory(LayerFactory):
             merge_mode='concat'
         )
 
-    def _create_input_layer(self, config, input_shape: Tuple[int, ...]):
-        # Create a TensorFlow Input layer with the given input shape.
-        return tf.keras.Input(shape=input_shape, batch_size=config.batch_size)
-
-    def _create_batchnorm_layer(self):
+    def _batchnorm(self):
         """
         Create a TensorFlow BatchNormalization layer.
 
@@ -162,7 +241,7 @@ class TensorFlowLayerFactory(LayerFactory):
         """
         return tf.keras.layers.BatchNormalization()
 
-    def _create_dropout_layer(self, rate: float):
+    def _dropout(self, rate: float):
         """
         Create a TensorFlow Dropout layer.
 
@@ -178,46 +257,45 @@ class TensorFlowLayerFactory(LayerFactory):
         """
         return tf.keras.layers.Dropout(rate=rate)
 
-    def _create_activation_layer(self, activation_function: str):
+    def _activation(self, activation_function: str):
         """
         Create a TensorFlow activation layer.
 
         Parameters
         ----------
         activation_function : str
-            Name of the activation function. Supported values are 'softmax', 'tanh', 'relu',
-            'linear', 'sigmoid', etc.
+            Name of the activation function.
 
         Returns
         -------
-        tf.keras.layers.Layer
+        tf.keras.layers.Activation
             The created activation layer.
         """
         return tf.keras.layers.Activation(activation=activation_function)
 
-    def _create_reshape_layer(self, target_shape: Tuple[int, ...]):
+    def _reshape(self, target_shape: Tuple[int, ...]):
         """
         Create a TensorFlow Reshape layer.
 
         Parameters
         ----------
-        target_shape : tuple
+        target_shape : tuple of int
             The target shape to reshape to, excluding the batch size.
 
         Returns
         -------
-        tf.keras.layers.Layer
+        tf.keras.layers.Reshape
             The created Reshape layer.
         """
         return tf.keras.layers.Reshape(target_shape=target_shape)
 
-    def _create_flatten_layer(self):
+    def _flatten(self):
         """
         Create a TensorFlow Flatten layer.
 
         Returns
         -------
-        tf.keras.layers.Layer
+        tf.keras.layers.Flatten
             The created Flatten layer.
         """
         return tf.keras.layers.Flatten()

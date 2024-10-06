@@ -14,12 +14,48 @@ from vgslify.core.parser import (parse_dropout_spec, parse_activation_spec,
 
 class LayerFactory(ABC):
     """
-    Abstract base class for creating neural network layers from VGSL
-    specifications. This class defines the interface that must be implemented
-    by concrete factories for different frameworks (e.g., TensorFlow, PyTorch).
+    Abstract base class for creating neural network layers from VGSL specifications.
 
-    It also provides common methods for output shape calculations to be used by
-    subclasses.
+    This class defines the interface that must be implemented by concrete factories
+    for different frameworks (e.g., TensorFlow, PyTorch). It also provides common
+    methods for output shape calculations to be used by subclasses.
+
+    Parameters
+    ----------
+    input_shape : tuple of int, optional
+        The initial input shape for the model.
+    data_format : str, default 'channels_last'
+        The data format for the input tensor. Either 'channels_last' or 'channels_first'.
+
+    Attributes
+    ----------
+    layers : list
+        A list to store the created layers.
+    data_format : str
+        The data format for the input tensor.
+    shape : tuple of int
+        The current shape of the output tensor.
+    _input_shape : tuple of int
+        The initial input shape for the model.
+
+    Notes
+    -----
+    This is an abstract base class. Use a concrete implementation like 
+    `TensorFlowLayerFactory` or `PyTorchLayerFactory` in your code.
+
+    This class uses a naming convention where public methods for creating layers
+    (e.g., conv2d) have corresponding private methods with an underscore prefix
+    (e.g., _conv2d) that handle the actual layer creation.
+
+    Examples
+    --------
+    >>> # Assuming we have a TensorFlowLayerFactory implementation
+    >>> factory = TensorFlowLayerFactory(input_shape=(224, 224, 3))
+    >>> factory.conv2d('Cr3,3,32')
+    >>> factory.pooling2d('Mp2,2,2,2')
+    >>> factory.flatten('Flt')
+    >>> factory.dense('Fs128')
+    >>> model = factory.build_final_model('my_model')
     """
 
     def __init__(self, input_shape: Tuple[int, ...] = None, data_format: str = 'channels_last'):
@@ -34,97 +70,52 @@ class LayerFactory(ABC):
         self.shape = input_shape
         self._input_shape = input_shape
 
-    def conv2d(self, spec: str):
-        config = parse_conv2d_spec(spec)
-        self._validate_input_shape()
+    def build(self, name):
+        """
+        Abstract method to build the final model using the created layers.
 
-        conv_layer = self._create_conv2d_layer(config)
-        self._add_layer(conv_layer)
+        Parameters
+        ----------
+        name : str
+            The name of the model.
 
-        # Add activation if needed
-        # TODO: Only do this when we have PyTorch backend
-        if config.activation:
-            self.add_activation_layer(config.activation)
+        Returns
+        -------
+        Any
+            The final built model.
 
-        # Update shape
-        new_shape = self._compute_conv_output_shape(self.shape, config)
-        self._update_shape(new_shape)
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28, 1))
+        >>> factory.conv2d('Cr3,3,32')
+        >>> factory.flatten('Flt')
+        >>> factory.dense('Fs10')
+        >>> model = factory.build('my_model')
+        """
+        pass
 
-        return conv_layer
-
-    def pooling2d(self, spec: str):
-        config = parse_pooling2d_spec(spec)
-        self._validate_input_shape()
-
-        pool_layer = self._create_pooling2d_layer(config)
-        self._add_layer(pool_layer)
-
-        # Update shape
-        new_shape = self._compute_pool_output_shape(self.shape, config)
-        self._update_shape(new_shape)
-
-        return pool_layer
-
-    def dense(self, spec: str):
-        config = parse_dense_spec(spec)
-        self._validate_input_shape()
-
-        dense_layer = self._create_dense_layer(config)
-        self._add_layer(dense_layer)
-
-        # Add activation if needed
-        if config.activation:
-            self.add_activation_layer(config.activation)
-
-        # Update shape
-        self._update_shape((config.units,))
-
-        return dense_layer
-
-    def rnn(self, spec: str):
-        config = parse_rnn_spec(spec)
-        self._validate_input_shape()
-
-        rnn_layer = self._create_rnn_layer(config)
-        self._add_layer(rnn_layer)
-
-        # Update shape
-        if config.return_sequences:
-            self._update_shape((self.shape[0], config.units))
-        else:
-            self._update_shape((config.units,))
-
-        return rnn_layer
-
-    def bidirectional(self, spec: str):
-        config = parse_rnn_spec(spec)
-        self._validate_input_shape()
-
-        bidirectional_layer = self._create_bidirectional_layer(config)
-        self._add_layer(bidirectional_layer)
-
-        # Update shape
-        if config.return_sequences:
-            self._update_shape((self.shape[0], config.units * 2))
-        else:
-            self._update_shape((config.units * 2,))
-
-        return bidirectional_layer
-
-    def batchnorm(self, spec: str):
-        if spec != 'Bn':
-            raise ValueError(
-                f"BatchNormalization layer spec '{spec}' is incorrect. Expected 'Bn'.")
-
-        self._validate_input_shape()
-
-        batchnorm_layer = self._create_batchnorm_layer()
-        self._add_layer(batchnorm_layer)
-
-        # Shape remains the same
-        return batchnorm_layer
-
+    # Layer creation methods
     def input(self, spec: str):
+        """
+        Create an Input layer based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the Input layer.
+
+        Returns
+        -------
+        Any
+            The created Input layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory()
+        >>> factory.input('1,28,28,1')
+        """
         config = parse_input_spec(spec)
 
         # Adjust input shape based on the parsed dimensions
@@ -153,12 +144,216 @@ class LayerFactory(ABC):
         self.shape = input_shape
         self._input_shape = input_shape
 
-        input_layer = self._create_input_layer(config, input_shape)
+        input_layer = self._input(config, input_shape)
         if input_layer is not None:
             # Some backends may not return the layer
             self._add_layer(input_layer)
 
         return input_layer
+
+    def conv2d(self, spec: str):
+        """
+        Create a 2D Convolutional layer based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the Conv2D layer.
+
+        Returns
+        -------
+        Any
+            The created Conv2D layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28, 1))
+        >>> factory.conv2d('Cr3,3,32')
+        """
+        config = parse_conv2d_spec(spec)
+        self._validate_input_shape()
+
+        conv_layer = self._conv2d(config)
+        self._add_layer(conv_layer)
+
+        # Add activation if needed
+        # TODO: Only do this when we have PyTorch backend
+        if config.activation:
+            self.add_activation_layer(config.activation)
+
+        # Update shape
+        new_shape = self._compute_conv_output_shape(self.shape, config)
+        self._update_shape(new_shape)
+
+        return conv_layer
+
+    def pooling2d(self, spec: str):
+        """
+        Create a 2D Pooling layer based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the Pooling2D layer.
+
+        Returns
+        -------
+        Any
+            The created Pooling2D layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28, 32))
+        >>> factory.pooling2d('Mp2,2,2,2')
+        """
+        config = parse_pooling2d_spec(spec)
+        self._validate_input_shape()
+
+        pool_layer = self._pooling2d(config)
+        self._add_layer(pool_layer)
+
+        # Update shape
+        new_shape = self._compute_pool_output_shape(self.shape, config)
+        self._update_shape(new_shape)
+
+        return pool_layer
+
+    def dense(self, spec: str):
+        """
+        Create a Dense (Fully Connected) layer based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the Dense layer.
+
+        Returns
+        -------
+        Any
+            The created Dense layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(7*7*32,))
+        >>> factory.dense('Fs128')
+        """
+        config = parse_dense_spec(spec)
+        self._validate_input_shape()
+
+        dense_layer = self._dense(config)
+        self._add_layer(dense_layer)
+
+        # Add activation if needed
+        if config.activation:
+            self.add_activation_layer(config.activation)
+
+        # Update shape
+        self._update_shape((config.units,))
+
+        return dense_layer
+
+    def rnn(self, spec: str):
+        """
+        Create an RNN layer (LSTM or GRU) based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the RNN layer.
+
+        Returns
+        -------
+        Any
+            The created RNN layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28))
+        >>> factory.rnn('Ls128')
+        """
+        config = parse_rnn_spec(spec)
+        self._validate_input_shape()
+
+        rnn_layer = self._rnn(config)
+        self._add_layer(rnn_layer)
+
+        # Update shape
+        if config.return_sequences:
+            self._update_shape((self.shape[0], config.units))
+        else:
+            self._update_shape((config.units,))
+
+        return rnn_layer
+
+    def bidirectional(self, spec: str):
+        """
+        Create a Bidirectional RNN layer based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the Bidirectional layer.
+
+        Returns
+        -------
+        Any
+            The created Bidirectional layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28))
+        >>> factory.bidirectional('Bl128')
+        """
+        config = parse_rnn_spec(spec)
+        self._validate_input_shape()
+
+        bidirectional_layer = self._bidirectional(config)
+        self._add_layer(bidirectional_layer)
+
+        # Update shape
+        if config.return_sequences:
+            self._update_shape((self.shape[0], config.units * 2))
+        else:
+            self._update_shape((config.units * 2,))
+
+        return bidirectional_layer
+
+    def batchnorm(self, spec: str):
+        """
+        Create a BatchNormalization layer based on the VGSL specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for the BatchNormalization layer.
+
+        Returns
+        -------
+        Any
+            The created BatchNormalization layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28, 32))
+        >>> factory.batchnorm('Bn')
+        """
+        if spec != 'Bn':
+            raise ValueError(
+                f"BatchNormalization layer spec '{spec}' is incorrect. Expected 'Bn'.")
+
+        self._validate_input_shape()
+
+        batchnorm_layer = self._batchnorm()
+        self._add_layer(batchnorm_layer)
+
+        # Shape remains the same
+        return batchnorm_layer
 
     def dropout(self, spec: str):
         """
@@ -173,9 +368,15 @@ class LayerFactory(ABC):
         -------
         Any
             The created Dropout layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(128,))
+        >>> factory.dropout('D50')
         """
         config = parse_dropout_spec(spec)
-        layer = self._create_dropout_layer(config.rate)
+        layer = self._dropout(config.rate)
         self.layers.append(layer)
         # Shape remains the same
         return layer
@@ -193,9 +394,15 @@ class LayerFactory(ABC):
         -------
         Any
             The created Activation layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(128,))
+        >>> factory.activation('Ar')
         """
         activation_function = parse_activation_spec(spec)
-        layer = self._create_activation_layer(activation_function)
+        layer = self._activation(activation_function)
         self.layers.append(layer)
         # Shape remains the same
         return layer
@@ -215,6 +422,12 @@ class LayerFactory(ABC):
         -------
         Any
             The created Reshape layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28, 1))
+        >>> factory.reshape('Rc3')
         """
         if self.shape is None:
             raise ValueError("Input shape must be set before adding layers.")
@@ -223,7 +436,7 @@ class LayerFactory(ABC):
         if spec.startswith('Rc'):
             if spec == 'Rc2':
                 # Flatten to (batch_size, -1)
-                layer = self._create_flatten_layer()
+                layer = self._flatten()
                 self.layers.append(layer)
                 self.shape = (int(self._compute_flatten_shape(self.shape)),)
                 return layer
@@ -237,7 +450,7 @@ class LayerFactory(ABC):
                 C, H, W = self.shape
                 seq_length = H * W
                 features = C
-                layer = self._create_reshape_layer((seq_length, features))
+                layer = self._reshape((seq_length, features))
                 self.layers.append(layer)
                 self.shape = (seq_length, features)
                 return layer
@@ -247,7 +460,7 @@ class LayerFactory(ABC):
 
         # Handle regular reshape (e.g., 'R64,64,3')
         config = parse_reshape_spec(spec)
-        layer = self._create_reshape_layer(config.target_shape)
+        layer = self._reshape(config.target_shape)
         self.layers.append(layer)
         self.shape = config.target_shape
         return layer
@@ -265,53 +478,142 @@ class LayerFactory(ABC):
         -------
         Any
             The created Flatten layer.
+
+        Examples
+        --------
+        >>> # Using a hypothetical concrete implementation
+        >>> factory = SomeConcreteLayerFactory(input_shape=(7, 7, 64))
+        >>> factory.flatten('Flt')
         """
         if spec != "Flt":
             raise ValueError(
                 f"Flatten layer spec '{spec}' is incorrect. Expected 'Flt'.")
 
-        layer = self._create_flatten_layer()
+        layer = self._flatten()
         self.layers.append(layer)
         # Update shape
         self.shape = (self._compute_flatten_shape(self.shape),)
         return layer
 
+    # Abstract methods
     @abstractmethod
-    def _create_conv2d_layer(self, config):
+    def _input(self, config, input_shape: Tuple[int, ...]):
+        """
+        Abstract method to create an Input layer.
+
+        Parameters
+        ----------
+        config : Any
+            The configuration object returned by parse_input_spec.
+        input_shape : tuple of int
+            The input shape.
+
+        Returns
+        -------
+        Any
+            The created Input layer.
+        """
         pass
 
     @abstractmethod
-    def _create_pooling2d_layer(self, config):
+    def _conv2d(self, config):
+        """
+        Abstract method to create a Conv2D layer.
+
+        Parameters
+        ----------
+        config : Any
+            The configuration object returned by parse_conv2d_spec.
+
+        Returns
+        -------
+        Any
+            The created Conv2D layer.
+        """
         pass
 
     @abstractmethod
-    def _create_dense_layer(self, config):
+    def _pooling2d(self, config):
+        """
+        Abstract method to create a Pooling2D layer.
+
+        Parameters
+        ----------
+        config : Any
+            The configuration object returned by parse_pooling2d_spec.
+
+        Returns
+        -------
+        Any
+            The created Pooling2D layer.
+        """
         pass
 
     @abstractmethod
-    def _create_rnn_layer(self, config):
-        """Create an RNN layer (LSTM or GRU) based on the configuration."""
+    def _dense(self, config):
+        """
+        Abstract method to create a Dense (Fully Connected) layer.
+
+        Parameters
+        ----------
+        config : Any
+            The configuration object returned by parse_dense_spec.
+
+        Returns
+        -------
+        Any
+            The created Dense layer.
+        """
         pass
 
     @abstractmethod
-    def _create_bidirectional_layer(self, config):
-        """Create a bidirectional RNN layer based on the configuration."""
+    def _rnn(self, config):
+        """
+        Abstract method to create an RNN layer (LSTM or GRU).
+
+        Parameters
+        ----------
+        config : Any
+            The configuration object returned by parse_rnn_spec.
+
+        Returns
+        -------
+        Any
+            The created RNN layer.
+        """
         pass
 
     @abstractmethod
-    def _create_batchnorm_layer(self):
+    def _bidirectional(self, config):
+        """
+        Abstract method to create a bidirectional RNN layer.
+
+        Parameters
+        ----------
+        config : Any
+            The configuration object returned by parse_rnn_spec.
+
+        Returns
+        -------
+        Any
+            The created Bidirectional layer.
+        """
         pass
 
     @abstractmethod
-    def _create_input_layer(self, config, input_shape):
+    def _batchnorm(self):
+        """
+        Abstract method to create a BatchNormalization layer.
+
+        Returns
+        -------
+        Any
+            The created BatchNormalization layer.
+        """
         pass
 
     @abstractmethod
-    def build_final_model(self, name):
-        pass
-
-    @abstractmethod
-    def _create_dropout_layer(self, rate: float):
+    def _dropout(self, rate: float):
         """
         Abstract method to create a Dropout layer.
 
@@ -328,7 +630,7 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _create_activation_layer(self, activation_function: str):
+    def _activation(self, activation_function: str):
         """
         Abstract method to create an Activation layer.
 
@@ -345,7 +647,7 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _create_reshape_layer(self, target_shape: Tuple[int, ...]):
+    def _reshape(self, target_shape: Tuple[int, ...]):
         """
         Abstract method to create a Reshape layer.
 
@@ -362,7 +664,7 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _create_flatten_layer(self):
+    def _flatten(self):
         """
         Abstract method to create a Flatten layer.
 
@@ -373,6 +675,7 @@ class LayerFactory(ABC):
         """
         pass
 
+    # Helper methods
     def _compute_conv_output_shape(self,
                                    input_shape: Tuple[int, ...],
                                    config: Any) -> Tuple[int, ...]:
@@ -464,11 +767,35 @@ class LayerFactory(ABC):
         return reduce(mul, shape)
 
     def _validate_input_shape(self):
+        """
+        Validates that the input shape has been set before adding layers.
+
+        Raises
+        ------
+        ValueError
+            If the input shape has not been set.
+        """
         if self.shape is None:
             raise ValueError("Input shape must be set before adding layers.")
 
     def _add_layer(self, layer: Any):
+        """
+        Adds a layer to the list of layers.
+
+        Parameters
+        ----------
+        layer : Any
+            The layer to be added.
+        """
         self.layers.append(layer)
 
     def _update_shape(self, new_shape: Tuple[int, ...]):
+        """
+        Updates the current shape of the output tensor.
+
+        Parameters
+        ----------
+        new_shape : tuple of int
+            The new shape to set.
+        """
         self.shape = new_shape
