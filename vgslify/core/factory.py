@@ -10,6 +10,9 @@ from vgslify.core.parser import (parse_dropout_spec, parse_activation_spec,
                                  parse_reshape_spec, parse_conv2d_spec,
                                  parse_pooling2d_spec, parse_dense_spec,
                                  parse_rnn_spec, parse_input_spec)
+from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
+                                 RNNConfig, DropoutConfig, ReshapeConfig,
+                                 InputConfig)
 
 
 class LayerFactory(ABC):
@@ -55,7 +58,7 @@ class LayerFactory(ABC):
     >>> factory.pooling2d('Mp2,2,2,2')
     >>> factory.flatten('Flt')
     >>> factory.dense('Fs128')
-    >>> model = factory.build_final_model('my_model')
+    >>> model = factory.build('my_model')
     """
 
     def __init__(self, input_shape: Tuple[int, ...] = None, data_format: str = 'channels_last'):
@@ -70,7 +73,8 @@ class LayerFactory(ABC):
         self.shape = input_shape
         self._input_shape = input_shape
 
-    def build(self, name):
+    @abstractmethod
+    def build(self, name: str):
         """
         Abstract method to build the final model using the created layers.
 
@@ -178,9 +182,9 @@ class LayerFactory(ABC):
         self._add_layer(conv_layer)
 
         # Add activation if needed
-        # TODO: Only do this when we have PyTorch backend
         if config.activation:
-            self.add_activation_layer(config.activation)
+            activation_layer = self._activation(config.activation)
+            self._add_layer(activation_layer)
 
         # Update shape
         new_shape = self._compute_conv_output_shape(self.shape, config)
@@ -248,7 +252,8 @@ class LayerFactory(ABC):
 
         # Add activation if needed
         if config.activation:
-            self.add_activation_layer(config.activation)
+            activation_layer = self._activation(config.activation)
+            self._add_layer(activation_layer)
 
         # Update shape
         self._update_shape((config.units,))
@@ -376,7 +381,7 @@ class LayerFactory(ABC):
         >>> factory.dropout('D50')
         """
         config = parse_dropout_spec(spec)
-        layer = self._dropout(config.rate)
+        layer = self._dropout(config)
         self.layers.append(layer)
         # Shape remains the same
         return layer
@@ -460,7 +465,7 @@ class LayerFactory(ABC):
 
         # Handle regular reshape (e.g., 'R64,64,3')
         config = parse_reshape_spec(spec)
-        layer = self._reshape(config.target_shape)
+        layer = self._reshape(config)
         self.layers.append(layer)
         self.shape = config.target_shape
         return layer
@@ -497,13 +502,13 @@ class LayerFactory(ABC):
 
     # Abstract methods
     @abstractmethod
-    def _input(self, config, input_shape: Tuple[int, ...]):
+    def _input(self, config: InputConfig, input_shape: Tuple[int, ...]):
         """
         Abstract method to create an Input layer.
 
         Parameters
         ----------
-        config : Any
+        config : InputConfig
             The configuration object returned by parse_input_spec.
         input_shape : tuple of int
             The input shape.
@@ -516,13 +521,13 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _conv2d(self, config):
+    def _conv2d(self, config: Conv2DConfig):
         """
         Abstract method to create a Conv2D layer.
 
         Parameters
         ----------
-        config : Any
+        config : Conv2DConfig
             The configuration object returned by parse_conv2d_spec.
 
         Returns
@@ -533,13 +538,13 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _pooling2d(self, config):
+    def _pooling2d(self, config: Pooling2DConfig):
         """
         Abstract method to create a Pooling2D layer.
 
         Parameters
         ----------
-        config : Any
+        config : Pooling2DConfig
             The configuration object returned by parse_pooling2d_spec.
 
         Returns
@@ -550,13 +555,13 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _dense(self, config):
+    def _dense(self, config: DenseConfig):
         """
         Abstract method to create a Dense (Fully Connected) layer.
 
         Parameters
         ----------
-        config : Any
+        config : DenseConfig
             The configuration object returned by parse_dense_spec.
 
         Returns
@@ -567,13 +572,13 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _rnn(self, config):
+    def _rnn(self, config: RNNConfig):
         """
         Abstract method to create an RNN layer (LSTM or GRU).
 
         Parameters
         ----------
-        config : Any
+        config : RNNConfig
             The configuration object returned by parse_rnn_spec.
 
         Returns
@@ -584,13 +589,13 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _bidirectional(self, config):
+    def _bidirectional(self, config: RNNConfig):
         """
         Abstract method to create a bidirectional RNN layer.
 
         Parameters
         ----------
-        config : Any
+        config : RNNConfig
             The configuration object returned by parse_rnn_spec.
 
         Returns
@@ -613,14 +618,14 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _dropout(self, rate: float):
+    def _dropout(self, config: DropoutConfig):
         """
         Abstract method to create a Dropout layer.
 
         Parameters
         ----------
-        rate : float
-            Dropout rate.
+        config : DropoutConfig
+            The configuration object returned by parse_dropout_spec.
 
         Returns
         -------
@@ -647,14 +652,14 @@ class LayerFactory(ABC):
         pass
 
     @abstractmethod
-    def _reshape(self, target_shape: Tuple[int, ...]):
+    def _reshape(self, config: ReshapeConfig):
         """
         Abstract method to create a Reshape layer.
 
         Parameters
         ----------
-        target_shape : tuple
-            The target shape to reshape to.
+        config : ReshapeConfig
+            The configuration object returned by parse_reshape_spec.
 
         Returns
         -------
@@ -678,7 +683,7 @@ class LayerFactory(ABC):
     # Helper methods
     def _compute_conv_output_shape(self,
                                    input_shape: Tuple[int, ...],
-                                   config: Any) -> Tuple[int, ...]:
+                                   config: Conv2DConfig) -> Tuple[int, ...]:
         """
         Computes the output shape of a convolutional layer.
 
@@ -716,7 +721,7 @@ class LayerFactory(ABC):
 
     def _compute_pool_output_shape(self,
                                    input_shape: Tuple[int, ...],
-                                   config: Any) -> Tuple[int, ...]:
+                                   config: Pooling2DConfig) -> Tuple[int, ...]:
         """
         Computes the output shape of a pooling layer.
 
@@ -724,7 +729,7 @@ class LayerFactory(ABC):
         ----------
         input_shape : tuple
             The input shape.
-        config : Any
+        config : Pooling2DConfig
             The configuration object returned by parse_pooling2d_spec.
 
         Returns

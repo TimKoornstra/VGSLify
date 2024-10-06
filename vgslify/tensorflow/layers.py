@@ -8,6 +8,9 @@ import tensorflow as tf
 
 # > Internal dependencies
 from vgslify.core.factory import LayerFactory
+from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
+                                 RNNConfig, DropoutConfig, ReshapeConfig,
+                                 InputConfig)
 
 
 class TensorFlowLayerFactory(LayerFactory):
@@ -37,7 +40,7 @@ class TensorFlowLayerFactory(LayerFactory):
         input_shape : tuple of int, optional
             The input shape for the model, excluding batch size.
         """
-        super().__init__(input_shape, data_format='channels_first')
+        super().__init__(input_shape, data_format='channels_last')
 
     def build(self, name: str = "VGSL_Model") -> tf.keras.models.Model:
         """
@@ -66,7 +69,7 @@ class TensorFlowLayerFactory(LayerFactory):
             raise ValueError("No input shape specified for the model.")
 
         # If we do not have an input layer, add one
-        if not isinstance(self.layers[0], tf.keras.layers.InputLayer):
+        if not isinstance(self.layers[0], tf.keras.KerasTensor):
             input_layer = tf.keras.Input(shape=self._input_shape)
             self.layers.insert(0, input_layer)
 
@@ -79,14 +82,14 @@ class TensorFlowLayerFactory(LayerFactory):
         return model
 
     # Layer creation methods
-    def _input(self, config, input_shape: Tuple[int, ...]):
+    def _input(self, config: InputConfig, input_shape: Tuple[int, ...]):
         """
         Create a TensorFlow Input layer.
 
         Parameters
         ----------
-        config : object
-            Configuration object containing batch_size.
+        config : InputConfig
+            Configuration object for the Input layer.
         input_shape : tuple of int
             The input shape for the layer.
 
@@ -97,14 +100,14 @@ class TensorFlowLayerFactory(LayerFactory):
         """
         return tf.keras.Input(shape=input_shape, batch_size=config.batch_size)
 
-    def _conv2d(self, config):
+    def _conv2d(self, config: Conv2DConfig):
         """
         Create a TensorFlow Conv2D layer.
 
         Parameters
         ----------
-        config : object
-            Configuration object containing filters, kernel_size, and strides.
+        config : Conv2DConfig
+            Configuration object for the Conv2D layer.
 
         Returns
         -------
@@ -119,14 +122,14 @@ class TensorFlowLayerFactory(LayerFactory):
             activation=None
         )
 
-    def _pooling2d(self, config):
+    def _pooling2d(self, config: Pooling2DConfig):
         """
         Create a TensorFlow Pooling2D layer.
 
         Parameters
         ----------
-        config : object
-            Configuration object containing pool_type, pool_size, and strides.
+        config : Pooling2DConfig
+            Configuration object for the Pooling2D layer.
 
         Returns
         -------
@@ -146,14 +149,14 @@ class TensorFlowLayerFactory(LayerFactory):
                 padding='same'
             )
 
-    def _dense(self, config):
+    def _dense(self, config: DenseConfig):
         """
         Create a TensorFlow Dense layer.
 
         Parameters
         ----------
-        config : object
-            Configuration object containing units.
+        config : DenseConfig
+            Configuration object for the Dense layer.
 
         Returns
         -------
@@ -165,15 +168,14 @@ class TensorFlowLayerFactory(LayerFactory):
             activation=None
         )
 
-    def _rnn(self, config):
+    def _rnn(self, config: RNNConfig):
         """
         Create a TensorFlow RNN layer (LSTM or GRU).
 
         Parameters
         ----------
-        config : object
-            Configuration object containing rnn_type, units, return_sequences,
-            go_backwards, dropout, and recurrent_dropout.
+        config : RNNConfig
+            Configuration object for the RNN layer.
 
         Returns
         -------
@@ -204,14 +206,14 @@ class TensorFlowLayerFactory(LayerFactory):
         else:
             raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
 
-    def _bidirectional(self, config):
+    def _bidirectional(self, config: RNNConfig):
         """
         Create a TensorFlow Bidirectional RNN layer.
 
         Parameters
         ----------
-        config : object
-            Configuration object containing rnn_type, units, dropout, and recurrent_dropout.
+        config : RNNConfig
+            Configuration object for the Bidirectional RNN layer.
 
         Returns
         -------
@@ -241,21 +243,21 @@ class TensorFlowLayerFactory(LayerFactory):
         """
         return tf.keras.layers.BatchNormalization()
 
-    def _dropout(self, rate: float):
+    def _dropout(self, config: DropoutConfig):
         """
         Create a TensorFlow Dropout layer.
 
         Parameters
         ----------
-        rate : float
-            Dropout rate, between 0 and 1.
+        config : DropoutConfig
+            Configuration object for the Dropout layer.
 
         Returns
         -------
         tf.keras.layers.Dropout
             The created Dropout layer.
         """
-        return tf.keras.layers.Dropout(rate=rate)
+        return tf.keras.layers.Dropout(rate=config.rate)
 
     def _activation(self, activation_function: str):
         """
@@ -273,21 +275,21 @@ class TensorFlowLayerFactory(LayerFactory):
         """
         return tf.keras.layers.Activation(activation=activation_function)
 
-    def _reshape(self, target_shape: Tuple[int, ...]):
+    def _reshape(self, config: ReshapeConfig):
         """
         Create a TensorFlow Reshape layer.
 
         Parameters
         ----------
-        target_shape : tuple of int
-            The target shape to reshape to, excluding the batch size.
+        config : ReshapeConfig
+            Configuration object for the Reshape layer.
 
         Returns
         -------
         tf.keras.layers.Reshape
             The created Reshape layer.
         """
-        return tf.keras.layers.Reshape(target_shape=target_shape)
+        return tf.keras.layers.Reshape(target_shape=config.target_shape)
 
     def _flatten(self):
         """

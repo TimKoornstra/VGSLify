@@ -131,8 +131,8 @@ def parse_pooling2d_spec(spec: str) -> Pooling2DConfig:
     """
 
     # Extract pooling type
-    pool_type = spec[0:1]
-    if pool_type not in ['M', 'A']:
+    pool_type = spec[:2]
+    if pool_type not in ['Mp', 'Ap']:
         raise ValueError(f"Invalid pooling type '{pool_type}' in {spec}. "
                          "Expected 'Mp' for MaxPooling or 'Ap' for AveragePooling.")
 
