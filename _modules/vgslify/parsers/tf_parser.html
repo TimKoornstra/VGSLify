@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.parsers.tf_parser &mdash; VGSLify 0.13.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=82662543"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.parser.html">vgslify.parser package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.utils.html">vgslify.utils package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.torch.html">vgslify.torch package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vgslify.parsers.tf_parser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vgslify.parsers.tf_parser</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">vgslify.core.config</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ActivationConfig</span><span class="p">,</span>
+    <span class="n">Conv2DConfig</span><span class="p">,</span>
+    <span class="n">Pooling2DConfig</span><span class="p">,</span>
+    <span class="n">DenseConfig</span><span class="p">,</span>
+    <span class="n">RNNConfig</span><span class="p">,</span>
+    <span class="n">DropoutConfig</span><span class="p">,</span>
+    <span class="n">ReshapeConfig</span><span class="p">,</span>
+    <span class="n">InputConfig</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">vgslify.parsers.base_parser</span> <span class="kn">import</span> <span class="n">BaseModelParser</span>
+
+<div class="viewcode-block" id="TensorFlowModelParser">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser">[docs]</a>
+<span class="k">class</span> <span class="nc">TensorFlowModelParser</span><span class="p">(</span><span class="n">BaseModelParser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parser for TensorFlow Keras models to convert them into VGSL spec strings using configuration dataclasses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Initialize the layer parsers mapping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_parsers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_input_layer</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_conv2d</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_dense</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">layer</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_rnn</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;lstm&quot;</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GRU</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">layer</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_rnn</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;gru&quot;</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_bidirectional</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">layer</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_pooling</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">AveragePooling2D</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">layer</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_pooling</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">),</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_batchnorm</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_dropout</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_reshape</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_flatten</span><span class="p">,</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_activation</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_model">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a TensorFlow Keras model into a VGSL spec string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model : tf.keras.models.Model</span>
+<span class="sd">            Keras model to be converted.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL spec string.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the model contains unsupported layers or if the input shape is invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Handle InputLayer</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">):</span>
+            <span class="n">input_layer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">(</span>
+                <span class="n">input_shape</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">input_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_input_layer</span><span class="p">(</span><span class="n">input_layer</span><span class="p">)</span>
+            <span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_config</span><span class="p">)</span>
+
+        <span class="c1"># Iterate through all layers in the model</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+            <span class="n">layer_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+            <span class="n">parser_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_parser</span><span class="p">(</span><span class="n">layer_type</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">parser_func</span><span class="p">:</span>
+                <span class="c1"># Parse the layer</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">):</span>
+                    <span class="c1"># Reshape may need previous layer info</span>
+                    <span class="n">prev_layer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">parser_func</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">prev_layer</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">):</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">parser_func</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">config</span> <span class="o">=</span> <span class="n">parser_func</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+                <span class="c1"># Append the config if not None</span>
+                <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
+                    <span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unsupported layer type </span><span class="si">{</span><span class="n">layer_type</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> at position </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Generate VGSL spec string from configs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_vgsl</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the parser function for a given layer type.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer_type : Type[tf.keras.layers.Layer]</span>
+<span class="sd">            The type of the layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Callable</span>
+<span class="sd">            The corresponding parser function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_parsers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">layer_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_extract_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract the activation function from a TensorFlow Keras layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Layer</span>
+<span class="sd">            The layer from which to extract the activation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The activation function name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s1">&#39;activation&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">activation</span><span class="p">):</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">activation</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">):</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">activation</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span>
+        <span class="k">return</span> <span class="n">activation</span>
+
+    <span class="c1"># Parser methods for different layer types</span>
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_input_layer">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_input_layer">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_input_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">InputLayer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InputConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse an InputLayer into an InputConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.InputLayer</span>
+<span class="sd">            The InputLayer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        InputConfig</span>
+<span class="sd">            The configuration for the input layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">shape</span>
+        <span class="c1"># Assuming input_shape: (batch_size, depth, height, width, channels)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">batch_size</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">input_shape</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">batch_size</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">input_shape</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported input shape: </span><span class="si">{</span><span class="n">input_shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">InputConfig</span><span class="p">(</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">depth</span><span class="o">=</span><span class="n">depth</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">channels</span><span class="o">=</span><span class="n">channels</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_conv2d">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_conv2d">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_conv2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Conv2DConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a Conv2D layer into a Conv2DConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Conv2D</span>
+<span class="sd">            The Conv2D layer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Conv2DConfig</span>
+<span class="sd">            The configuration for the Conv2D layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_activation</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Conv2DConfig</span><span class="p">(</span>
+            <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">,</span>
+            <span class="n">kernel_size</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">strides</span><span class="p">,</span>
+            <span class="n">filters</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">filters</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_dense">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_dense">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DenseConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a Dense layer into a DenseConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Dense</span>
+<span class="sd">            The Dense layer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DenseConfig</span>
+<span class="sd">            The configuration for the Dense layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_activation</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DenseConfig</span><span class="p">(</span>
+            <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">,</span>
+            <span class="n">units</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">units</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_rnn">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_rnn">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_rnn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GRU</span><span class="p">],</span> <span class="n">rnn_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RNNConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse an RNN layer (LSTM or GRU) into an RNNConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.LSTM or tf.keras.layers.GRU</span>
+<span class="sd">            The RNN layer to parse.</span>
+<span class="sd">        rnn_type : str</span>
+<span class="sd">            The type identifier (&#39;lstm&#39; or &#39;gru&#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RNNConfig</span>
+<span class="sd">            The configuration for the RNN layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RNNConfig</span><span class="p">(</span>
+            <span class="n">units</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">units</span><span class="p">,</span>
+            <span class="n">return_sequences</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">return_sequences</span><span class="p">,</span>
+            <span class="n">go_backwards</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">go_backwards</span><span class="p">,</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span>
+            <span class="n">recurrent_dropout</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">recurrent_dropout</span><span class="p">,</span>
+            <span class="n">rnn_type</span><span class="o">=</span><span class="n">rnn_type</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_bidirectional">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_bidirectional">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_bidirectional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Bidirectional</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RNNConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a Bidirectional layer into an RNNConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Bidirectional</span>
+<span class="sd">            The Bidirectional layer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        RNNConfig</span>
+<span class="sd">            The configuration for the Bidirectional RNN layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">wrapped_layer</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">forward_layer</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrapped_layer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">LSTM</span><span class="p">):</span>
+            <span class="n">rnn_type</span> <span class="o">=</span> <span class="s1">&#39;lstm&#39;</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrapped_layer</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">GRU</span><span class="p">):</span>
+            <span class="n">rnn_type</span> <span class="o">=</span> <span class="s1">&#39;gru&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported wrapped layer type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">wrapped_layer</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> in Bidirectional layer.&quot;</span><span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_rnn</span><span class="p">(</span><span class="n">wrapped_layer</span><span class="p">,</span> <span class="n">rnn_type</span><span class="p">)</span>
+        <span class="c1"># Adjust for bidirectionality</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">go_backwards</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Assuming forward; adjust if necessary</span>
+        <span class="c1"># Optionally, modify units or other parameters if needed</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_pooling">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_pooling">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_pooling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">AveragePooling2D</span><span class="p">],</span> <span class="n">pool_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pooling2DConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a Pooling layer into a Pooling2DConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.MaxPooling2D or tf.keras.layers.AveragePooling2D</span>
+<span class="sd">            The Pooling layer to parse.</span>
+<span class="sd">        pool_type : str</span>
+<span class="sd">            Type of pooling (&#39;max&#39; or &#39;average&#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Pooling2DConfig</span>
+<span class="sd">            The configuration for the Pooling layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Pooling2DConfig</span><span class="p">(</span>
+            <span class="n">pool_type</span><span class="o">=</span><span class="n">pool_type</span><span class="p">,</span>
+            <span class="n">pool_size</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">pool_size</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">strides</span> <span class="k">if</span> <span class="n">layer</span><span class="o">.</span><span class="n">strides</span> <span class="k">else</span> <span class="n">layer</span><span class="o">.</span><span class="n">pool_size</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_batchnorm">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_batchnorm">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_batchnorm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a BatchNormalization layer.</span>
+<span class="sd">        Since BatchNormalization does not require a VGSL spec beyond &#39;Bn&#39;, return a placeholder.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.BatchNormalization</span>
+<span class="sd">            The BatchNormalization layer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">            Indicates that the VGSL spec should include &#39;Bn&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Bn&quot;</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_dropout">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_dropout">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DropoutConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a Dropout layer into a DropoutConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Dropout</span>
+<span class="sd">            The Dropout layer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        DropoutConfig</span>
+<span class="sd">            The configuration for the Dropout layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DropoutConfig</span><span class="p">(</span>
+            <span class="n">rate</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">rate</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_reshape">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_reshape">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_reshape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">,</span> <span class="n">prev_layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReshapeConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a Reshape layer into a ReshapeConfig dataclass.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Reshape</span>
+<span class="sd">            The Reshape layer to parse.</span>
+<span class="sd">        prev_layer : tf.keras.layers.Layer</span>
+<span class="sd">            The previous layer in the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ReshapeConfig</span>
+<span class="sd">            The configuration for the Reshape layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target_shape</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">target_shape</span>
+        <span class="k">return</span> <span class="n">ReshapeConfig</span><span class="p">(</span>
+            <span class="n">target_shape</span><span class="o">=</span><span class="n">target_shape</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_flatten">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_flatten">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse a Flatten layer.</span>
+<span class="sd">        Since Flatten does not require a VGSL spec beyond &#39;Flatten&#39;, return a placeholder.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Flatten</span>
+<span class="sd">            The Flatten layer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">            Indicates that the VGSL spec should include &#39;Flatten&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;Flt&quot;</span></div>
+
+
+<div class="viewcode-block" id="TensorFlowModelParser.parse_activation">
+<a class="viewcode-back" href="../../../source/vgslify.parsers.html#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_activation">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Activation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse an Activation layer.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : tf.keras.layers.Activation</span>
+<span class="sd">            The Activation layer to parse.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The activation function name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_activation</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ActivationConfig</span><span class="p">(</span><span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

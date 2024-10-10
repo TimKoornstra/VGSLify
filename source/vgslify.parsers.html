@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.parsers package &mdash; VGSLify 0.13.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=82662543"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.parser.html">vgslify.parser package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.utils.html">vgslify.utils package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.torch.html">vgslify.torch package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">vgslify.parsers package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/vgslify.parsers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vgslify-parsers-package">
+<h1>vgslify.parsers package<a class="headerlink" href="#vgslify-parsers-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-vgslify.parsers.base_parser">
+<span id="vgslify-parsers-base-parser-module"></span><h2>vgslify.parsers.base_parser module<a class="headerlink" href="#module-vgslify.parsers.base_parser" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vgslify.parsers.base_parser.BaseModelParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vgslify.parsers.base_parser.</span></span><span class="sig-name descname"><span class="pre">BaseModelParser</span></span><a class="reference internal" href="../_modules/vgslify/parsers/base_parser.html#BaseModelParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.base_parser.BaseModelParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for model parsers.
+Provides common utility methods for parsing different frameworks and generating VGSL spec strings.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.base_parser.BaseModelParser.generate_vgsl">
+<span class="sig-name descname"><span class="pre">generate_vgsl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">configs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/base_parser.html#BaseModelParser.generate_vgsl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.base_parser.BaseModelParser.generate_vgsl" title="Link to this definition"></a></dt>
+<dd><p>Convert a list of layer configuration dataclasses into a VGSL specification string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>configs</strong> (<em>List</em><em>[</em><em>Union</em><em>[</em><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Conv2DConfig" title="vgslify.core.config.Conv2DConfig"><em>Conv2DConfig</em></a><em>, </em><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Pooling2DConfig" title="vgslify.core.config.Pooling2DConfig"><em>Pooling2DConfig</em></a><em>, </em><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DenseConfig" title="vgslify.core.config.DenseConfig"><em>DenseConfig</em></a><em>, </em><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig" title="vgslify.core.config.RNNConfig"><em>RNNConfig</em></a><em>, </em><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DropoutConfig" title="vgslify.core.config.DropoutConfig"><em>DropoutConfig</em></a><em>, </em><a class="reference internal" href="vgslify.core.html#vgslify.core.config.ReshapeConfig" title="vgslify.core.config.ReshapeConfig"><em>ReshapeConfig</em></a><em>, </em><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig" title="vgslify.core.config.InputConfig"><em>InputConfig</em></a><em>]</em><em>]</em>) – List of layer configurations.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>VGSL specification string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.base_parser.BaseModelParser.parse_model">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/base_parser.html#BaseModelParser.parse_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.base_parser.BaseModelParser.parse_model" title="Link to this definition"></a></dt>
+<dd><p>Parse the model into a VGSL spec string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-vgslify.parsers.tf_parser">
+<span id="vgslify-parsers-tf-parser-module"></span><h2>vgslify.parsers.tf_parser module<a class="headerlink" href="#module-vgslify.parsers.tf_parser" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vgslify.parsers.tf_parser.</span></span><span class="sig-name descname"><span class="pre">TensorFlowModelParser</span></span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#vgslify.parsers.base_parser.BaseModelParser" title="vgslify.parsers.base_parser.BaseModelParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModelParser</span></code></a></p>
+<p>Parser for TensorFlow Keras models to convert them into VGSL spec strings using configuration dataclasses.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_activation">
+<span class="sig-name descname"><span class="pre">parse_activation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_activation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_activation" title="Link to this definition"></a></dt>
+<dd><p>Parse an Activation layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.Activation</em>) – The Activation layer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The activation function name.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_batchnorm">
+<span class="sig-name descname"><span class="pre">parse_batchnorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_batchnorm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_batchnorm" title="Link to this definition"></a></dt>
+<dd><p>Parse a BatchNormalization layer.
+Since BatchNormalization does not require a VGSL spec beyond ‘Bn’, return a placeholder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.BatchNormalization</em>) – The BatchNormalization layer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Indicates that the VGSL spec should include ‘Bn’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_bidirectional">
+<span class="sig-name descname"><span class="pre">parse_bidirectional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_bidirectional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_bidirectional" title="Link to this definition"></a></dt>
+<dd><p>Parse a Bidirectional layer into an RNNConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.Bidirectional</em>) – The Bidirectional layer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the Bidirectional RNN layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig" title="vgslify.core.config.RNNConfig">RNNConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_conv2d">
+<span class="sig-name descname"><span class="pre">parse_conv2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_conv2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_conv2d" title="Link to this definition"></a></dt>
+<dd><p>Parse a Conv2D layer into a Conv2DConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.Conv2D</em>) – The Conv2D layer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the Conv2D layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Conv2DConfig" title="vgslify.core.config.Conv2DConfig">Conv2DConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_dense">
+<span class="sig-name descname"><span class="pre">parse_dense</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_dense"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_dense" title="Link to this definition"></a></dt>
+<dd><p>Parse a Dense layer into a DenseConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.Dense</em>) – The Dense layer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the Dense layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DenseConfig" title="vgslify.core.config.DenseConfig">DenseConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_dropout">
+<span class="sig-name descname"><span class="pre">parse_dropout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_dropout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_dropout" title="Link to this definition"></a></dt>
+<dd><p>Parse a Dropout layer into a DropoutConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.Dropout</em>) – The Dropout layer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the Dropout layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DropoutConfig" title="vgslify.core.config.DropoutConfig">DropoutConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_flatten">
+<span class="sig-name descname"><span class="pre">parse_flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_flatten" title="Link to this definition"></a></dt>
+<dd><p>Parse a Flatten layer.
+Since Flatten does not require a VGSL spec beyond ‘Flatten’, return a placeholder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.Flatten</em>) – The Flatten layer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Indicates that the VGSL spec should include ‘Flatten’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_input_layer">
+<span class="sig-name descname"><span class="pre">parse_input_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_input_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_input_layer" title="Link to this definition"></a></dt>
+<dd><p>Parse an InputLayer into an InputConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer</strong> (<em>tf.keras.layers.InputLayer</em>) – The InputLayer to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the input layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig" title="vgslify.core.config.InputConfig">InputConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_model">
+<span class="sig-name descname"><span class="pre">parse_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_model" title="Link to this definition"></a></dt>
+<dd><p>Parse a TensorFlow Keras model into a VGSL spec string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>tf.keras.models.Model</em>) – Keras model to be converted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>VGSL spec string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the model contains unsupported layers or if the input shape is invalid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_pooling">
+<span class="sig-name descname"><span class="pre">parse_pooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_pooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_pooling" title="Link to this definition"></a></dt>
+<dd><p>Parse a Pooling layer into a Pooling2DConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layer</strong> (<em>tf.keras.layers.MaxPooling2D</em><em> or </em><em>tf.keras.layers.AveragePooling2D</em>) – The Pooling layer to parse.</p></li>
+<li><p><strong>pool_type</strong> (<em>str</em>) – Type of pooling (‘max’ or ‘average’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the Pooling layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Pooling2DConfig" title="vgslify.core.config.Pooling2DConfig">Pooling2DConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_reshape">
+<span class="sig-name descname"><span class="pre">parse_reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_reshape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_reshape" title="Link to this definition"></a></dt>
+<dd><p>Parse a Reshape layer into a ReshapeConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layer</strong> (<em>tf.keras.layers.Reshape</em>) – The Reshape layer to parse.</p></li>
+<li><p><strong>prev_layer</strong> (<em>tf.keras.layers.Layer</em>) – The previous layer in the model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the Reshape layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.ReshapeConfig" title="vgslify.core.config.ReshapeConfig">ReshapeConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.parsers.tf_parser.TensorFlowModelParser.parse_rnn">
+<span class="sig-name descname"><span class="pre">parse_rnn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rnn_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/parsers/tf_parser.html#TensorFlowModelParser.parse_rnn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.parsers.tf_parser.TensorFlowModelParser.parse_rnn" title="Link to this definition"></a></dt>
+<dd><p>Parse an RNN layer (LSTM or GRU) into an RNNConfig dataclass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layer</strong> (<em>tf.keras.layers.LSTM</em><em> or </em><em>tf.keras.layers.GRU</em>) – The RNN layer to parse.</p></li>
+<li><p><strong>rnn_type</strong> (<em>str</em>) – The type identifier (‘lstm’ or ‘gru’).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The configuration for the RNN layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig" title="vgslify.core.config.RNNConfig">RNNConfig</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-vgslify.parsers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-vgslify.parsers" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
