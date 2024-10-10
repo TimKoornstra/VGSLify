@@ -1,6 +1,6 @@
 import pytest
 import tensorflow as tf
-from vgslify.parser.tf_parser import tf_to_spec
+from vgslify.parsers.tf_parser import tf_to_spec
 
 
 def test_input_layer():

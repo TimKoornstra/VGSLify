@@ -39,8 +39,9 @@ def model_to_spec(model) -> str:
 
     # Check if it's a TensorFlow model
     if tf and isinstance(model, tf.keras.Model):
-        from vgslify.parser.tf_parser import tf_to_spec
-        return tf_to_spec(model)
+        from vgslify.parsers.tf_parser import TensorFlowModelParser
+        parser = TensorFlowModelParser()
+        return parser.parse_model(model)
 
     # Check if it's a PyTorch model
     if nn and isinstance(model, nn.Module):

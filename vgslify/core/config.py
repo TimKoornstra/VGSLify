@@ -138,3 +138,15 @@ class InputConfig:
     height: int
     width: int
     channels: int
+
+@dataclass
+class ActivationConfig:
+    """
+    Configuration for Activation layer.
+
+    Parameters
+    ----------
+    activation : str
+        Activation function to use.
+    """
+    activation: str

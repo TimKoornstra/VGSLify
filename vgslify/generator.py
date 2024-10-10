@@ -112,7 +112,7 @@ class VGSLModelGenerator:
             return history
 
         # Build and return the final model
-        return self.layer_factory.build_final_model()
+        return self.layer_factory.build()
 
     def construct_layer(self, spec: str) -> Any:
         """
@@ -200,10 +200,10 @@ class VGSLModelGenerator:
 
         layer_constructors: Dict[str, Any] = {
             'C': LayerFactory.conv2d,
-            'Mp': LayerFactory.maxpooling2d,
-            'Ap': LayerFactory.avgpool2d,
-            'L': LayerFactory.lstm,
-            'G': LayerFactory.gru,
+            'Mp': LayerFactory.pooling2d,
+            'Ap': LayerFactory.pooling2d,
+            'L': LayerFactory.rnn,
+            'G': LayerFactory.rnn,
             'B': LayerFactory.bidirectional,
             'Flt': LayerFactory.flatten,
             'F': LayerFactory.dense,
