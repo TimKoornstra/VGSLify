@@ -116,22 +116,38 @@ class BaseModelParser(ABC):
         return f"F{act}{config.units}"
 
     def _vgsl_rnn(self, config: RNNConfig) -> str:
-        direction = 'r' if config.go_backwards else 'f'
-        return_sequences = 's' if config.return_sequences else ''
-        dropout_spec = ""
+        if config.bidirectional:
+            layer_type = 'B'
+            rnn_type = 'l' if config.rnn_type.lower() == 'lstm' else 'g'
+        else:
+            if config.rnn_type.lower() == 'lstm':
+                layer_type = 'L'
+            elif config.rnn_type.lower() == 'gru':
+                layer_type = 'G'
+            else:
+                raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
+            rnn_type = 'r' if config.go_backwards else 'f'
+        
+        return_sequences = 's' if config.return_sequences and not config.bidirectional else ''
+        
+        spec = f"{layer_type}{rnn_type}{return_sequences}{config.units}"
+        
         if config.dropout > 0:
-            dropout_spec += f",D{int(config.dropout * 100)}"
+            spec += f",D{int(config.dropout * 100)}"
         if config.recurrent_dropout > 0:
-            dropout_spec += f",Rd{int(config.recurrent_dropout * 100)}"
-        rnn_type_code = 'L' if config.rnn_type.lower() == 'lstm' else 'G' if config.rnn_type.lower() == 'gru' else 'R'
-        return f"{rnn_type_code}{direction}{return_sequences}{config.units}{dropout_spec}"
+            spec += f",Rd{int(config.recurrent_dropout * 100)}"
+        
+        return spec
 
     def _vgsl_dropout(self, config: DropoutConfig) -> str:
         return f"D{int(config.rate * 100)}"
 
     def _vgsl_reshape(self, config: ReshapeConfig) -> str:
-        reshape_dims = ",".join(map(str, config.target_shape))
-        return f"R{reshape_dims}"
+        if len(config.target_shape) == 2 and (None in config.target_shape or -1 in config.target_shape):
+            return "Rc3"
+        else:
+            reshape_dims = ",".join(map(lambda x: str(x) if x is not None else '-1', config.target_shape))
+            return f"R{reshape_dims}"
 
     def _vgsl_activation(self, config: ActivationConfig) -> str:
         act = self._get_activation_code(config.activation)

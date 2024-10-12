@@ -72,14 +72,7 @@ class TensorFlowModelParser(BaseModelParser):
 
             if parser_func:
                 # Parse the layer
-                if isinstance(layer, tf.keras.layers.Reshape):
-                    # Reshape may need previous layer info
-                    prev_layer = model.layers[idx - 1] if idx > 0 else None
-                    config = parser_func(layer, prev_layer)
-                elif isinstance(layer, tf.keras.layers.Bidirectional):
-                    config = parser_func(layer)
-                else:
-                    config = parser_func(layer)
+                config = parser_func(layer)
 
                 # Append the config if not None
                 if config:
@@ -228,7 +221,8 @@ class TensorFlowModelParser(BaseModelParser):
             go_backwards=layer.go_backwards,
             dropout=layer.dropout,
             recurrent_dropout=layer.recurrent_dropout,
-            rnn_type=rnn_type
+            rnn_type=rnn_type,
+            bidirectional=False
         )
 
     def parse_bidirectional(self, layer: tf.keras.layers.Bidirectional) -> RNNConfig:
@@ -253,11 +247,15 @@ class TensorFlowModelParser(BaseModelParser):
         else:
             raise ValueError(f"Unsupported wrapped layer type {type(wrapped_layer).__name__} in Bidirectional layer.")
 
-        config = self.parse_rnn(wrapped_layer, rnn_type)
-        # Adjust for bidirectionality
-        config.go_backwards = False  # Assuming forward; adjust if necessary
-        # Optionally, modify units or other parameters if needed
-        return config
+        return RNNConfig(
+            units=wrapped_layer.units,
+            return_sequences=wrapped_layer.return_sequences,
+            go_backwards=False,  # Bidirectional layers handle both directions
+            dropout=wrapped_layer.dropout,
+            recurrent_dropout=wrapped_layer.recurrent_dropout,
+            rnn_type=rnn_type,
+            bidirectional=True
+        )
 
     def parse_pooling(self, layer: Union[tf.keras.layers.MaxPooling2D, tf.keras.layers.AveragePooling2D], pool_type: str) -> Pooling2DConfig:
         """
@@ -316,7 +314,7 @@ class TensorFlowModelParser(BaseModelParser):
             rate=layer.rate
         )
 
-    def parse_reshape(self, layer: tf.keras.layers.Reshape, prev_layer: tf.keras.layers.Layer) -> ReshapeConfig:
+    def parse_reshape(self, layer: tf.keras.layers.Reshape) -> ReshapeConfig:
         """
         Parse a Reshape layer into a ReshapeConfig dataclass.
 
@@ -324,8 +322,6 @@ class TensorFlowModelParser(BaseModelParser):
         ----------
         layer : tf.keras.layers.Reshape
             The Reshape layer to parse.
-        prev_layer : tf.keras.layers.Layer
-            The previous layer in the model.
 
         Returns
         -------

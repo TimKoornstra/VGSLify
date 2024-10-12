@@ -282,7 +282,8 @@ def parse_rnn_spec(spec: str) -> RNNConfig:
         go_backwards=rnn_type == 'r',
         dropout=dropout,
         recurrent_dropout=recurrent_dropout,
-        rnn_type=rnn_type
+        rnn_type=rnn_type,
+        bidirectional=layer_type == 'B'
     )
 
 

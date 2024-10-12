@@ -80,6 +80,8 @@ class RNNConfig:
         Fraction of the units to drop for the linear transformation of the recurrent state.
     rnn_type : str, optional
         Type of RNN (e.g., 'simple', 'lstm', 'gru').
+    bidirectional : bool, optional
+        If True, create a bidirectional RNN.
     """
     units: int
     return_sequences: bool
@@ -87,7 +89,7 @@ class RNNConfig:
     dropout: float
     recurrent_dropout: float
     rnn_type: str = None
-
+    bidirectional: bool = False
 
 @dataclass
 class DropoutConfig:

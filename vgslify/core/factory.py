@@ -321,10 +321,7 @@ class LayerFactory(ABC):
         self._add_layer(bidirectional_layer)
 
         # Update shape
-        if config.return_sequences:
-            self._update_shape((self.shape[0], config.units * 2))
-        else:
-            self._update_shape((config.units * 2,))
+        self._update_shape((self.shape[0], config.units * 2))
 
         return bidirectional_layer
 
@@ -452,10 +449,20 @@ class LayerFactory(ABC):
                     raise ValueError(
                         f"Expected a 3D input shape for 'Rc3', got {self.shape}")
 
-                C, H, W = self.shape
-                seq_length = H * W
+                if self.data_format == 'channels_first':
+                    C, H, W = self.shape
+                else:  # channels_last
+                    H, W, C = self.shape
+
+                # Handle variable height
+                if H is None:
+                    seq_length = None
+                else:
+                    seq_length = H * W if W is not None else None
+
                 features = C
-                layer = self._reshape((seq_length, features))
+                config = ReshapeConfig(target_shape=(seq_length, features))
+                layer = self._reshape(config)
                 self.layers.append(layer)
                 self.shape = (seq_length, features)
                 return layer

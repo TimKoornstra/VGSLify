@@ -220,7 +220,12 @@ class TensorFlowLayerFactory(LayerFactory):
         tf.keras.layers.Bidirectional
             The created Bidirectional RNN layer.
         """
-        rnn_layer_class = tf.keras.layers.LSTM if config.rnn_type == 'L' else tf.keras.layers.GRU
+        if config.rnn_type == 'l':
+            rnn_layer_class = tf.keras.layers.LSTM
+        elif config.rnn_type == 'g':
+            rnn_layer_class = tf.keras.layers.GRU
+        else:
+            raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
 
         return tf.keras.layers.Bidirectional(
             rnn_layer_class(
