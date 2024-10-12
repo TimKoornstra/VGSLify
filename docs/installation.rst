@@ -16,9 +16,9 @@ Before installing VGSLify, make sure your system meets the following requirement
 
   - `pip`: Python's package manager is required to install VGSLify and its dependencies.
   - **TensorFlow**: If you are using VGSLify with TensorFlow, you will need to install TensorFlow as a backend.
-  - **PyTorch**: PyTorch support is planned for future releases, but is not yet available in the current version.
+  - **PyTorch**: If you are using VGSLify with PyTorch, you will need to install PyTorch as a backend.
 
-- **VGSLify is BYOB (Bring Your Own Backend)**: VGSLify itself does not include a deep learning framework. Users must install their preferred backend—TensorFlow for now, with PyTorch support planned in future releases. This approach gives you flexibility in choosing your backend.
+- **VGSLify is BYOB (Bring Your Own Backend)**: VGSLify itself does not include a deep learning framework. Users must install their preferred backend—TensorFlow or PyTorch. This approach gives you flexibility in choosing your backend.
 
 Installing VGSLify
 ------------------

@@ -10,7 +10,7 @@ VGSLify now includes the ability to convert a trained or existing model back int
 How It Works
 ------------
 
-After you build or load a model using TensorFlow (with PyTorch support planned), you can convert it back into its VGSL specification string using the `model_to_spec()` function provided by VGSLify.
+After you build or load a model using TensorFlow or PyTorch, you can convert it back into its VGSL specification string using the `model_to_spec()` function provided by VGSLify.
 
 Example: Convert a Model to VGSL Spec
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -47,7 +47,7 @@ Once you've converted the model to a VGSL spec, you can easily save or share the
 
 2. **Rebuild the Model from the Spec**:
 
-   - You can use the saved VGSL spec to rebuild the exact same model at any time.
+   - You can use the saved VGSL spec to rebuild the exact same model at any time with either TensorFlow or PyTorch backend.
 
 .. code-block:: python
 
@@ -58,9 +58,8 @@ Once you've converted the model to a VGSL spec, you can easily save or share the
         vgsl_spec = f.read()
 
     # Rebuild the model from the spec
-    vgsl_gn = VGSLModelGenerator(backend="tensorflow")
+    vgsl_gn = VGSLModelGenerator(backend="auto")
     model = vgsl_gn.generate_model(vgsl_spec)
-    model.summary()
 
 By using this functionality, you can quickly share, reproduce, and analyze deep learning models in a concise format.
 

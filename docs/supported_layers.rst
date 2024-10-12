@@ -83,15 +83,6 @@ Layer Specifications
 
   - Adds a dropout layer with a 50% dropout rate.
 
-**Output Layer**
-^^^^^^^^^^^^^^^^
-
-- **VGSL Spec**: `O(2|1|0)(l|s)<n>`
-- **Description**: Defines the output layer. The first value (`2`, `1`, or `0`) specifies whether the output is 2D, 1D, or scalar, followed by the activation type (`l`: linear, `s`: softmax), and the number of output units (`n`).
-- **Example**: `O1s10`
-
-  - Defines a softmax output layer with 10 classes for a 1D sequence.
-
 **Reshape Layer**
 ^^^^^^^^^^^^^^^^^
 

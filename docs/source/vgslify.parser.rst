@@ -1,13 +1,29 @@
-vgslify.parser package
+vgslify.parsers package
 ======================
 
 Submodules
 ----------
 
-vgslify.parser.tf\_parser module
---------------------------------
+vgslify.parsers.base\_parser module
+-----------------------------------
 
-.. automodule:: vgslify.parser.tf_parser
+.. automodule:: vgslify.parsers.base_parser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+vgslify.parsers.torch\_parser module
+------------------------------------
+
+.. automodule:: vgslify.parsers.torch_parser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+vgslify.parsers.tf\_parser module
+---------------------------------
+
+.. automodule:: vgslify.parsers.tf_parser
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +31,7 @@ vgslify.parser.tf\_parser module
 Module contents
 ---------------
 
-.. automodule:: vgslify.parser
+.. automodule:: vgslify.parsers
    :members:
    :undoc-members:
    :show-inheritance:

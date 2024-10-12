@@ -1,7 +1,7 @@
 VGSLify Documentation
 =====================
 
-`vgslify` is a powerful tool for creating and managing models using the Variable-size Graph Specification Language (VGSL). It offers flexibility by supporting both TensorFlow and (planned) PyTorch backends, making it suitable for various deep learning workflows.
+`vgslify` is a powerful tool for creating and managing models using the Variable-size Graph Specification Language (VGSL). It offers flexibility by supporting both TensorFlow and PyTorch backends, making it suitable for various deep learning workflows.
 
 This documentation provides a comprehensive guide to getting started with VGSLify, in-depth tutorials, and detailed API references for developers.
 
@@ -39,7 +39,7 @@ For developers looking for more technical details, the following API documentati
 
    source/vgslify
    source/vgslify.core
-   source/vgslify.parser
+   source/vgslify.parsers
    source/vgslify.utils
    source/vgslify.tensorflow
    source/vgslify.torch

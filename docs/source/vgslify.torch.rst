@@ -12,6 +12,11 @@ vgslify.torch.layers module
    :undoc-members:
    :show-inheritance:
 
+.. automodule:: vgslify.torch.reshape
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

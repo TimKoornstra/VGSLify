@@ -44,16 +44,16 @@ Step-by-Step Instructions
 
    .. code-block:: python
 
-      vgsl_spec = "None,32,32,3 Cr3,3,32 Mp2,2,2,2 Cr3,3,64 Mp2,2,2,2 Rc2 Fc128 D25 Fs10"
+      vgsl_spec = "None,32,32,3 Cr3,3,32 Mp2,2 Rc2 Cr3,3,64 Mp2,2 Rc2 Fr128 D25 Fs10"
 
    Explanation:
 
    - `None,32,32,3`: Input layer for images of size 32x32 with 3 color channels (RGB).
    - `Cr3,3,32`: Convolutional layer with a 3x3 filter, ReLU activation, and 32 filters.
-   - `Mp2,2,2,2`: MaxPooling layer with a 2x2 pool size and 2x2 strides.
+   - `Mp2,2`: MaxPooling layer with a 2x2 pool size (and default strides).
    - `Cr3,3,64`: Second convolutional layer with 64 filters.
    - `Rc2`: Reshape layer to flatten the output for the fully connected layer.
-   - `Fc128`: Fully connected (dense) layer with 128 units.
+   - `Fr128`: Fully connected (dense) layer with 128 units and ReLU activation.
    - `D25`: Dropout layer with a 25% dropout rate.
    - `Fs10`: Output layer with 10 units and softmax activation for classification into 10 classes.
 

@@ -8,7 +8,9 @@ Subpackages
    :maxdepth: 4
 
    vgslify.core
+   vgslify.parsers
    vgslify.tensorflow
+   vgslify.torch
 
 Submodules
 ----------
@@ -17,14 +19,6 @@ vgslify.generator module
 ------------------------
 
 .. automodule:: vgslify.generator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-vgslify.parser module
----------------------
-
-.. automodule:: vgslify.parser
    :members:
    :undoc-members:
    :show-inheritance:
