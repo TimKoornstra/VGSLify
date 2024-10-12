@@ -33,13 +33,19 @@ You can install VGSLify in several ways, depending on whether you want the stabl
 
       pip install vgslify
 
-2. **Install TensorFlow Backend**:
+2. **Install TensorFlow or PyTorch Backend**:
 
    VGSLify is a BYOB package, which means you will need to install a backend separately. If you want to use TensorFlow as the backend, you can install it with the following command:
 
    .. code-block:: bash
 
       pip install tensorflow
+
+   Or if you want to use PyTorch as the backend, you can install it with the following command:
+
+   .. code-block:: bash
+
+      pip install torch
 
 3. **Install the Development Version from Source**:
 
