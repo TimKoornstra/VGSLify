@@ -21,7 +21,21 @@ from vgslify.parsers.base_parser import BaseModelParser
 
 class TensorFlowModelParser(BaseModelParser):
     """
-    Parser for TensorFlow Keras models to convert them into VGSL spec strings using configuration dataclasses.
+    Parser for converting TensorFlow Keras models into VGSL (Variable-size Graph Specification Language) spec strings.
+
+    This class extends the BaseModelParser to provide specific functionality for TensorFlow Keras models.
+    It uses configuration dataclasses to represent different layer types and converts them into
+    VGSL spec strings.
+
+    Attributes
+    ----------
+    layer_parsers : Dict[Type[tf.keras.layers.Layer], Callable]
+        A dictionary mapping TensorFlow Keras layer types to their corresponding parsing methods.
+
+    Notes
+    -----
+    This parser supports a wide range of TensorFlow Keras layers and can be extended to support
+    additional layer types by adding new parsing methods and updating the layer_parsers dictionary.
     """
 
     def __init__(self):

@@ -32,7 +32,8 @@ class BaseModelParser(ABC):
 
         Parameters
         ----------
-        configs : List[Union[Conv2DConfig, Pooling2DConfig, DenseConfig, RNNConfig, DropoutConfig, ReshapeConfig, InputConfig]]
+        configs : List[Union[Conv2DConfig, Pooling2DConfig, DenseConfig, RNNConfig,
+                             DropoutConfig, ReshapeConfig, InputConfig, ActivationConfig]]
             List of layer configurations.
 
         Returns
@@ -141,6 +142,19 @@ class BaseModelParser(ABC):
 
     # VGSL Generation Methods
     def _vgsl_input(self, config: InputConfig) -> str:
+        """
+        Generate VGSL string for input layer.
+
+        Parameters
+        ----------
+        config : InputConfig
+            Configuration for the input layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the input layer.
+        """
         return ",".join(map(str, filter(lambda x: x != -1, [
             config.batch_size,
             config.depth,
@@ -150,22 +164,79 @@ class BaseModelParser(ABC):
         ])))
 
     def _vgsl_conv2d(self, config: Conv2DConfig) -> str:
+        """
+        Generate VGSL string for Conv2D layer.
+
+        Parameters
+        ----------
+        config : Conv2DConfig
+            Configuration for the Conv2D layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the Conv2D layer.
+        """
         act = self._get_activation_code(config.activation)
         stride_spec = ",".join(map(str, config.strides)) if config.strides != (1, 1) else ""
         stride_str = f",{stride_spec}" if stride_spec else ""
         return f"C{act}{config.kernel_size[0]},{config.kernel_size[1]}{stride_str},{config.filters}"
 
     def _vgsl_pooling2d(self, config: Pooling2DConfig) -> str:
+        """
+        Generate VGSL string for Pooling2D layer.
+
+        Parameters
+        ----------
+        config : Pooling2DConfig
+            Configuration for the Pooling2D layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the Pooling2D layer.
+        """
         pool_type_code = 'Mp' if config.pool_type.lower() == 'max' else 'Ap'
         pool_size_str = ",".join(map(str, config.pool_size))
         strides_str = ",".join(map(str, config.strides)) if config.strides != config.pool_size else ""
         return f"{pool_type_code}{pool_size_str}{',' + strides_str if strides_str else ''}"
 
     def _vgsl_dense(self, config: DenseConfig) -> str:
+        """
+        Generate VGSL string for Dense layer.
+
+        Parameters
+        ----------
+        config : DenseConfig
+            Configuration for the Dense layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the Dense layer.
+        """
         act = self._get_activation_code(config.activation)
         return f"F{act}{config.units}"
 
     def _vgsl_rnn(self, config: RNNConfig) -> str:
+        """
+        Generate VGSL string for RNN layer.
+
+        Parameters
+        ----------
+        config : RNNConfig
+            Configuration for the RNN layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the RNN layer.
+
+        Raises
+        ------
+        ValueError
+            If an unsupported RNN type is provided.
+        """
         if config.bidirectional:
             layer_type = 'B'
             rnn_type = 'l' if config.rnn_type.lower() == 'lstm' else 'g'
@@ -190,9 +261,35 @@ class BaseModelParser(ABC):
         return spec
 
     def _vgsl_dropout(self, config: DropoutConfig) -> str:
+        """
+        Generate VGSL string for Dropout layer.
+
+        Parameters
+        ----------
+        config : DropoutConfig
+            Configuration for the Dropout layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the Dropout layer.
+        """
         return f"D{int(config.rate * 100)}"
 
     def _vgsl_reshape(self, config: ReshapeConfig) -> str:
+        """
+        Generate VGSL string for Reshape layer.
+
+        Parameters
+        ----------
+        config : ReshapeConfig
+            Configuration for the Reshape layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the Reshape layer.
+        """
         if len(config.target_shape) == 2 and (None in config.target_shape or -1 in config.target_shape):
             return "Rc3"
         else:
@@ -200,10 +297,41 @@ class BaseModelParser(ABC):
             return f"R{reshape_dims}"
 
     def _vgsl_activation(self, config: ActivationConfig) -> str:
+        """
+        Generate VGSL string for Activation layer.
+
+        Parameters
+        ----------
+        config : ActivationConfig
+            Configuration for the Activation layer.
+
+        Returns
+        -------
+        str
+            VGSL string representation of the Activation layer.
+        """
         act = self._get_activation_code(config.activation)
         return f"A{act}"
 
     def _get_activation_code(self, activation: str) -> str:
+        """
+        Get the VGSL activation code for a given activation function.
+
+        Parameters
+        ----------
+        activation : str
+            Name of the activation function.
+
+        Returns
+        -------
+        str
+            VGSL activation code.
+
+        Raises
+        ------
+        ValueError
+            If an unsupported activation function is provided.
+        """
         ACTIVATION_MAP = {
             'softmax': 's', 'tanh': 't', 'relu': 'r',
             'linear': 'l', 'sigmoid': 'm', 'identity': 'l'

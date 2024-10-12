@@ -23,7 +23,21 @@ from vgslify.torch.layers import Reshape
 
 class TorchModelParser(BaseModelParser):
     """
-    Parser for PyTorch models to convert them into VGSL spec strings using configuration dataclasses.
+    Parser for converting PyTorch models into VGSL (Variable-size Graph Specification Language) spec strings.
+
+    This class extends the BaseModelParser to provide specific functionality for PyTorch models.
+    It uses configuration dataclasses to represent different layer types and converts them into
+    VGSL spec strings.
+
+    Attributes
+    ----------
+    layer_parsers : Dict[Type[nn.Module], Callable]
+        A dictionary mapping PyTorch layer types to their corresponding parsing methods.
+
+    Notes
+    -----
+    This parser supports a wide range of PyTorch layers and can be extended to support
+    additional layer types by adding new parsing methods and updating the layer_parsers dictionary.
     """
 
     def __init__(self):

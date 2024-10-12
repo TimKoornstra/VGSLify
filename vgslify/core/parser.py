@@ -424,6 +424,12 @@ def parse_input_spec(spec: str) -> InputConfig:
     ------
     ValueError
         If the provided VGSL spec string does not match the expected format.
+
+    Examples
+    --------
+    >>> config = parse_input_spec("None,224,224,3")
+    >>> print(config)
+    InputConfig(batch_size=None, width=224, depth=None, height=224, channels=3)
     """
     try:
         dims = spec.split(",")
