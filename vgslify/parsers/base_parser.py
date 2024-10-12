@@ -17,11 +17,6 @@ class BaseModelParser(ABC):
     Provides common utility methods for parsing different frameworks and generating VGSL spec strings.
     """
 
-    @abstractmethod
-    def parse_model(self, model) -> str:
-        """Parse the model into a VGSL spec string."""
-        pass
-
     def generate_vgsl(self, configs: List[Union[
         Conv2DConfig,
         Pooling2DConfig,
@@ -88,6 +83,61 @@ class BaseModelParser(ABC):
 
         # Reverse to restore the original order
         return " ".join(vgsl_parts[::-1])
+
+    @abstractmethod
+    def parse_model(self, model) -> str:
+        """Parse the model into a VGSL spec string."""
+        pass
+
+    @abstractmethod
+    def parse_input(self, layer) -> InputConfig:
+        """Parse the input layer into a InputConfig dataclass."""
+        pass
+
+    @abstractmethod
+    def parse_conv2d(self, layer) -> Conv2DConfig:
+        """Parse the Conv2D layer into a Conv2DConfig dataclass."""
+        pass
+
+    @abstractmethod
+    def parse_dense(self, layer) -> DenseConfig:
+        """Parse the Dense layer into a DenseConfig dataclass."""
+        pass
+
+    @abstractmethod
+    def parse_rnn(self, layer) -> RNNConfig:
+        """Parse the RNN layer into a RNNConfig dataclass."""
+        pass
+
+    @abstractmethod
+    def parse_pooling(self, layer) -> Pooling2DConfig:
+        """Parse the Pooling layer into a Pooling2DConfig dataclass."""
+        pass
+
+    @abstractmethod
+    def parse_batchnorm(self, layer) -> str:
+        """Parse the BatchNorm layer into a VGSL spec string."""
+        pass
+
+    @abstractmethod
+    def parse_dropout(self, layer) -> DropoutConfig:
+        """Parse the Dropout layer into a DropoutConfig dataclass."""
+        pass
+
+    @abstractmethod
+    def parse_flatten(self, layer) -> str:
+        """Parse the Flatten layer into a VGSL spec string."""
+        pass
+
+    @abstractmethod
+    def parse_reshape(self, layer) -> ReshapeConfig:
+        """Parse the Reshape layer into a ReshapeConfig dataclass."""
+        pass
+
+    @abstractmethod
+    def parse_activation(self, layer) -> ActivationConfig:
+        """Parse the Activation layer into a ActivationConfig dataclass."""
+        pass
 
     # VGSL Generation Methods
     def _vgsl_input(self, config: InputConfig) -> str:
@@ -156,7 +206,7 @@ class BaseModelParser(ABC):
     def _get_activation_code(self, activation: str) -> str:
         ACTIVATION_MAP = {
             'softmax': 's', 'tanh': 't', 'relu': 'r',
-            'linear': 'l', 'sigmoid': 'm'
+            'linear': 'l', 'sigmoid': 'm', 'identity': 'l'
         }
         act_code = ACTIVATION_MAP.get(activation.lower(), None)
         if act_code is None:

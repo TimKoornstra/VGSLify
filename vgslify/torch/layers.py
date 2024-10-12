@@ -12,6 +12,7 @@ from vgslify.core.factory import LayerFactory
 from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
                                  RNNConfig, DropoutConfig, ReshapeConfig,
                                  InputConfig)
+from vgslify.torch.reshape import Reshape
 
 class TorchLayerFactory(LayerFactory):
     """
@@ -153,7 +154,7 @@ class TorchLayerFactory(LayerFactory):
         torch.nn.Linear
             The created Linear layer.
         """
-        return nn.Linear(self.shape[0], config.units)
+        return nn.Linear(self.shape[-1], config.units)
 
     def _rnn(self, config: RNNConfig):
         """
@@ -174,9 +175,9 @@ class TorchLayerFactory(LayerFactory):
         ValueError
             If an unsupported RNN type is specified.
         """
-        if config.rnn_type == 'L':
+        if config.rnn_type.upper() == 'L':
             rnn_class = nn.LSTM
-        elif config.rnn_type == 'G':
+        elif config.rnn_type.upper() == 'G':
             rnn_class = nn.GRU
         else:
             raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
@@ -273,40 +274,7 @@ class TorchLayerFactory(LayerFactory):
         nn.Module
             The created Reshape layer.
         """
-        return self.Reshape(*config.target_shape)
-
-    class Reshape(nn.Module):
-        """
-        Custom PyTorch Reshape layer.
-        """
-
-        def __init__(self, *args):
-            """
-            Initialize the Reshape layer.
-
-            Parameters
-            ----------
-            *args : int
-                Dimensions of the target shape excluding the batch size.
-            """
-            super().__init__()
-            self.target_shape = args
-
-        def forward(self, x):
-            """
-            Forward pass for reshaping the input tensor.
-
-            Parameters
-            ----------
-            x : torch.Tensor
-                Input tensor to reshape.
-
-            Returns
-            -------
-            torch.Tensor
-                Reshaped tensor.
-            """
-            return x.view(x.size(0), *self.target_shape)
+        return Reshape(*config.target_shape)
 
     def _flatten(self):
         """
