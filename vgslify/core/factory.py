@@ -262,7 +262,7 @@ class LayerFactory(ABC):
 
     def rnn(self, spec: str):
         """
-        Create an RNN layer (LSTM or GRU) based on the VGSL specification string.
+        Create an RNN layer (LSTM or GRU), either unidirectional or bidirectional, based on the VGSL specification string.
 
         Parameters
         ----------
@@ -272,13 +272,14 @@ class LayerFactory(ABC):
         Returns
         -------
         Any
-            The created RNN layer.
+            The created RNN layer (either unidirectional or bidirectional).
 
         Examples
         --------
         >>> # Using a hypothetical concrete implementation
         >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28))
-        >>> factory.rnn('Ls128')
+        >>> factory.rnn('Ls128')  # Unidirectional LSTM
+        >>> factory.rnn('Bl128')  # Bidirectional LSTM
         """
         config = parse_rnn_spec(spec)
         self._validate_input_shape()
@@ -288,42 +289,17 @@ class LayerFactory(ABC):
 
         # Update shape
         if config.return_sequences:
-            self._update_shape((self.shape[0], config.units))
+            if config.bidirectional:
+                self._update_shape((self.shape[0], config.units * 2))
+            else:
+                self._update_shape((self.shape[0], config.units))
         else:
-            self._update_shape((config.units,))
+            if config.bidirectional:
+                self._update_shape((config.units * 2,))
+            else:
+                self._update_shape((config.units,))
 
         return rnn_layer
-
-    def bidirectional(self, spec: str):
-        """
-        Create a Bidirectional RNN layer based on the VGSL specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for the Bidirectional layer.
-
-        Returns
-        -------
-        Any
-            The created Bidirectional layer.
-
-        Examples
-        --------
-        >>> # Using a hypothetical concrete implementation
-        >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28))
-        >>> factory.bidirectional('Bl128')
-        """
-        config = parse_rnn_spec(spec)
-        self._validate_input_shape()
-
-        bidirectional_layer = self._bidirectional(config)
-        self._add_layer(bidirectional_layer)
-
-        # Update shape
-        self._update_shape((self.shape[0], config.units * 2))
-
-        return bidirectional_layer
 
     def batchnorm(self, spec: str):
         """
@@ -592,23 +568,6 @@ class LayerFactory(ABC):
         -------
         Any
             The created RNN layer.
-        """
-        pass
-
-    @abstractmethod
-    def _bidirectional(self, config: RNNConfig):
-        """
-        Abstract method to create a bidirectional RNN layer.
-
-        Parameters
-        ----------
-        config : RNNConfig
-            The configuration object returned by parse_rnn_spec.
-
-        Returns
-        -------
-        Any
-            The created Bidirectional layer.
         """
         pass
 

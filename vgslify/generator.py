@@ -204,7 +204,7 @@ class VGSLModelGenerator:
             'Ap': LayerFactory.pooling2d,
             'L': LayerFactory.rnn,
             'G': LayerFactory.rnn,
-            'B': LayerFactory.bidirectional,
+            'B': LayerFactory.rnn,
             'Flt': LayerFactory.flatten,
             'F': LayerFactory.dense,
             'D': LayerFactory.dropout,

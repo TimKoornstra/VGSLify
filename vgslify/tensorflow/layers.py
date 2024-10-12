@@ -170,7 +170,7 @@ class TensorFlowLayerFactory(LayerFactory):
 
     def _rnn(self, config: RNNConfig):
         """
-        Create a TensorFlow RNN layer (LSTM or GRU).
+        Create a TensorFlow RNN layer (LSTM or GRU), either unidirectional or bidirectional.
 
         Parameters
         ----------
@@ -180,62 +180,34 @@ class TensorFlowLayerFactory(LayerFactory):
         Returns
         -------
         tf.keras.layers.Layer
-            The created RNN layer (either LSTM or GRU).
+            The created RNN layer (either LSTM or GRU, unidirectional or bidirectional).
 
         Raises
         ------
         ValueError
             If an unsupported RNN type is specified.
         """
-        if config.rnn_type == 'L':
-            return tf.keras.layers.LSTM(
-                units=config.units,
-                return_sequences=config.return_sequences,
-                go_backwards=config.go_backwards,
-                dropout=config.dropout,
-                recurrent_dropout=config.recurrent_dropout
-            )
-        elif config.rnn_type == 'G':
-            return tf.keras.layers.GRU(
-                units=config.units,
-                return_sequences=config.return_sequences,
-                go_backwards=config.go_backwards,
-                dropout=config.dropout,
-                recurrent_dropout=config.recurrent_dropout
-            )
+        if config.rnn_type.upper() == 'L':
+            rnn_class = tf.keras.layers.LSTM
+        elif config.rnn_type.upper() == 'G':
+            rnn_class = tf.keras.layers.GRU
         else:
             raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
 
-    def _bidirectional(self, config: RNNConfig):
-        """
-        Create a TensorFlow Bidirectional RNN layer.
-
-        Parameters
-        ----------
-        config : RNNConfig
-            Configuration object for the Bidirectional RNN layer.
-
-        Returns
-        -------
-        tf.keras.layers.Bidirectional
-            The created Bidirectional RNN layer.
-        """
-        if config.rnn_type == 'l':
-            rnn_layer_class = tf.keras.layers.LSTM
-        elif config.rnn_type == 'g':
-            rnn_layer_class = tf.keras.layers.GRU
-        else:
-            raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
-
-        return tf.keras.layers.Bidirectional(
-            rnn_layer_class(
-                units=config.units,
-                return_sequences=True,
-                dropout=config.dropout,
-                recurrent_dropout=config.recurrent_dropout
-            ),
-            merge_mode='concat'
+        rnn_layer = rnn_class(
+            units=config.units,
+            return_sequences=config.return_sequences,
+            dropout=config.dropout,
+            recurrent_dropout=config.recurrent_dropout
         )
+
+        if config.bidirectional:
+            return tf.keras.layers.Bidirectional(
+                rnn_layer,
+                merge_mode='concat'
+            )
+        else:
+            return rnn_layer
 
     def _batchnorm(self):
         """

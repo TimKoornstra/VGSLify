@@ -157,7 +157,7 @@ class TorchLayerFactory(LayerFactory):
 
     def _rnn(self, config: RNNConfig):
         """
-        Create a PyTorch RNN layer (LSTM or GRU).
+        Create a PyTorch RNN layer (LSTM or GRU), either unidirectional or bidirectional.
 
         Parameters
         ----------
@@ -167,7 +167,7 @@ class TorchLayerFactory(LayerFactory):
         Returns
         -------
         torch.nn.Module
-            The created RNN layer (either LSTM or GRU).
+            The created RNN layer (either LSTM or GRU, unidirectional or bidirectional).
 
         Raises
         ------
@@ -175,49 +175,19 @@ class TorchLayerFactory(LayerFactory):
             If an unsupported RNN type is specified.
         """
         if config.rnn_type == 'L':
-            return nn.LSTM(
-                input_size=self.shape[-1],
-                hidden_size=config.units,
-                num_layers=1,
-                batch_first=True,
-                dropout=config.dropout,
-                bidirectional=False
-            )
+            rnn_class = nn.LSTM
         elif config.rnn_type == 'G':
-            return nn.GRU(
-                input_size=self.shape[-1],
-                hidden_size=config.units,
-                num_layers=1,
-                batch_first=True,
-                dropout=config.dropout,
-                bidirectional=False
-            )
+            rnn_class = nn.GRU
         else:
             raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
 
-    def _bidirectional(self, config: RNNConfig):
-        """
-        Create a PyTorch Bidirectional RNN layer.
-
-        Parameters
-        ----------
-        config : RNNConfig
-            Configuration object for the Bidirectional RNN layer.
-
-        Returns
-        -------
-        torch.nn.Module
-            The created Bidirectional RNN layer.
-        """
-        rnn_layer = nn.LSTM if config.rnn_type == 'L' else nn.GRU
-
-        return rnn_layer(
+        return rnn_class(
             input_size=self.shape[-1],
             hidden_size=config.units,
             num_layers=1,
             batch_first=True,
             dropout=config.dropout,
-            bidirectional=True
+            bidirectional=config.bidirectional
         )
 
     def _batchnorm(self):
