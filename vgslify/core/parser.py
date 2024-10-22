@@ -224,42 +224,45 @@ def parse_rnn_spec(spec: str) -> RNNConfig:
     """
     Parses a VGSL specification string for an RNN layer (LSTM, GRU, Bidirectional)
     and returns the parsed configuration.
-
     Parameters
     ----------
     spec : str
         VGSL specification for the RNN layer. Expected format:
         For LSTM/GRU: `(L|G)(f|r)[s]<n>[,D<rate>,Rd<rate>]`
         For Bidirectional: `B(g|l)<n>[,D<rate>,Rd<rate>]`
-
     Returns
     -------
     RNNConfig
         Parsed configuration for the RNN layer.
-
-    Raises
-    ------
-    ValueError
-        If the provided VGSL spec string does not match the expected format.
-
+    
     Examples
     --------
-    >>> config = parse_rnn_spec("Lf64,D50,Rd25")
-    >>> print(config)
-    RNNConfig(units=64, return_sequences=True, go_backwards=False, dropout=0.5,
-              recurrent_dropout=0.25)
+    >>> config = parse_rnn_spec("Lf64,D50,Rd25")  # Forward LSTM with 64 units
+    >>> config = parse_rnn_spec("Gr64")           # Reverse GRU with 64 units
+    >>> config = parse_rnn_spec("Bl64")           # Bidirectional LSTM with 64 units
     """
-
-    match = re.match(
-        r'([LGB])([frgl])(s?)(-?\d+),?(D-?\d+)?,?(Rd-?\d+)?$', spec)
-    if not match:
-        raise ValueError(
-            f"RNN layer {spec} is of unexpected format. Expected format: "
-            "L(f|r)[s]<n>[,D<rate>,Rd<rate>], G(f|r)[s]<n>[,D<rate>,Rd<rate>], "
-            "or B(g|l)<n>[,D<rate>,Rd<rate>]."
-        )
-
-    layer_type, rnn_type, summarize, units, dropout, recurrent_dropout = match.groups()
+    if spec.startswith('B'):
+        # Handle Bidirectional case
+        match = re.match(r'B([gl])(-?\d+),?(D-?\d+)?,?(Rd-?\d+)?$', spec)
+        if not match:
+            raise ValueError(
+                f"Bidirectional RNN layer {spec} is of unexpected format. "
+                "Expected format: B(g|l)<n>[,D<rate>,Rd<rate>]"
+            )
+        rnn_type, units, dropout, recurrent_dropout = match.groups()
+        bidirectional = True
+    else:
+        # Handle LSTM/GRU case
+        match = re.match(
+            r'([LG])([fr])(s?)(-?\d+),?(D-?\d+)?,?(Rd-?\d+)?$', spec)
+        if not match:
+            raise ValueError(
+                f"RNN layer {spec} is of unexpected format. "
+                "Expected format: (L|G)(f|r)[s]<n>[,D<rate>,Rd<rate>]"
+            )
+        layer_type, direction, summarize, units, dropout, recurrent_dropout = match.groups()
+        rnn_type = layer_type.lower()  # 'l' for LSTM, 'g' for GRU
+        bidirectional = False
 
     units = int(units)
     dropout = 0 if dropout is None else int(dropout.replace('D', "")) / 100
@@ -268,22 +271,20 @@ def parse_rnn_spec(spec: str) -> RNNConfig:
 
     # Validation
     if units <= 0:
-        raise ValueError(
-            f"Invalid number of units {units} for RNN layer {spec}.")
+        raise ValueError(f"Invalid number of units {units} for RNN layer {spec}.")
     if dropout < 0 or dropout > 1:
         raise ValueError("Dropout rate must be between 0 and 1.")
     if recurrent_dropout < 0 or recurrent_dropout > 1:
         raise ValueError("Recurrent dropout rate must be between 0 and 1.")
 
-    # Return RNNConfig with parsed parameters
     return RNNConfig(
         units=units,
-        return_sequences=bool(summarize) if layer_type == 'L' else True,
-        go_backwards=rnn_type == 'r',
+        return_sequences=bool(summarize) if not bidirectional else True,
+        go_backwards=direction == 'r' if not bidirectional else False,
         dropout=dropout,
         recurrent_dropout=recurrent_dropout,
         rnn_type=rnn_type,
-        bidirectional=layer_type == 'B'
+        bidirectional=bidirectional
     )
 
 
