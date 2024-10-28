@@ -432,7 +432,7 @@ class LayerFactory(ABC):
 
                 # Handle variable height
                 if H is None:
-                    seq_length = None
+                    seq_length = -1
                 else:
                     seq_length = H * W if W is not None else None
 

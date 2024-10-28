@@ -69,7 +69,7 @@ class TensorFlowLayerFactory(LayerFactory):
             raise ValueError("No input shape specified for the model.")
 
         # If we do not have an input layer, add one
-        if not isinstance(self.layers[0], tf.keras.KerasTensor):
+        if not tf.keras.backend.is_keras_tensor(self.layers[0]):
             input_layer = tf.keras.Input(shape=self._input_shape)
             self.layers.insert(0, input_layer)
 
