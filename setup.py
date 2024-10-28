@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = "0.13.2"
+version = "0.13.3"
 
 
 # Function to write the version to a _version.py file

@@ -436,7 +436,7 @@ class LayerFactory(ABC):
                 else:
                     seq_length = H * W if W is not None else None
 
-                features = C
+                features = W * C
                 config = ReshapeConfig(target_shape=(seq_length, features))
                 layer = self._reshape(config)
                 self.layers.append(layer)
