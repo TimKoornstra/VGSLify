@@ -31,7 +31,7 @@ version_scheme = "post-release"
 local_scheme = "dirty-tag"
 write_to = "vgslify/_version.py"
 
-[tool.ruff]
+[tool.ruff.lint]
 select = ["F", "E", "W", "PL", "I"]
-ignore = ["E501", "E741", "F402", "F823", "PLR0913", "PLR0911", "PLR0912", "PLR0915", "PLW2901", "PLW0603"]
+ignore = ["E501", "E741", "F402", "F823", "PLR0913", "PLR0911", "PLR0912", "PLR0915", "PLR2004", "PLW2901", "PLW0603"]
 
