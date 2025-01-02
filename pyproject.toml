@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vgslify"
+dynamic = ["version"]
+description = "VGSLify is a Python toolkit for rapid prototyping and seamless conversion between TensorFlow and PyTorch models and VGSL."
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [
+    { name = "Tim Koornstra", email = "tim.koornstra@gmail.com" }
+]
+license = { text = "MIT" }
+dependencies = []
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+urls = { Homepage = "https://github.com/TimKoornstra/VGSLify" }
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.setuptools.dynamic]
+version = { attr = "vgslify._version.__version__" }
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "dirty-tag"
+write_to = "vgslify/_version.py"
+
+[tool.ruff]
+select = ["F", "E", "W", "PL", "I"]
+ignore = ["E501", "E741", "F402", "F823", "PLR0913", "PLR0911", "PLR0912", "PLR0915", "PLW2901", "PLW0603"]
+
