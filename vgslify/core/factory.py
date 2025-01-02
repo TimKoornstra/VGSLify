@@ -1,18 +1,31 @@
 # Imports
 
 # > Standard Libraries
+import math
 from abc import ABC, abstractmethod
 from typing import Any, Tuple
-import math
+
+from vgslify.core.config import (
+    Conv2DConfig,
+    DenseConfig,
+    DropoutConfig,
+    InputConfig,
+    Pooling2DConfig,
+    ReshapeConfig,
+    RNNConfig,
+)
 
 # > Internal dependencies
-from vgslify.core.parser import (parse_dropout_spec, parse_activation_spec,
-                                 parse_reshape_spec, parse_conv2d_spec,
-                                 parse_pooling2d_spec, parse_dense_spec,
-                                 parse_rnn_spec, parse_input_spec)
-from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
-                                 RNNConfig, DropoutConfig, ReshapeConfig,
-                                 InputConfig)
+from vgslify.core.parser import (
+    parse_activation_spec,
+    parse_conv2d_spec,
+    parse_dense_spec,
+    parse_dropout_spec,
+    parse_input_spec,
+    parse_pooling2d_spec,
+    parse_reshape_spec,
+    parse_rnn_spec,
+)
 
 
 class LayerFactory(ABC):
@@ -43,7 +56,7 @@ class LayerFactory(ABC):
 
     Notes
     -----
-    This is an abstract base class. Use a concrete implementation like 
+    This is an abstract base class. Use a concrete implementation like
     `TensorFlowLayerFactory` or `PyTorchLayerFactory` in your code.
 
     This class uses a naming convention where public methods for creating layers
@@ -61,12 +74,16 @@ class LayerFactory(ABC):
     >>> model = factory.build('my_model')
     """
 
-    def __init__(self, input_shape: Tuple[int, ...] = None, data_format: str = 'channels_last'):
+    def __init__(
+        self, input_shape: Tuple[int, ...] = None, data_format: str = "channels_last"
+    ):
         self.layers = []
         self.data_format = data_format
 
         # Make sure the input shape is valid
-        if input_shape is not None and not all(isinstance(dim, int) for dim in input_shape):
+        if input_shape is not None and not all(
+            isinstance(dim, int) for dim in input_shape
+        ):
             raise ValueError("Input shape must be a tuple of integers.")
 
         # Set the input shape if provided
@@ -125,8 +142,7 @@ class LayerFactory(ABC):
         # Adjust input shape based on the parsed dimensions
         if config.channels is not None and config.depth is not None:
             # 4D input: shape = (depth, height, width, channels)
-            input_shape = (config.depth, config.height,
-                           config.width, config.channels)
+            input_shape = (config.depth, config.height, config.width, config.channels)
         elif config.channels is not None:
             # 3D input: shape = (height, width, channels)
             input_shape = (config.height, config.width, config.channels)
@@ -138,12 +154,16 @@ class LayerFactory(ABC):
             input_shape = (config.width,)
 
         # Adjust for data format
-        if self.data_format == 'channels_first':
+        if self.data_format == "channels_first":
             if len(input_shape) == 3:
                 input_shape = (input_shape[2], input_shape[0], input_shape[1])
             elif len(input_shape) == 4:
-                input_shape = (input_shape[3], input_shape[0],
-                               input_shape[1], input_shape[2])
+                input_shape = (
+                    input_shape[3],
+                    input_shape[0],
+                    input_shape[1],
+                    input_shape[2],
+                )
 
         self.shape = input_shape
         self._input_shape = input_shape
@@ -293,11 +313,10 @@ class LayerFactory(ABC):
                 self._update_shape((self.shape[0], config.units * 2))
             else:
                 self._update_shape((self.shape[0], config.units))
+        elif config.bidirectional:
+            self._update_shape((config.units * 2,))
         else:
-            if config.bidirectional:
-                self._update_shape((config.units * 2,))
-            else:
-                self._update_shape((config.units,))
+            self._update_shape((config.units,))
 
         return rnn_layer
 
@@ -321,9 +340,10 @@ class LayerFactory(ABC):
         >>> factory = SomeConcreteLayerFactory(input_shape=(28, 28, 32))
         >>> factory.batchnorm('Bn')
         """
-        if spec != 'Bn':
+        if spec != "Bn":
             raise ValueError(
-                f"BatchNormalization layer spec '{spec}' is incorrect. Expected 'Bn'.")
+                f"BatchNormalization layer spec '{spec}' is incorrect. Expected 'Bn'."
+            )
 
         self._validate_input_shape()
 
@@ -411,21 +431,22 @@ class LayerFactory(ABC):
             raise ValueError("Input shape must be set before adding layers.")
 
         # Handle 'Rc' (collapse spatial dimensions) specification
-        if spec.startswith('Rc'):
-            if spec == 'Rc2':
+        if spec.startswith("Rc"):
+            if spec == "Rc2":
                 # Flatten to (batch_size, -1)
                 layer = self._flatten()
                 self.layers.append(layer)
                 self.shape = (int(self._compute_flatten_shape(self.shape)),)
                 return layer
 
-            elif spec == 'Rc3':
+            elif spec == "Rc3":
                 # Reshape to (batch_size, seq_length, features)
                 if len(self.shape) != 3:
                     raise ValueError(
-                        f"Expected a 3D input shape for 'Rc3', got {self.shape}")
+                        f"Expected a 3D input shape for 'Rc3', got {self.shape}"
+                    )
 
-                if self.data_format == 'channels_first':
+                if self.data_format == "channels_first":
                     C, H, W = self.shape
                 else:  # channels_last
                     H, W, C = self.shape
@@ -475,7 +496,8 @@ class LayerFactory(ABC):
         """
         if spec != "Flt":
             raise ValueError(
-                f"Flatten layer spec '{spec}' is incorrect. Expected 'Flt'.")
+                f"Flatten layer spec '{spec}' is incorrect. Expected 'Flt'."
+            )
 
         layer = self._flatten()
         self.layers.append(layer)
@@ -647,9 +669,9 @@ class LayerFactory(ABC):
         pass
 
     # Helper methods
-    def _compute_conv_output_shape(self,
-                                   input_shape: Tuple[int, ...],
-                                   config: Conv2DConfig) -> Tuple[int, ...]:
+    def _compute_conv_output_shape(
+        self, input_shape: Tuple[int, ...], config: Conv2DConfig
+    ) -> Tuple[int, ...]:
         """
         Computes the output shape of a convolutional layer.
 
@@ -665,7 +687,7 @@ class LayerFactory(ABC):
         tuple
             The output shape after the convolution.
         """
-        if self.data_format == 'channels_last':
+        if self.data_format == "channels_last":
             H_in, W_in, C_in = input_shape
         else:
             C_in, H_in, W_in = input_shape
@@ -674,20 +696,18 @@ class LayerFactory(ABC):
         # Adjust calculations based on the backend's handling of padding
 
         # Example computation for 'same' padding
-        H_out = math.ceil(H_in / config.strides[0]) \
-            if H_in is not None else None
-        W_out = math.ceil(W_in / config.strides[1]) \
-            if W_in is not None else None
+        H_out = math.ceil(H_in / config.strides[0]) if H_in is not None else None
+        W_out = math.ceil(W_in / config.strides[1]) if W_in is not None else None
         C_out = config.filters
 
-        if self.data_format == 'channels_last':
+        if self.data_format == "channels_last":
             return (H_out, W_out, C_out)
         else:
             return (C_out, H_out, W_out)
 
-    def _compute_pool_output_shape(self,
-                                   input_shape: Tuple[int, ...],
-                                   config: Pooling2DConfig) -> Tuple[int, ...]:
+    def _compute_pool_output_shape(
+        self, input_shape: Tuple[int, ...], config: Pooling2DConfig
+    ) -> Tuple[int, ...]:
         """
         Computes the output shape of a pooling layer.
 
@@ -703,18 +723,24 @@ class LayerFactory(ABC):
         tuple
             The output shape after pooling.
         """
-        if self.data_format == 'channels_last':
+        if self.data_format == "channels_last":
             H_in, W_in, C_in = input_shape
         else:
             C_in, H_in, W_in = input_shape
 
         # Compute output dimensions based on pooling size and strides
-        H_out = (H_in + config.strides[0] - 1) // config.strides[0] \
-            if H_in is not None else None
-        W_out = (W_in + config.strides[1] - 1) // config.strides[1] if \
-            W_in is not None else None
+        H_out = (
+            (H_in + config.strides[0] - 1) // config.strides[0]
+            if H_in is not None
+            else None
+        )
+        W_out = (
+            (W_in + config.strides[1] - 1) // config.strides[1]
+            if W_in is not None
+            else None
+        )
 
-        if self.data_format == 'channels_last':
+        if self.data_format == "channels_last":
             return (H_out, W_out, C_in)
         else:
             return (C_in, H_out, W_out)
@@ -735,6 +761,7 @@ class LayerFactory(ABC):
         """
         from functools import reduce
         from operator import mul
+
         return reduce(mul, shape)
 
     def _validate_input_shape(self):

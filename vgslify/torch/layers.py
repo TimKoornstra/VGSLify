@@ -5,14 +5,22 @@ from typing import Tuple
 
 # > Third-party dependencies
 import torch
-import torch.nn as nn
+from torch import nn
+
+from vgslify.core.config import (
+    Conv2DConfig,
+    DenseConfig,
+    DropoutConfig,
+    InputConfig,
+    Pooling2DConfig,
+    ReshapeConfig,
+    RNNConfig,
+)
 
 # > Internal dependencies
 from vgslify.core.factory import LayerFactory
-from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
-                                 RNNConfig, DropoutConfig, ReshapeConfig,
-                                 InputConfig)
 from vgslify.torch.reshape import Reshape
+
 
 class TorchLayerFactory(LayerFactory):
     """
@@ -41,7 +49,7 @@ class TorchLayerFactory(LayerFactory):
         input_shape : tuple of int, optional
             The input shape for the model, excluding batch size.
         """
-        super().__init__(input_shape, data_format='channels_first')
+        super().__init__(input_shape, data_format="channels_first")
 
     def build(self, name: str = "VGSL_Model") -> nn.Module:
         """
@@ -108,14 +116,17 @@ class TorchLayerFactory(LayerFactory):
         torch.nn.Conv2d
             The created Conv2d layer.
         """
-        padding = 'same' if torch.__version__ >= '1.7' else self._compute_same_padding(
-            config.kernel_size, config.strides)
+        padding = (
+            "same"
+            if torch.__version__ >= "1.7"
+            else self._compute_same_padding(config.kernel_size, config.strides)
+        )
         return nn.Conv2d(
             in_channels=self.shape[0],
             out_channels=config.filters,
             kernel_size=config.kernel_size,
             stride=config.strides,
-            padding=padding
+            padding=padding,
         )
 
     def _pooling2d(self, config: Pooling2DConfig):
@@ -133,11 +144,9 @@ class TorchLayerFactory(LayerFactory):
             The created Pooling2d layer (either MaxPool2d or AvgPool2d).
         """
         padding = self._compute_same_padding(config.pool_size, config.strides)
-        pool_layer = nn.MaxPool2d if config.pool_type == 'max' else nn.AvgPool2d
+        pool_layer = nn.MaxPool2d if config.pool_type == "max" else nn.AvgPool2d
         return pool_layer(
-            kernel_size=config.pool_size,
-            stride=config.strides,
-            padding=padding
+            kernel_size=config.pool_size, stride=config.strides, padding=padding
         )
 
     def _dense(self, config: DenseConfig):
@@ -175,9 +184,9 @@ class TorchLayerFactory(LayerFactory):
         ValueError
             If an unsupported RNN type is specified.
         """
-        if config.rnn_type.upper() == 'L':
+        if config.rnn_type.upper() == "L":
             rnn_class = nn.LSTM
-        elif config.rnn_type.upper() == 'G':
+        elif config.rnn_type.upper() == "G":
             rnn_class = nn.GRU
         else:
             raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
@@ -188,7 +197,7 @@ class TorchLayerFactory(LayerFactory):
             num_layers=1,
             batch_first=True,
             dropout=config.dropout,
-            bidirectional=config.bidirectional
+            bidirectional=config.bidirectional,
         )
 
     def _batchnorm(self):
@@ -249,11 +258,11 @@ class TorchLayerFactory(LayerFactory):
             If the activation function is not supported.
         """
         activations = {
-            'softmax': nn.Softmax(dim=1),
-            'tanh': nn.Tanh(),
-            'relu': nn.ReLU(),
-            'linear': nn.Identity(),
-            'sigmoid': nn.Sigmoid(),
+            "softmax": nn.Softmax(dim=1),
+            "tanh": nn.Tanh(),
+            "relu": nn.ReLU(),
+            "linear": nn.Identity(),
+            "sigmoid": nn.Sigmoid(),
         }
         if activation_function in activations:
             return activations[activation_function]
@@ -310,7 +319,7 @@ class TorchLayerFactory(LayerFactory):
             stride = (stride, stride)
         padding = []
         for k, s in zip(kernel_size, stride):
-            p = ((k - 1) // 2)
+            p = (k - 1) // 2
             padding.append(p)
         return tuple(padding)
 
@@ -334,11 +343,11 @@ class TorchLayerFactory(LayerFactory):
             If the activation_name is not recognized.
         """
         activations = {
-            'softmax': nn.Softmax(dim=1),
-            'tanh': nn.Tanh(),
-            'relu': nn.ReLU(),
-            'linear': nn.Identity(),
-            'sigmoid': nn.Sigmoid(),
+            "softmax": nn.Softmax(dim=1),
+            "tanh": nn.Tanh(),
+            "relu": nn.ReLU(),
+            "linear": nn.Identity(),
+            "sigmoid": nn.Sigmoid(),
         }
         if activation_name in activations:
             return activations[activation_name]

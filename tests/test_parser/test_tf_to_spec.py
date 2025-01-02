@@ -1,5 +1,6 @@
 import pytest
 import tensorflow as tf
+
 from vgslify.parsers.tf_parser import tf_to_spec
 
 
@@ -16,8 +17,7 @@ def test_input_layer():
 def test_conv2d_layer():
     # Create a simple model with Conv2D layer
     inputs = tf.keras.Input(shape=(32, 32, 3))
-    x = tf.keras.layers.Conv2D(
-        64, (3, 3), activation='relu', strides=(2, 2))(inputs)
+    x = tf.keras.layers.Conv2D(64, (3, 3), activation="relu", strides=(2, 2))(inputs)
     model = tf.keras.Model(inputs=inputs, outputs=x)
 
     vgsl_spec = tf_to_spec(model)
@@ -28,7 +28,7 @@ def test_conv2d_layer():
 def test_dense_layer():
     # Create a simple model with a dense layer
     inputs = tf.keras.Input(shape=(32,))
-    x = tf.keras.layers.Dense(64, activation='relu')(inputs)
+    x = tf.keras.layers.Dense(64, activation="relu")(inputs)
     model = tf.keras.Model(inputs=inputs, outputs=x)
 
     vgsl_spec = tf_to_spec(model)
@@ -50,8 +50,9 @@ def test_maxpooling2d_layer():
 def test_lstm_layer():
     # Create a simple model with an LSTM layer
     inputs = tf.keras.Input(shape=(32, 10))
-    x = tf.keras.layers.LSTM(64, return_sequences=True,
-                             dropout=0.2, recurrent_dropout=0.1)(inputs)
+    x = tf.keras.layers.LSTM(
+        64, return_sequences=True, dropout=0.2, recurrent_dropout=0.1
+    )(inputs)
     model = tf.keras.Model(inputs=inputs, outputs=x)
 
     vgsl_spec = tf_to_spec(model)
@@ -62,8 +63,9 @@ def test_lstm_layer():
 def test_bidirectional_layer():
     # Create a model with a Bidirectional LSTM layer
     inputs = tf.keras.Input(shape=(32, 10))
-    x = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(
-        64, dropout=0.2, recurrent_dropout=0.1))(inputs)
+    x = tf.keras.layers.Bidirectional(
+        tf.keras.layers.LSTM(64, dropout=0.2, recurrent_dropout=0.1)
+    )(inputs)
     model = tf.keras.Model(inputs=inputs, outputs=x)
 
     vgsl_spec = tf_to_spec(model)
@@ -107,8 +109,7 @@ def test_batchnorm_layer():
 def test_unsupported_layer():
     # Create a model with an unsupported layer type
     inputs = tf.keras.Input(shape=(32, 32, 32, 3))
-    x = tf.keras.layers.Conv3D(64, (3, 3, 3))(
-        inputs)  # Conv3D is not supported
+    x = tf.keras.layers.Conv3D(64, (3, 3, 3))(inputs)  # Conv3D is not supported
     model = tf.keras.Model(inputs=inputs, outputs=x)
 
     with pytest.raises(ValueError):

@@ -1,6 +1,7 @@
 # Imports
 
 # > Standard Libraries
+import importlib
 from typing import Any, Dict, List
 
 # > Internal Libraries
@@ -32,8 +33,9 @@ class VGSLModelGenerator:
             The name of the model, by default "VGSL_Model"
         """
         self.backend = self._detect_backend(backend)
-        self.layer_factory_class, self.layer_constructors = self._initialize_backend_and_factory(
-            self.backend)
+        self.layer_factory_class, self.layer_constructors = (
+            self._initialize_backend_and_factory(self.backend)
+        )
         self.layer_factory = self.layer_factory_class()
 
     def generate_model(self, model_spec: str, model_name: str = "VGSL_Model") -> Any:
@@ -53,7 +55,9 @@ class VGSLModelGenerator:
         Any
             The built model using the specified backend.
         """
-        return self._process_layers(model_spec, return_history=False, model_name=model_name)
+        return self._process_layers(
+            model_spec, return_history=False, model_name=model_name
+        )
 
     def generate_history(self, model_spec: str) -> List[Any]:
         """
@@ -75,7 +79,12 @@ class VGSLModelGenerator:
         """
         return self._process_layers(model_spec, return_history=True)
 
-    def _process_layers(self, model_spec: str, return_history: bool = False, model_name: str = "VGSL_Model") -> Any:
+    def _process_layers(
+        self,
+        model_spec: str,
+        return_history: bool = False,
+        model_name: str = "VGSL_Model",
+    ) -> Any:
         """
         Process the VGSL specification string to build the model or generate a history of layers.
 
@@ -161,20 +170,15 @@ class VGSLModelGenerator:
         if backend != "auto":
             return backend
 
-        try:
-            import tensorflow as tf
+        if importlib.util.find_spec("tensorflow") is not None:
             return "tensorflow"
-        except ImportError:
-            pass
 
-        try:
-            import torch
+        if importlib.util.find_spec("torch") is not None:
             return "torch"
-        except ImportError:
-            pass
 
         raise ImportError(
-            "Neither TensorFlow nor PyTorch is installed. Please install one of them.")
+            "Neither TensorFlow nor PyTorch is installed. Please install one of them."
+        )
 
     def _initialize_backend_and_factory(self, backend: str) -> tuple:
         """
@@ -192,30 +196,34 @@ class VGSLModelGenerator:
         """
         try:
             if backend == "tensorflow":
-                from vgslify.tensorflow.layers import TensorFlowLayerFactory as LayerFactory
+                from vgslify.tensorflow.layers import (
+                    TensorFlowLayerFactory as LayerFactory,
+                )
             elif backend == "torch":
                 from vgslify.torch.layers import TorchLayerFactory as LayerFactory
             else:
                 raise ValueError(
-                    f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'.")
+                    f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'."
+                )
         except ImportError:
             raise ImportError(
-                f"Backend '{backend}' is not available. Please install the required library.")
+                f"Backend '{backend}' is not available. Please install the required library."
+            )
 
         layer_constructors: Dict[str, Any] = {
-            'C': LayerFactory.conv2d,
-            'Mp': LayerFactory.pooling2d,
-            'Ap': LayerFactory.pooling2d,
-            'L': LayerFactory.rnn,
-            'G': LayerFactory.rnn,
-            'B': LayerFactory.rnn,
-            'Flt': LayerFactory.flatten,
-            'F': LayerFactory.dense,
-            'D': LayerFactory.dropout,
-            'Bn': LayerFactory.batchnorm,
-            'A': LayerFactory.activation,
-            'R': LayerFactory.reshape,
-            'Rc': LayerFactory.reshape,
+            "C": LayerFactory.conv2d,
+            "Mp": LayerFactory.pooling2d,
+            "Ap": LayerFactory.pooling2d,
+            "L": LayerFactory.rnn,
+            "G": LayerFactory.rnn,
+            "B": LayerFactory.rnn,
+            "Flt": LayerFactory.flatten,
+            "F": LayerFactory.dense,
+            "D": LayerFactory.dropout,
+            "Bn": LayerFactory.batchnorm,
+            "A": LayerFactory.activation,
+            "R": LayerFactory.reshape,
+            "Rc": LayerFactory.reshape,
         }
 
         return LayerFactory, layer_constructors
@@ -244,7 +252,8 @@ class VGSLModelGenerator:
         for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
             if spec.startswith(prefix):
                 layer_constructor = getattr(
-                    layer_factory, self.layer_constructors[prefix].__name__)
+                    layer_factory, self.layer_constructors[prefix].__name__
+                )
                 return layer_constructor(spec)
 
         raise ValueError(f"Unknown layer specification: {spec}")

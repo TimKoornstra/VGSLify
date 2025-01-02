@@ -1,25 +1,26 @@
 # Imports
 
 # > Standard Library
-from typing import Callable, Dict, Type, Union
 import warnings
+from typing import Callable, Dict, Type, Union
 
 # > Third-Party Dependencies
-import torch.nn as nn
+from torch import nn
 
 # > Internal
 from vgslify.core.config import (
     ActivationConfig,
     Conv2DConfig,
-    Pooling2DConfig,
     DenseConfig,
-    RNNConfig,
     DropoutConfig,
+    InputConfig,
+    Pooling2DConfig,
     ReshapeConfig,
-    InputConfig
+    RNNConfig,
 )
 from vgslify.parsers.base_parser import BaseModelParser
 from vgslify.torch.layers import Reshape
+
 
 class TorchModelParser(BaseModelParser):
     """
@@ -91,7 +92,7 @@ class TorchModelParser(BaseModelParser):
         for name, layer in model.named_modules():
             if isinstance(layer, nn.Sequential):
                 continue
-            
+
             layer_type = type(layer)
             parser_func = self.layer_parsers.get(layer_type, None)
 
@@ -99,9 +100,11 @@ class TorchModelParser(BaseModelParser):
                 # Parse the layer
                 config = parser_func(layer)
                 if isinstance(config, ReshapeConfig) or config == "Flt":
-                    warnings.warn("Warning: The model contains a Flatten or Reshape layer. This may cause VGSLify to "
-                                  "misinterpret the model's input shape. It is recommended to manually verify and "
-                                  "adjust the input shape if necessary to ensure accuracy.")
+                    warnings.warn(
+                        "Warning: The model contains a Flatten or Reshape layer. This may cause VGSLify to "
+                        "misinterpret the model's input shape. It is recommended to manually verify and "
+                        "adjust the input shape if necessary to ensure accuracy."
+                    )
 
                 # Append the config if not None
                 if config:
@@ -136,16 +139,16 @@ class TorchModelParser(BaseModelParser):
         batch_size = None  # Placeholder for dynamic batch size
         depth, height, width, channels = -1, -1, -1, -1
 
-        if hasattr(layer, 'in_channels'):
+        if hasattr(layer, "in_channels"):
             # Conv2d, Conv3d, BatchNorm2d, etc.
             channels = layer.in_channels
-        elif hasattr(layer, 'in_features'):
+        elif hasattr(layer, "in_features"):
             # Linear, LSTM, GRU, etc.
             channels = layer.in_features
-        elif hasattr(layer, 'input_size'):
+        elif hasattr(layer, "input_size"):
             # Some RNN layers
             channels = layer.input_size
-        elif hasattr(layer, 'num_features'):
+        elif hasattr(layer, "num_features"):
             # Some normalization layers
             channels = layer.num_features
 
@@ -165,7 +168,7 @@ class TorchModelParser(BaseModelParser):
             depth=depth,
             height=height,
             width=width,
-            channels=channels
+            channels=channels,
         )
 
     # Parser methods for different layer types
@@ -187,7 +190,7 @@ class TorchModelParser(BaseModelParser):
             activation="linear",  # PyTorch typically separates activation
             kernel_size=layer.kernel_size,
             strides=layer.stride,
-            filters=layer.out_channels
+            filters=layer.out_channels,
         )
 
     def parse_dense(self, layer: nn.Linear) -> DenseConfig:
@@ -206,7 +209,7 @@ class TorchModelParser(BaseModelParser):
         """
         return DenseConfig(
             activation="linear",  # PyTorch typically separates activation
-            units=layer.out_features
+            units=layer.out_features,
         )
 
     def parse_rnn(self, layer: Union[nn.LSTM, nn.GRU]) -> RNNConfig:
@@ -224,9 +227,9 @@ class TorchModelParser(BaseModelParser):
             The configuration for the RNN layer.
         """
         if isinstance(layer, nn.LSTM):
-            rnn_type = 'lstm'
+            rnn_type = "lstm"
         elif isinstance(layer, nn.GRU):
-            rnn_type = 'gru'
+            rnn_type = "gru"
         else:
             raise ValueError(f"Unsupported RNN layer type {type(layer).__name__}.")
 
@@ -237,10 +240,12 @@ class TorchModelParser(BaseModelParser):
             dropout=layer.dropout,
             recurrent_dropout=0,  # PyTorch doesn't have recurrent dropout
             rnn_type=rnn_type,
-            bidirectional=layer.bidirectional
+            bidirectional=layer.bidirectional,
         )
 
-    def parse_pooling(self, layer: Union[nn.MaxPool2d, nn.AvgPool2d]) -> Pooling2DConfig:
+    def parse_pooling(
+        self, layer: Union[nn.MaxPool2d, nn.AvgPool2d]
+    ) -> Pooling2DConfig:
         """
         Parse a Pooling layer into a Pooling2DConfig dataclass.
 
@@ -258,11 +263,9 @@ class TorchModelParser(BaseModelParser):
             pool_type = "max"
         elif isinstance(layer, nn.AvgPool2d):
             pool_type = "average"
-        
+
         return Pooling2DConfig(
-            pool_type=pool_type,
-            pool_size=layer.kernel_size,
-            strides=layer.stride
+            pool_type=pool_type, pool_size=layer.kernel_size, strides=layer.stride
         )
 
     def parse_batchnorm(self, layer: nn.BatchNorm2d) -> str:
@@ -295,9 +298,7 @@ class TorchModelParser(BaseModelParser):
         DropoutConfig
             The configuration for the Dropout layer.
         """
-        return DropoutConfig(
-            rate=layer.p
-        )
+        return DropoutConfig(rate=layer.p)
 
     def parse_flatten(self, layer: nn.Flatten) -> str:
         """
@@ -330,14 +331,12 @@ class TorchModelParser(BaseModelParser):
             The configuration for the Reshape layer.
         """
         target_shape = layer.target_shape
-        return ReshapeConfig(
-            target_shape=target_shape
-        )
+        return ReshapeConfig(target_shape=target_shape)
 
     def parse_activation(self, layer: nn.Module) -> ActivationConfig:
         """
         Parse an activation function.
-        
+
         Parameters
         ----------
         layer : nn.Module

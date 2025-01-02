@@ -1,7 +1,7 @@
 # Imports
 
 # > Third-Party Dependencies
-import torch.nn as nn
+from torch import nn
 
 
 class Reshape(nn.Module):

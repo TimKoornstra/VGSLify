@@ -40,17 +40,20 @@ def model_to_spec(model) -> str:
     # Check if it's a TensorFlow model
     if tf and isinstance(model, tf.keras.Model):
         from vgslify.parsers.tf_parser import TensorFlowModelParser
+
         parser = TensorFlowModelParser()
 
     # Check if it's a PyTorch model
     if nn and isinstance(model, nn.Module):
         from vgslify.parsers.torch_parser import TorchModelParser
+
         parser = TorchModelParser()
 
     # Raise an error if the model is not recognized
     if not parser:
         raise ValueError(
             f"Unsupported model type: {type(model).__name__}. Expected TensorFlow "
-            "or PyTorch model.")
+            "or PyTorch model."
+        )
 
     return parser.parse_model(model)

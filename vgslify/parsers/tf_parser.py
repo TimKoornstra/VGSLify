@@ -10,14 +10,15 @@ import tensorflow as tf
 from vgslify.core.config import (
     ActivationConfig,
     Conv2DConfig,
-    Pooling2DConfig,
     DenseConfig,
-    RNNConfig,
     DropoutConfig,
+    InputConfig,
+    Pooling2DConfig,
     ReshapeConfig,
-    InputConfig
+    RNNConfig,
 )
 from vgslify.parsers.base_parser import BaseModelParser
+
 
 class TensorFlowModelParser(BaseModelParser):
     """
@@ -53,7 +54,7 @@ class TensorFlowModelParser(BaseModelParser):
             tf.keras.layers.Dropout: self.parse_dropout,
             tf.keras.layers.Reshape: self.parse_reshape,
             tf.keras.layers.Flatten: self.parse_flatten,
-            tf.keras.layers.Activation: self.parse_activation
+            tf.keras.layers.Activation: self.parse_activation,
         }
 
     def parse_model(self, model: tf.keras.models.Model) -> str:
@@ -80,8 +81,7 @@ class TensorFlowModelParser(BaseModelParser):
         # Handle InputLayer
         if not isinstance(model.layers[0], tf.keras.layers.InputLayer):
             input_layer = tf.keras.layers.InputLayer(
-                input_shape=model.input_shape[1:],
-                batch_size=model.input_shape[0]
+                input_shape=model.input_shape[1:], batch_size=model.input_shape[0]
             )
             input_config = self.parse_input(input_layer)
             configs.append(input_config)
@@ -105,7 +105,6 @@ class TensorFlowModelParser(BaseModelParser):
 
         # Generate VGSL spec string from configs
         return self.generate_vgsl(configs)
-
 
     # Parser methods for different layer types
 
@@ -138,7 +137,7 @@ class TensorFlowModelParser(BaseModelParser):
             depth=depth,
             height=height,
             width=width,
-            channels=channels
+            channels=channels,
         )
 
     def parse_conv2d(self, layer: tf.keras.layers.Conv2D) -> Conv2DConfig:
@@ -160,7 +159,7 @@ class TensorFlowModelParser(BaseModelParser):
             activation=activation,
             kernel_size=layer.kernel_size,
             strides=layer.strides,
-            filters=layer.filters
+            filters=layer.filters,
         )
 
     def parse_dense(self, layer: tf.keras.layers.Dense) -> DenseConfig:
@@ -178,14 +177,14 @@ class TensorFlowModelParser(BaseModelParser):
             The configuration for the Dense layer.
         """
         activation = self._extract_activation(layer)
-        return DenseConfig(
-            activation=activation,
-            units=layer.units
-        )
+        return DenseConfig(activation=activation, units=layer.units)
 
-    def parse_rnn(self, layer: Union[tf.keras.layers.LSTM,
-                                     tf.keras.layers.GRU,
-                                     tf.keras.layers.Bidirectional]) -> RNNConfig:
+    def parse_rnn(
+        self,
+        layer: Union[
+            tf.keras.layers.LSTM, tf.keras.layers.GRU, tf.keras.layers.Bidirectional
+        ],
+    ) -> RNNConfig:
         """
         Parse an RNN layer (LSTM, GRU, or Bidirectional) into an RNNConfig dataclass.
 
@@ -207,11 +206,13 @@ class TensorFlowModelParser(BaseModelParser):
             bidirectional = False
 
         if isinstance(wrapped_layer, tf.keras.layers.LSTM):
-            rnn_type = 'lstm'
+            rnn_type = "lstm"
         elif isinstance(wrapped_layer, tf.keras.layers.GRU):
-            rnn_type = 'gru'
+            rnn_type = "gru"
         else:
-            raise ValueError(f"Unsupported RNN layer type {type(wrapped_layer).__name__}.")
+            raise ValueError(
+                f"Unsupported RNN layer type {type(wrapped_layer).__name__}."
+            )
 
         return RNNConfig(
             units=wrapped_layer.units,
@@ -220,10 +221,14 @@ class TensorFlowModelParser(BaseModelParser):
             dropout=wrapped_layer.dropout,
             recurrent_dropout=wrapped_layer.recurrent_dropout,
             rnn_type=rnn_type,
-            bidirectional=bidirectional
+            bidirectional=bidirectional,
         )
 
-    def parse_pooling(self, layer: Union[tf.keras.layers.MaxPooling2D, tf.keras.layers.AveragePooling2D], pool_type: str) -> Pooling2DConfig:
+    def parse_pooling(
+        self,
+        layer: Union[tf.keras.layers.MaxPooling2D, tf.keras.layers.AveragePooling2D],
+        pool_type: str,
+    ) -> Pooling2DConfig:
         """
         Parse a Pooling layer into a Pooling2DConfig dataclass.
 
@@ -242,7 +247,7 @@ class TensorFlowModelParser(BaseModelParser):
         return Pooling2DConfig(
             pool_type=pool_type,
             pool_size=layer.pool_size,
-            strides=layer.strides if layer.strides else layer.pool_size
+            strides=layer.strides if layer.strides else layer.pool_size,
         )
 
     def parse_batchnorm(self, layer: tf.keras.layers.BatchNormalization) -> None:
@@ -276,9 +281,7 @@ class TensorFlowModelParser(BaseModelParser):
         DropoutConfig
             The configuration for the Dropout layer.
         """
-        return DropoutConfig(
-            rate=layer.rate
-        )
+        return DropoutConfig(rate=layer.rate)
 
     def parse_flatten(self, layer: tf.keras.layers.Flatten) -> None:
         """
@@ -312,14 +315,12 @@ class TensorFlowModelParser(BaseModelParser):
             The configuration for the Reshape layer.
         """
         target_shape = layer.target_shape
-        return ReshapeConfig(
-            target_shape=target_shape
-        )
+        return ReshapeConfig(target_shape=target_shape)
 
     def parse_activation(self, layer: tf.keras.layers.Activation) -> ActivationConfig:
         """
         Parse an Activation layer.
-        
+
         Parameters
         ----------
         layer : tf.keras.layers.Activation
@@ -332,7 +333,6 @@ class TensorFlowModelParser(BaseModelParser):
         """
         activation = self._extract_activation(layer)
         return ActivationConfig(activation=activation)
-
 
     # Helper methods
     def _extract_activation(self, layer: tf.keras.layers.Layer) -> str:
@@ -349,10 +349,10 @@ class TensorFlowModelParser(BaseModelParser):
         str
             The activation function name.
         """
-        if hasattr(layer, 'activation') and callable(layer.activation):
+        if hasattr(layer, "activation") and callable(layer.activation):
             activation = layer.activation.__name__
         elif isinstance(layer, tf.keras.layers.Activation):
             activation = layer.activation.__name__
         else:
-            activation = 'linear'
+            activation = "linear"
         return activation

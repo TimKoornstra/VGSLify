@@ -1,13 +1,27 @@
 import pytest
-from vgslify.core.parser import (
-    parse_spec, parse_conv2d_spec, parse_pooling2d_spec,
-    parse_dense_spec, parse_rnn_spec, parse_dropout_spec,
-    parse_output_layer_spec, parse_activation_spec, parse_reshape_spec,
-    parse_input_spec
+
+from vgslify.core.config import (
+    Conv2DConfig,
+    DenseConfig,
+    DropoutConfig,
+    InputConfig,
+    OutputLayerConfig,
+    Pooling2DConfig,
+    ReshapeConfig,
+    RNNConfig,
 )
-from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
-                                 RNNConfig, DropoutConfig, OutputLayerConfig,
-                                 ReshapeConfig, InputConfig)
+from vgslify.core.parser import (
+    parse_activation_spec,
+    parse_conv2d_spec,
+    parse_dense_spec,
+    parse_dropout_spec,
+    parse_input_spec,
+    parse_output_layer_spec,
+    parse_pooling2d_spec,
+    parse_reshape_spec,
+    parse_rnn_spec,
+    parse_spec,
+)
 
 
 # Test parse_spec

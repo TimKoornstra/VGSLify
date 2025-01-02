@@ -6,11 +6,18 @@ from typing import Tuple
 # > Third-party dependencies
 import tensorflow as tf
 
+from vgslify.core.config import (
+    Conv2DConfig,
+    DenseConfig,
+    DropoutConfig,
+    InputConfig,
+    Pooling2DConfig,
+    ReshapeConfig,
+    RNNConfig,
+)
+
 # > Internal dependencies
 from vgslify.core.factory import LayerFactory
-from vgslify.core.config import (Conv2DConfig, Pooling2DConfig, DenseConfig,
-                                 RNNConfig, DropoutConfig, ReshapeConfig,
-                                 InputConfig)
 
 
 class TensorFlowLayerFactory(LayerFactory):
@@ -40,7 +47,7 @@ class TensorFlowLayerFactory(LayerFactory):
         input_shape : tuple of int, optional
             The input shape for the model, excluding batch size.
         """
-        super().__init__(input_shape, data_format='channels_last')
+        super().__init__(input_shape, data_format="channels_last")
 
     def build(self, name: str = "VGSL_Model") -> tf.keras.models.Model:
         """
@@ -77,8 +84,7 @@ class TensorFlowLayerFactory(LayerFactory):
         outputs = inputs
         for layer in self.layers[1:]:
             outputs = layer(outputs)
-        model = tf.keras.models.Model(
-            inputs=inputs, outputs=outputs, name=name)
+        model = tf.keras.models.Model(inputs=inputs, outputs=outputs, name=name)
         return model
 
     # Layer creation methods
@@ -118,8 +124,8 @@ class TensorFlowLayerFactory(LayerFactory):
             filters=config.filters,
             kernel_size=config.kernel_size,
             strides=config.strides,
-            padding='same',
-            activation=None
+            padding="same",
+            activation=None,
         )
 
     def _pooling2d(self, config: Pooling2DConfig):
@@ -136,17 +142,13 @@ class TensorFlowLayerFactory(LayerFactory):
         tf.keras.layers.Layer
             The created Pooling2D layer (either MaxPooling2D or AveragePooling2D).
         """
-        if config.pool_type == 'max':
+        if config.pool_type == "max":
             return tf.keras.layers.MaxPooling2D(
-                pool_size=config.pool_size,
-                strides=config.strides,
-                padding='same'
+                pool_size=config.pool_size, strides=config.strides, padding="same"
             )
-        if config.pool_type == 'avg':
+        if config.pool_type == "avg":
             return tf.keras.layers.AveragePooling2D(
-                pool_size=config.pool_size,
-                strides=config.strides,
-                padding='same'
+                pool_size=config.pool_size, strides=config.strides, padding="same"
             )
 
     def _dense(self, config: DenseConfig):
@@ -163,10 +165,7 @@ class TensorFlowLayerFactory(LayerFactory):
         tf.keras.layers.Dense
             The created Dense layer.
         """
-        return tf.keras.layers.Dense(
-            units=config.units,
-            activation=None
-        )
+        return tf.keras.layers.Dense(units=config.units, activation=None)
 
     def _rnn(self, config: RNNConfig):
         """
@@ -187,9 +186,9 @@ class TensorFlowLayerFactory(LayerFactory):
         ValueError
             If an unsupported RNN type is specified.
         """
-        if config.rnn_type.upper() == 'L':
+        if config.rnn_type.upper() == "L":
             rnn_class = tf.keras.layers.LSTM
-        elif config.rnn_type.upper() == 'G':
+        elif config.rnn_type.upper() == "G":
             rnn_class = tf.keras.layers.GRU
         else:
             raise ValueError(f"Unsupported RNN type: {config.rnn_type}")
@@ -198,14 +197,11 @@ class TensorFlowLayerFactory(LayerFactory):
             units=config.units,
             return_sequences=config.return_sequences,
             dropout=config.dropout,
-            recurrent_dropout=config.recurrent_dropout
+            recurrent_dropout=config.recurrent_dropout,
         )
 
         if config.bidirectional:
-            return tf.keras.layers.Bidirectional(
-                rnn_layer,
-                merge_mode='concat'
-            )
+            return tf.keras.layers.Bidirectional(rnn_layer, merge_mode="concat")
         else:
             return rnn_layer
 

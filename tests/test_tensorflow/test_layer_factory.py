@@ -1,5 +1,6 @@
 import pytest
 import tensorflow as tf
+
 from vgslify.tensorflow.layers import TensorFlowLayerFactory
 
 
@@ -35,7 +36,7 @@ def test_dense():
     dense_layer = TensorFlowLayerFactory.dense("Fr64")
     assert isinstance(dense_layer, tf.keras.layers.Dense)
     assert dense_layer.units == 64
-    assert dense_layer.activation.__name__ == 'relu'
+    assert dense_layer.activation.__name__ == "relu"
 
 
 def test_invalid_dense():
@@ -88,7 +89,7 @@ def test_output():
     output_layer = TensorFlowLayerFactory.output("O1s10")
     assert isinstance(output_layer, tf.keras.layers.Dense)
     assert output_layer.units == 10
-    assert output_layer.activation.__name__ == 'softmax'
+    assert output_layer.activation.__name__ == "softmax"
 
 
 def test_invalid_output():

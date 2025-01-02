@@ -20,6 +20,7 @@ class Conv2DConfig:
     filters : int
         Number of output filters in the convolution.
     """
+
     activation: str
     kernel_size: tuple
     strides: tuple
@@ -40,6 +41,7 @@ class Pooling2DConfig:
     strides : tuple
         Stride length of the pooling operation.
     """
+
     pool_type: str
     pool_size: tuple
     strides: tuple
@@ -57,6 +59,7 @@ class DenseConfig:
     units : int
         Number of neurons in the dense layer.
     """
+
     activation: str
     units: int
 
@@ -83,6 +86,7 @@ class RNNConfig:
     bidirectional : bool, optional
         If True, create a bidirectional RNN.
     """
+
     units: int
     return_sequences: bool
     go_backwards: bool
@@ -90,6 +94,7 @@ class RNNConfig:
     recurrent_dropout: float
     rnn_type: str = None
     bidirectional: bool = False
+
 
 @dataclass
 class DropoutConfig:
@@ -101,6 +106,7 @@ class DropoutConfig:
     rate : float
         Fraction of the input units to drop.
     """
+
     rate: float
 
 
@@ -114,6 +120,7 @@ class ReshapeConfig:
     target_shape : tuple
         Target shape of the output.
     """
+
     target_shape: tuple
 
 
@@ -135,11 +142,13 @@ class InputConfig:
     channels : int
         Number of channels in the input.
     """
+
     batch_size: int
     depth: int
     height: int
     width: int
     channels: int
+
 
 @dataclass
 class ActivationConfig:
@@ -151,4 +160,5 @@ class ActivationConfig:
     activation : str
         Activation function to use.
     """
+
     activation: str
