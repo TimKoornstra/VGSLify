@@ -74,6 +74,9 @@ class LayerFactory(ABC):
     >>> model = factory.build('my_model')
     """
 
+    # A class-level dictionary that holds {prefix -> callable} for custom layers
+    _custom_layer_registry = {}
+
     def __init__(
         self, input_shape: Tuple[int, ...] = None, data_format: str = "channels_last"
     ):
@@ -89,6 +92,30 @@ class LayerFactory(ABC):
         # Set the input shape if provided
         self.shape = input_shape
         self._input_shape = input_shape
+
+    @classmethod
+    def register(cls, prefix: str, builder_fn):
+        """
+        Register a custom layer builder function under a given spec prefix.
+
+        Parameters
+        ----------
+        prefix : str
+            The VGSL spec prefix that triggers this custom layer (e.g. "Xsw").
+        builder_fn : callable
+            A function with signature `builder_fn(self, spec: str) -> layer`
+            that, given the VGSL spec string, returns the framework-specific layer.
+        """
+        if prefix in cls._custom_layer_registry:
+            raise ValueError(
+                f"Prefix '{prefix}' is already registered by another custom layer."
+            )
+        cls._custom_layer_registry[prefix] = builder_fn
+
+    @classmethod
+    def get_custom_layer_registry(cls):
+        """Return the dict of all registered custom layers for this factory class."""
+        return cls._custom_layer_registry
 
     @abstractmethod
     def build(self, name: str):

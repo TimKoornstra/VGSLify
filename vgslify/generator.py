@@ -2,7 +2,7 @@
 
 # > Standard Libraries
 import importlib
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
 # > Internal Libraries
 from vgslify.core.parser import parse_spec
@@ -197,10 +197,10 @@ class VGSLModelGenerator:
         try:
             if backend == "tensorflow":
                 from vgslify.tensorflow.layers import (
-                    TensorFlowLayerFactory as LayerFactory,
+                    TensorFlowLayerFactory as FactoryClass,
                 )
             elif backend == "torch":
-                from vgslify.torch.layers import TorchLayerFactory as LayerFactory
+                from vgslify.torch.layers import TorchLayerFactory as FactoryClass
             else:
                 raise ValueError(
                     f"Unsupported backend: {backend}. Choose 'tensorflow' or 'torch'."
@@ -210,23 +210,30 @@ class VGSLModelGenerator:
                 f"Backend '{backend}' is not available. Please install the required library."
             )
 
-        layer_constructors: Dict[str, Any] = {
-            "C": LayerFactory.conv2d,
-            "Mp": LayerFactory.pooling2d,
-            "Ap": LayerFactory.pooling2d,
-            "L": LayerFactory.rnn,
-            "G": LayerFactory.rnn,
-            "B": LayerFactory.rnn,
-            "Flt": LayerFactory.flatten,
-            "F": LayerFactory.dense,
-            "D": LayerFactory.dropout,
-            "Bn": LayerFactory.batchnorm,
-            "A": LayerFactory.activation,
-            "R": LayerFactory.reshape,
-            "Rc": LayerFactory.reshape,
+        layer_constructors: Dict[str, Callable[[Any, str], Any]] = {
+            "C": lambda f, s: f.conv2d(s),
+            "Mp": lambda f, s: f.pooling2d(s),
+            "Ap": lambda f, s: f.pooling2d(s),
+            "L": lambda f, s: f.rnn(s),
+            "G": lambda f, s: f.rnn(s),
+            "B": lambda f, s: f.rnn(s),
+            "Flt": lambda f, s: f.flatten(s),
+            "F": lambda f, s: f.dense(s),
+            "D": lambda f, s: f.dropout(s),
+            "Bn": lambda f, s: f.batchnorm(s),
+            "A": lambda f, s: f.activation(s),
+            "R": lambda f, s: f.reshape(s),
+            "Rc": lambda f, s: f.reshape(s),
         }
 
-        return LayerFactory, layer_constructors
+        # Fetch any user-registered (prefix -> function) for this factory
+        custom_registry = FactoryClass.get_custom_layer_registry()
+
+        # Merge into layer_constructors
+        for prefix, builder_fn in custom_registry.items():
+            layer_constructors[prefix] = builder_fn
+
+        return FactoryClass, layer_constructors
 
     def _construct_layer(self, spec: str, layer_factory) -> Any:
         """
@@ -251,9 +258,7 @@ class VGSLModelGenerator:
         """
         for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
             if spec.startswith(prefix):
-                layer_constructor = getattr(
-                    layer_factory, self.layer_constructors[prefix].__name__
-                )
-                return layer_constructor(spec)
+                layer_fn = self.layer_constructors[prefix]
+                return layer_fn(layer_factory, spec)
 
         raise ValueError(f"Unknown layer specification: {spec}")
