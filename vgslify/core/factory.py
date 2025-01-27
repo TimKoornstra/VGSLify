@@ -3,6 +3,7 @@
 # > Standard Libraries
 import math
 from abc import ABC, abstractmethod
+import inspect
 from typing import Any, Tuple
 
 from vgslify.core.config import (
@@ -107,9 +108,19 @@ class LayerFactory(ABC):
             that, given the VGSL spec string, returns the framework-specific layer.
         """
         if prefix in cls._custom_layer_registry:
+            raise ValueError(f"Prefix '{prefix}' is already registered.")
+
+        # Inspect the builder function’s signature--
+        sig = inspect.signature(builder_fn)
+        params = list(sig.parameters.values())
+
+        # Check that we have exactly two parameters
+        if len(params) != 2:
             raise ValueError(
-                f"Prefix '{prefix}' is already registered by another custom layer."
+                "Custom layer builder_fn must define exactly two parameters: "
+                "(factory_self, spec)."
             )
+
         cls._custom_layer_registry[prefix] = builder_fn
 
     @classmethod
