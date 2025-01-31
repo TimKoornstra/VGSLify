@@ -397,3 +397,51 @@ class TensorFlowModelParser(BaseModelParser):
         else:
             activation = "linear"
         return activation
+
+
+def register_custom_parser(layer_cls: Type[tf.keras.layers.Layer]) -> Callable:
+    """
+    Decorator to register a custom parser function for a given TensorFlow Keras layer class.
+
+    This allows users to extend `TensorFlowModelParser` by defining a function that
+    converts a TensorFlow Keras layer into a VGSL specification.
+
+    Parameters
+    ----------
+    layer_cls : Type[tf.keras.layers.Layer]
+        The TensorFlow Keras layer class to associate with the parser function.
+
+    Returns
+    -------
+    Callable
+        A decorator that registers the provided function as a parser for `layer_cls`.
+
+    Raises
+    ------
+    ValueError
+        If a parser for `layer_cls` is already registered or if the function does not
+        accept exactly one argument (the layer instance).
+
+    Examples
+    --------
+    Registering a custom parser for a `MyCustomLayer`:
+
+    >>> from vgslify.parsers.tf_parser import register_custom_parser
+    >>> import tensorflow as tf
+    >>> class MyCustomLayer(tf.keras.layers.Layer):
+    ...     def __init__(self, units: int):
+    ...         super().__init__()
+    ...         self.units = units
+    ...
+    >>> @register_custom_parser(MyCustomLayer)
+    ... def parse_my_custom_layer(layer: MyCustomLayer):
+    ...     return f"MyCustomSpec({layer.units})"
+    ...
+    >>> # Now the parser is automatically registered inside TensorFlowModelParser
+    """
+
+    def decorator(fn: Callable) -> Callable:
+        TensorFlowModelParser.register(layer_cls, fn)
+        return fn
+
+    return decorator

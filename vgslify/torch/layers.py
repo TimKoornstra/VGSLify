@@ -2,7 +2,7 @@
 
 # > Standard library
 import inspect
-from typing import Tuple
+from typing import Callable, Tuple
 
 # > Third-party dependencies
 import torch
@@ -391,3 +391,42 @@ class TorchLayerFactory(LayerFactory):
             return activations[activation_name]
         else:
             raise ValueError(f"Unsupported activation: {activation_name}")
+
+
+def register_custom_layer(prefix: str) -> Callable:
+    """
+    Decorator to register a custom layer builder function for TorchLayerFactory.
+
+    This allows users to easily extend TorchLayerFactory with custom layer types by
+    defining a function that constructs a PyTorch layer from a VGSL spec string.
+
+    Parameters
+    ----------
+    prefix : str
+        The VGSL spec prefix that triggers this custom layer (e.g. "Xsw").
+
+    Returns
+    -------
+    Callable
+        A decorator that registers the provided function as a builder for the given prefix.
+
+    Raises
+    ------
+    ValueError
+        If a builder for the prefix is already registered or if the function signature is invalid.
+
+    Examples
+    --------
+    >>> from vgslify.torch.layers import register_custom_layer
+    >>> from torch import nn
+    >>> @register_custom_layer("Xsw")
+    ... def build_custom_layer(factory, spec):
+    ...     # Custom layer building logic
+    ...     return nn.Linear(factory.shape[-1], 10)
+    """
+
+    def decorator(fn: Callable) -> Callable:
+        TorchLayerFactory.register(prefix, fn)
+        return fn
+
+    return decorator

@@ -402,3 +402,51 @@ class TorchModelParser(BaseModelParser):
             activation = "linear"
 
         return ActivationConfig(activation=activation)
+
+
+def register_custom_parser(layer_cls: Type[nn.Module]):
+    """
+    Decorator to register a custom parser function for a given PyTorch layer class.
+
+    This allows users to easily extend the TorchModelParser with custom layer types
+    by defining a function that converts a PyTorch layer into a VGSL specification.
+
+    Parameters
+    ----------
+    layer_cls : Type[nn.Module]
+        The PyTorch layer class to associate with the parser function.
+
+    Returns
+    -------
+    Callable
+        A decorator that registers the provided function as a parser for `layer_cls`.
+
+    Raises
+    ------
+    ValueError
+        If a parser for `layer_cls` is already registered or if the function does not
+        accept exactly one argument (the layer instance).
+
+    Examples
+    --------
+    Registering a custom parser for a `MyCustomLayer`:
+
+    >>> from vgslify.parsers.torch_parser import register_custom_parser
+    >>> from torch import nn
+    >>> class MyCustomLayer(nn.Module):
+    ...     def __init__(self, param: int):
+    ...         super().__init__()
+    ...         self.param = param
+    ...
+    >>> @register_custom_parser(MyCustomLayer)
+    ... def parse_my_custom_layer(layer: MyCustomLayer):
+    ...     return f"MyCustomSpec({layer.param})"
+    ...
+    >>> # Now the parser is automatically registered inside TorchModelParser
+    """
+
+    def decorator(fn: Callable):
+        TorchModelParser.register(layer_cls, fn)
+        return fn
+
+    return decorator
