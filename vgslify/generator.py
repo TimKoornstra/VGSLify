@@ -229,9 +229,17 @@ class VGSLModelGenerator:
         # Fetch any user-registered (prefix -> function) for this factory
         custom_registry = FactoryClass.get_custom_layer_registry()
 
-        # Merge into layer_constructors
+        # Wrap each custom builder so returned layers automatically get appended
         for prefix, builder_fn in custom_registry.items():
-            layer_constructors[prefix] = builder_fn
+
+            def wrapped_builder(factory, spec, _builder_fn=builder_fn):
+                layer = _builder_fn(factory, spec)
+                # Only append if not already appended. (Usually it won't be.)
+                if layer not in factory.layers:
+                    factory.layers.append(layer)
+                return layer
+
+            layer_constructors[prefix] = wrapped_builder
 
         return FactoryClass, layer_constructors
 
