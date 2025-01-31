@@ -5,7 +5,7 @@ import importlib
 from typing import Any, Callable, Dict, List
 
 # > Internal Libraries
-from vgslify.core.parser import parse_spec
+from vgslify.core.spec_parser import parse_spec
 
 
 class VGSLModelGenerator:

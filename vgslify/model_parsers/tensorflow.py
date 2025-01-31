@@ -18,7 +18,7 @@ from vgslify.core.config import (
     ReshapeConfig,
     RNNConfig,
 )
-from vgslify.parsers.base_parser import BaseModelParser
+from vgslify.parsers.base import BaseModelParser
 
 
 class TensorFlowModelParser(BaseModelParser):
@@ -426,7 +426,7 @@ def register_custom_parser(layer_cls: Type[tf.keras.layers.Layer]) -> Callable:
     --------
     Registering a custom parser for a `MyCustomLayer`:
 
-    >>> from vgslify.parsers.tf_parser import register_custom_parser
+    >>> from vgslify.parsers.tensorflow import register_custom_parser
     >>> import tensorflow as tf
     >>> class MyCustomLayer(tf.keras.layers.Layer):
     ...     def __init__(self, units: int):

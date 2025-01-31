@@ -2,7 +2,6 @@
 
 # > Standard Libraries
 from abc import ABC, abstractmethod
-import inspect
 import math
 from typing import Any, Tuple
 
@@ -17,7 +16,7 @@ from vgslify.core.config import (
     RNNConfig,
 )
 
-from vgslify.core.parser import (
+from vgslify.core.spec_parser import (
     parse_activation_spec,
     parse_conv2d_spec,
     parse_dense_spec,

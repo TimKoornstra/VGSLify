@@ -20,10 +20,10 @@ vgslify.core.factory module
    :undoc-members:
    :show-inheritance:
 
-vgslify.core.parser module
+vgslify.core.spec_parser module
 --------------------------
 
-.. automodule:: vgslify.core.parser
+.. automodule:: vgslify.core.spec_parser
    :members:
    :undoc-members:
    :show-inheritance:
