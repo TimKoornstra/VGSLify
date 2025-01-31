@@ -49,15 +49,16 @@ class VGSLModelGenerator:
         ----------
         model_spec : str
             The VGSL specification string defining the model architecture.
+        model_name : str, optional
+            Name of the model, by default "VGSL_Model"
 
         Returns
         -------
         Any
             The built model using the specified backend.
         """
-        return self._process_layers(
-            model_spec, return_history=False, model_name=model_name
-        )
+        layers = self._process_layers(model_spec)
+        return self.layer_factory.build(name=model_name)
 
     def generate_history(self, model_spec: str) -> List[Any]:
         """
@@ -83,8 +84,7 @@ class VGSLModelGenerator:
         self,
         model_spec: str,
         return_history: bool = False,
-        model_name: str = "VGSL_Model",
-    ) -> Any:
+    ) -> List[Any]:
         """
         Process the VGSL specification string to build the model or generate a history of layers.
 
@@ -94,38 +94,23 @@ class VGSLModelGenerator:
             The VGSL specification string defining the model architecture.
         return_history : bool, optional
             If True, returns a list of constructed layers (history) instead of the final model.
-        model_name : str, optional
-            The name of the model, by default "VGSL_Model"
 
         Returns
         -------
-        Any
+        List[Any}
             The built model using the specified backend if `return_history` is False.
             Otherwise, a list of constructed layers.
         """
-        # Create a new instance of the layer factory for this model
+        # Reset the layer factory instance for a new model.
         self.layer_factory = self.layer_factory_class()
-
-        # Parse the specification string
         specs = parse_spec(model_spec)
 
-        # Initialize the first layer (input layer)
-        input_layer = self.layer_factory.input(specs[0])
-
-        # Initialize history if required
-        history = [input_layer] if return_history else None
-
-        # Process each layer specification
-        for spec in specs[1:]:
-            layer = self._construct_layer(spec, self.layer_factory)
-            if return_history:
-                history.append(layer)
-
-        if return_history:
-            return history
-
-        # Build and return the final model
-        return self.layer_factory.build(name=model_name)
+        # Create all layers using a list comprehension.
+        # The first spec is always the input layer.
+        layers = [self.layer_factory.input(specs[0])] + [
+            self._construct_layer(spec, self.layer_factory) for spec in specs[1:]
+        ]
+        return layers if return_history else layers
 
     def construct_layer(self, spec: str) -> Any:
         """
@@ -146,11 +131,38 @@ class VGSLModelGenerator:
         ValueError
             If the layer specification is unknown.
         """
-        # Create a new instance of the layer factory
-        layer_factory = self.layer_factory_class()
-        return self._construct_layer(spec, layer_factory)
+        # Use a fresh instance of the layer factory for standalone layer construction.
+        temp_factory = self.layer_factory_class()
+        return self._construct_layer(spec, temp_factory)
 
     ### Private Helper Methods ###
+    def _construct_layer(self, spec: str, layer_factory) -> Any:
+        """
+        Constructs a layer using the layer factory based on the specification string.
+
+        Parameters
+        ----------
+        spec : str
+            The VGSL specification string for a layer.
+        layer_factory : Any
+            The layer factory instance to use for constructing the layer.
+
+        Returns
+        -------
+        Any
+            The constructed layer.
+
+        Raises
+        ------
+        ValueError
+            If the layer specification is unknown.
+        """
+        # Sort prefixes by length (longest first) to match custom prefixes properly.
+        for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
+            if spec.startswith(prefix):
+                layer_fn = self.layer_constructors[prefix]
+                return layer_fn(layer_factory, spec)
+        raise ValueError(f"Unknown layer specification: {spec}")
 
     def _detect_backend(self, backend: str) -> str:
         """
@@ -166,6 +178,11 @@ class VGSLModelGenerator:
         -------
         str
             The detected or provided backend ("tensorflow" or "torch").
+
+        Raises
+        ------
+        ImportError
+            If neither backend is available.
         """
         if backend != "auto":
             return backend
@@ -182,12 +199,13 @@ class VGSLModelGenerator:
 
     def _initialize_backend_and_factory(self, backend: str) -> tuple:
         """
-        Initialize the backend and return the layer factory class and constructor map.
+        Initialize and return the backend’s layer factory class and a dictionary of
+        layer constructor functions based on VGSL prefixes.
 
         Parameters
         ----------
         backend : str
-            The backend to use for building the model.
+            The backend to use for building the model ('tensorflow' or 'torch').
 
         Returns
         -------
@@ -210,7 +228,7 @@ class VGSLModelGenerator:
                 f"Backend '{backend}' is not available. Please install the required library."
             )
 
-        layer_constructors: Dict[str, Callable[[Any, str], Any]] = {
+        default_constructors: Dict[str, Callable[[Any, str], Any]] = {
             "C": lambda f, s: f.conv2d(s),
             "Mp": lambda f, s: f.pooling2d(s),
             "Ap": lambda f, s: f.pooling2d(s),
@@ -226,47 +244,16 @@ class VGSLModelGenerator:
             "Rc": lambda f, s: f.reshape(s),
         }
 
-        # Fetch any user-registered (prefix -> function) for this factory
+        # Merge in any user-registered custom layers.
         custom_registry = FactoryClass.get_custom_layer_registry()
-
-        # Wrap each custom builder so returned layers automatically get appended
         for prefix, builder_fn in custom_registry.items():
-
+            # Wrap the builder to ensure the created layer is appended.
             def wrapped_builder(factory, spec, _builder_fn=builder_fn):
                 layer = _builder_fn(factory, spec)
-                # Only append if not already appended. (Usually it won't be.)
                 if layer not in factory.layers:
                     factory.layers.append(layer)
                 return layer
 
-            layer_constructors[prefix] = wrapped_builder
+            default_constructors[prefix] = wrapped_builder
 
-        return FactoryClass, layer_constructors
-
-    def _construct_layer(self, spec: str, layer_factory) -> Any:
-        """
-        Constructs a layer using the layer factory based on the specification string.
-
-        Parameters
-        ----------
-        spec : str
-            The VGSL specification string for a layer.
-        layer_factory : Any
-            The layer factory instance to use for constructing the layer.
-
-        Returns
-        -------
-        Any
-            The constructed layer.
-
-        Raises
-        ------
-        ValueError
-            If the layer specification is unknown.
-        """
-        for prefix in sorted(self.layer_constructors.keys(), key=len, reverse=True):
-            if spec.startswith(prefix):
-                layer_fn = self.layer_constructors[prefix]
-                return layer_fn(layer_factory, spec)
-
-        raise ValueError(f"Unknown layer specification: {spec}")
+        return FactoryClass, default_constructors
