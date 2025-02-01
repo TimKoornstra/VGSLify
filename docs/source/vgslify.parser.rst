@@ -1,29 +1,29 @@
-vgslify.parsers package
-======================
+vgslify.model_parsers package
+=======================
 
 Submodules
 ----------
 
-vgslify.parsers.base\_parser module
+vgslify.model_parsers.base module
 -----------------------------------
 
-.. automodule:: vgslify.parsers.base_parser
+.. automodule:: vgslify.model_parsers.base
    :members:
    :undoc-members:
    :show-inheritance:
 
-vgslify.parsers.torch\_parser module
+vgslify.model_parsers.torch module
 ------------------------------------
 
-.. automodule:: vgslify.parsers.torch_parser
+.. automodule:: vgslify.model_parsers.torch
    :members:
    :undoc-members:
    :show-inheritance:
 
-vgslify.parsers.tf\_parser module
+vgslify.model_parsers.tensorflow module
 ---------------------------------
 
-.. automodule:: vgslify.parsers.tf_parser
+.. automodule:: vgslify.model_parsers.tensorflow
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ vgslify.parsers.tf\_parser module
 Module contents
 ---------------
 
-.. automodule:: vgslify.parsers
+.. automodule:: vgslify.model_parsers
    :members:
    :undoc-members:
    :show-inheritance:

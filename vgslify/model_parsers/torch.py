@@ -1,6 +1,7 @@
 # Imports
 
 # > Standard Library
+import inspect
 import warnings
 from typing import Callable, Dict, Type, Union
 
@@ -18,7 +19,7 @@ from vgslify.core.config import (
     ReshapeConfig,
     RNNConfig,
 )
-from vgslify.parsers.base_parser import BaseModelParser
+from vgslify.parsers.base import BaseModelParser
 from vgslify.torch.layers import Reshape
 
 
@@ -41,6 +42,42 @@ class TorchModelParser(BaseModelParser):
     additional layer types by adding new parsing methods and updating the layer_parsers dictionary.
     """
 
+    # A class-level dictionary: {layer_class -> parser_function}
+    _custom_layer_parsers: Dict[Type[nn.Module], Callable] = {}
+
+    @classmethod
+    def register(cls, layer_cls: Type[nn.Module], parser_fn: Callable):
+        """
+        Registers a custom parser function for a given TF layer class.
+
+        Parameters
+        ----------
+        layer_cls : Type[tf.keras.layers.Layer]
+            The TF layer class this parser function can handle.
+        parser_fn : Callable
+            A function with signature parser_fn(layer) -> str
+            that returns a VGSL spec string for the given layer.
+        """
+        if layer_cls in cls._custom_layer_parsers:
+            raise ValueError(
+                f"A parser is already registered for {layer_cls.__name__}."
+            )
+
+        # Check signature to ensure `parser_fn` is (layer) -> str
+        sig = inspect.signature(parser_fn)
+        params = list(sig.parameters.values())
+        if len(params) != 1:
+            raise ValueError(
+                "Custom parser function must define exactly one parameter: (layer)."
+            )
+
+        cls._custom_layer_parsers[layer_cls] = parser_fn
+
+    @classmethod
+    def get_custom_parsers(cls):
+        """Return the dict of all registered custom parser functions."""
+        return cls._custom_layer_parsers
+
     def __init__(self):
         # Initialize the layer parsers mapping
         self.layer_parsers: Dict[Type[nn.Module], Callable] = {
@@ -60,6 +97,10 @@ class TorchModelParser(BaseModelParser):
             nn.Softmax: self.parse_activation,
             Reshape: self.parse_reshape,
         }
+
+        # Merge in any custom user-registered parsers from the class-level registry
+        for layer_cls, parse_fn in self.get_custom_parsers().items():
+            self.layer_parsers[layer_cls] = parse_fn
 
     def parse_model(self, model: nn.Module) -> str:
         """
@@ -361,3 +402,51 @@ class TorchModelParser(BaseModelParser):
             activation = "linear"
 
         return ActivationConfig(activation=activation)
+
+
+def register_custom_parser(layer_cls: Type[nn.Module]):
+    """
+    Decorator to register a custom parser function for a given PyTorch layer class.
+
+    This allows users to easily extend the TorchModelParser with custom layer types
+    by defining a function that converts a PyTorch layer into a VGSL specification.
+
+    Parameters
+    ----------
+    layer_cls : Type[nn.Module]
+        The PyTorch layer class to associate with the parser function.
+
+    Returns
+    -------
+    Callable
+        A decorator that registers the provided function as a parser for `layer_cls`.
+
+    Raises
+    ------
+    ValueError
+        If a parser for `layer_cls` is already registered or if the function does not
+        accept exactly one argument (the layer instance).
+
+    Examples
+    --------
+    Registering a custom parser for a `MyCustomLayer`:
+
+    >>> from vgslify.parsers.torch import register_custom_parser
+    >>> from torch import nn
+    >>> class MyCustomLayer(nn.Module):
+    ...     def __init__(self, param: int):
+    ...         super().__init__()
+    ...         self.param = param
+    ...
+    >>> @register_custom_parser(MyCustomLayer)
+    ... def parse_my_custom_layer(layer: MyCustomLayer):
+    ...     return f"MyCustomSpec({layer.param})"
+    ...
+    >>> # Now the parser is automatically registered inside TorchModelParser
+    """
+
+    def decorator(fn: Callable):
+        TorchModelParser.register(layer_cls, fn)
+        return fn
+
+    return decorator

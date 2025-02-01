@@ -1,6 +1,7 @@
 # Imports
 
 # > Standard Library
+import inspect
 from typing import Callable, Dict, Type, Union
 
 # > Third-Party Dependencies
@@ -17,7 +18,7 @@ from vgslify.core.config import (
     ReshapeConfig,
     RNNConfig,
 )
-from vgslify.parsers.base_parser import BaseModelParser
+from vgslify.parsers.base import BaseModelParser
 
 
 class TensorFlowModelParser(BaseModelParser):
@@ -39,6 +40,42 @@ class TensorFlowModelParser(BaseModelParser):
     additional layer types by adding new parsing methods and updating the layer_parsers dictionary.
     """
 
+    # A class-level dictionary: {layer_class -> parser_function}
+    _custom_layer_parsers: Dict[Type[tf.keras.layers.Layer], Callable] = {}
+
+    @classmethod
+    def register(cls, layer_cls: Type[tf.keras.layers.Layer], parser_fn: Callable):
+        """
+        Registers a custom parser function for a given TF layer class.
+
+        Parameters
+        ----------
+        layer_cls : Type[tf.keras.layers.Layer]
+            The TF layer class this parser function can handle.
+        parser_fn : Callable
+            A function with signature parser_fn(layer) -> str
+            that returns a VGSL spec string for the given layer.
+        """
+        if layer_cls in cls._custom_layer_parsers:
+            raise ValueError(
+                f"A parser is already registered for {layer_cls.__name__}."
+            )
+
+        # Check signature to ensure `parser_fn` is (layer) -> str
+        sig = inspect.signature(parser_fn)
+        params = list(sig.parameters.values())
+        if len(params) != 1:
+            raise ValueError(
+                "Custom parser function must define exactly one parameter: (layer)."
+            )
+
+        cls._custom_layer_parsers[layer_cls] = parser_fn
+
+    @classmethod
+    def get_custom_parsers(cls):
+        """Return the dict of all registered custom parser functions."""
+        return cls._custom_layer_parsers
+
     def __init__(self):
         # Initialize the layer parsers mapping
         self.layer_parsers: Dict[Type[tf.keras.layers.Layer], Callable] = {
@@ -56,6 +93,10 @@ class TensorFlowModelParser(BaseModelParser):
             tf.keras.layers.Flatten: self.parse_flatten,
             tf.keras.layers.Activation: self.parse_activation,
         }
+
+        # Merge in any custom user-registered parsers from the class-level registry
+        for layer_cls, parse_fn in self.get_custom_parsers().items():
+            self.layer_parsers[layer_cls] = parse_fn
 
     def parse_model(self, model: tf.keras.models.Model) -> str:
         """
@@ -356,3 +397,51 @@ class TensorFlowModelParser(BaseModelParser):
         else:
             activation = "linear"
         return activation
+
+
+def register_custom_parser(layer_cls: Type[tf.keras.layers.Layer]) -> Callable:
+    """
+    Decorator to register a custom parser function for a given TensorFlow Keras layer class.
+
+    This allows users to extend `TensorFlowModelParser` by defining a function that
+    converts a TensorFlow Keras layer into a VGSL specification.
+
+    Parameters
+    ----------
+    layer_cls : Type[tf.keras.layers.Layer]
+        The TensorFlow Keras layer class to associate with the parser function.
+
+    Returns
+    -------
+    Callable
+        A decorator that registers the provided function as a parser for `layer_cls`.
+
+    Raises
+    ------
+    ValueError
+        If a parser for `layer_cls` is already registered or if the function does not
+        accept exactly one argument (the layer instance).
+
+    Examples
+    --------
+    Registering a custom parser for a `MyCustomLayer`:
+
+    >>> from vgslify.parsers.tensorflow import register_custom_parser
+    >>> import tensorflow as tf
+    >>> class MyCustomLayer(tf.keras.layers.Layer):
+    ...     def __init__(self, units: int):
+    ...         super().__init__()
+    ...         self.units = units
+    ...
+    >>> @register_custom_parser(MyCustomLayer)
+    ... def parse_my_custom_layer(layer: MyCustomLayer):
+    ...     return f"MyCustomSpec({layer.units})"
+    ...
+    >>> # Now the parser is automatically registered inside TensorFlowModelParser
+    """
+
+    def decorator(fn: Callable) -> Callable:
+        TensorFlowModelParser.register(layer_cls, fn)
+        return fn
+
+    return decorator

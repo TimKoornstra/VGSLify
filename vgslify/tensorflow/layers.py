@@ -1,7 +1,8 @@
 # Imports
 
 # > Standard library
-from typing import Tuple
+import inspect
+from typing import Callable, Tuple
 
 # > Third-party dependencies
 import tensorflow as tf
@@ -37,6 +38,43 @@ class TensorFlowLayerFactory(LayerFactory):
     _input_shape : tuple of int or None
         The original input shape provided during initialization.
     """
+
+    # A class-level dictionary that holds {prefix -> callable} for custom layers
+    _custom_layer_registry = {}
+
+    @classmethod
+    def register(cls, prefix: str, builder_fn):
+        """
+        Register a custom layer builder function under a given spec prefix.
+
+        Parameters
+        ----------
+        prefix : str
+            The VGSL spec prefix that triggers this custom layer (e.g. "Xsw").
+        builder_fn : callable
+            A function with signature `builder_fn(self, spec: str) -> layer`
+            that, given the VGSL spec string, returns the framework-specific layer.
+        """
+        if prefix in cls._custom_layer_registry:
+            raise ValueError(f"Prefix '{prefix}' is already registered.")
+
+        # Inspect the builder function’s signature
+        sig = inspect.signature(builder_fn)
+        params = list(sig.parameters.values())
+
+        # Check that we have exactly two parameters
+        if len(params) != 2:
+            raise ValueError(
+                "Custom layer builder_fn must define exactly two parameters: "
+                "(factory_self, spec)."
+            )
+
+        cls._custom_layer_registry[prefix] = builder_fn
+
+    @classmethod
+    def get_custom_layer_registry(cls):
+        """Return the dict of all registered custom layers for this factory class."""
+        return cls._custom_layer_registry
 
     def __init__(self, input_shape: Tuple[int, ...] = None):
         """
@@ -274,3 +312,41 @@ class TensorFlowLayerFactory(LayerFactory):
             The created Flatten layer.
         """
         return tf.keras.layers.Flatten()
+
+
+def register_custom_layer(prefix: str) -> Callable:
+    """
+    Decorator to register a custom layer builder function for TensorFlowLayerFactory.
+
+    This allows users to easily extend TensorFlowLayerFactory with custom layer types by
+    defining a function that constructs a TensorFlow layer from a VGSL spec string.
+
+    Parameters
+    ----------
+    prefix : str
+        The VGSL spec prefix that triggers this custom layer (e.g. "Xsw").
+
+    Returns
+    -------
+    Callable
+        A decorator that registers the provided function as a builder for the given prefix.
+
+    Raises
+    ------
+    ValueError
+        If a builder for the prefix is already registered or if the function signature is invalid.
+
+    Examples
+    --------
+    >>> from vgslify.tensorflow.layers import register_custom_layer
+    >>> @register_custom_layer("Xsw")
+    ... def build_custom_layer(factory, spec):
+    ...     # Custom layer building logic
+    ...     return tf.keras.layers.Dense(10)
+    """
+
+    def decorator(fn: Callable) -> Callable:
+        TensorFlowLayerFactory.register(prefix, fn)
+        return fn
+
+    return decorator

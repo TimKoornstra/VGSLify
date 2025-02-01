@@ -10,7 +10,7 @@ from vgslify.core.config import (
     ReshapeConfig,
     RNNConfig,
 )
-from vgslify.core.parser import (
+from vgslify.core.spec_parser import (
     parse_activation_spec,
     parse_conv2d_spec,
     parse_dense_spec,
