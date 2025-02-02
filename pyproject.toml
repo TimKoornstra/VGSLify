@@ -20,6 +20,10 @@ classifiers = [
 ]
 urls = { Homepage = "https://github.com/TimKoornstra/VGSLify" }
 
+[project.optional-dependencies]
+torch = ["torch>=2.0"]
+tensorflow = ["tensorflow>=2.14"]
+
 [tool.setuptools.packages]
 find = {}
 

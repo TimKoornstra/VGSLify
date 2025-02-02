@@ -22,26 +22,63 @@ VGSLify simplifies defining, training, and interpreting deep learning models usi
 
 ## Installation
 
+### Basic Installation
+
+To install VGSLify without any deep learning backend, run:
+
 ```bash
 pip install vgslify
 ```
 
-Install your chosen backend:
+This installs only the core functionalities of VGSLify without `torch` or `tensorflow`.
+
+### Installing with a Specific Backend
+
+VGSLify supports both TensorFlow and PyTorch. You can install it with the required backend:
 
 ```bash
-# For TensorFlow
-pip install tensorflow
+# For TensorFlow (latest compatible version)
+pip install vgslify[tensorflow]
 
-# For PyTorch
-pip install torch
+# For PyTorch (latest compatible version)
+pip install vgslify[torch]
 ```
 
-Verify installation:
+By default, this will install:
+
+- `tensorflow` (latest stable version)
+- `torch` (latest stable version)
+
+### Controlling Backend Versions
+
+If you need a specific version of `torch` or `tensorflow`, install VGSLify first and then manually install the backend:
+
+```bash
+pip install vgslify
+pip install torch==2.1.0      # Example for PyTorch
+pip install tensorflow==2.14  # Example for TensorFlow
+```
+
+Alternatively, you can specify the version during installation:
+
+```bash
+pip install vgslify[torch] torch==2.1.0
+pip install vgslify[tensorflow] tensorflow==2.14
+```
+
+⚠ **Note**: If a different version of torch or tensorflow is already installed, pip may not downgrade it automatically. Use `--force-reinstall` or `--upgrade` if necessary:
+
+```bash
+pip install --upgrade --force-reinstall torch==2.1.0
+```
+
+### Verify installation
+
+To check that VGSLify is installed correctly, run:
 
 ```bash
 python -c "import vgslify; print(vgslify.__version__)"
 ```
-
 
 ## How VGSL Works
 
@@ -59,7 +96,7 @@ Each part represents a layer: input, convolution, pooling, reshaping, fully conn
 ### Generating a Model with VGSLify
 
 ```python
-from vgslify.generator import VGSLModelGenerator
+from vgslify import VGSLModelGenerator
 
 # Define the VGSL specification
 vgsl_spec = "None,None,64,1 Cr3,3,32 Mp2,2 Fs92"
@@ -80,7 +117,7 @@ print(model)
 ### Creating Individual Layers with VGSLify
 
 ```python
-from vgslify.generator import VGSLModelGenerator
+from vgslify import VGSLModelGenerator
 
 vgsl_gn = VGSLModelGenerator(backend="tensorflow")
 conv2d_layer = vgsl_gn.construct_layer("Cr3,3,64")
@@ -88,7 +125,6 @@ conv2d_layer = vgsl_gn.construct_layer("Cr3,3,64")
 # Integrate into an existing model:
 # model = tf.keras.Sequential()
 # model.add(conv2d_layer) # ...
-
 
 # Example with generate_history:
 history = vgsl_gn.generate_history("None,None,64,1 Cr3,3,32 Mp2,2 Fs92")
@@ -100,7 +136,7 @@ for layer in history:
 ### Converting Models to VGSL
 
 ```python
-from vgslify.utils import model_to_spec
+from vgslify import model_to_spec
 import tensorflow as tf
 # Or import torch.nn as nn
 
