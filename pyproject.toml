@@ -10,7 +10,7 @@ readme = { file = "README.md", content-type = "text/markdown" }
 authors = [
     { name = "Tim Koornstra", email = "tim.koornstra@gmail.com" }
 ]
-license = { text = "MIT" }
+license = { file = "LICENSE" }
 dependencies = []
 requires-python = ">=3.9"
 classifiers = [
