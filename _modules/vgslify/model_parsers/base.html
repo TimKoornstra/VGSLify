@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.model_parsers.base &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=82662543"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vgslify.model_parsers.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vgslify.model_parsers.base</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.core.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ActivationConfig</span><span class="p">,</span>
+    <span class="n">Conv2DConfig</span><span class="p">,</span>
+    <span class="n">DenseConfig</span><span class="p">,</span>
+    <span class="n">DropoutConfig</span><span class="p">,</span>
+    <span class="n">InputConfig</span><span class="p">,</span>
+    <span class="n">Pooling2DConfig</span><span class="p">,</span>
+    <span class="n">ReshapeConfig</span><span class="p">,</span>
+    <span class="n">RNNConfig</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="BaseModelParser">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseModelParser</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for model parsers.</span>
+<span class="sd">    Provides common utility methods for parsing different frameworks and generating VGSL spec strings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseModelParser.generate_vgsl">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.generate_vgsl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_vgsl</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">configs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span>
+            <span class="n">Union</span><span class="p">[</span>
+                <span class="n">Conv2DConfig</span><span class="p">,</span>
+                <span class="n">Pooling2DConfig</span><span class="p">,</span>
+                <span class="n">DenseConfig</span><span class="p">,</span>
+                <span class="n">RNNConfig</span><span class="p">,</span>
+                <span class="n">DropoutConfig</span><span class="p">,</span>
+                <span class="n">ReshapeConfig</span><span class="p">,</span>
+                <span class="n">InputConfig</span><span class="p">,</span>
+                <span class="n">ActivationConfig</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert a list of layer configuration dataclasses into a VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        configs : List[Union[Conv2DConfig, Pooling2DConfig, DenseConfig, RNNConfig,</span>
+<span class="sd">                             DropoutConfig, ReshapeConfig, InputConfig, ActivationConfig]]</span>
+<span class="sd">            List of layer configurations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL specification string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vgsl_parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Start from the end of the list to merge activations</span>
+
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ActivationConfig</span><span class="p">):</span>
+                <span class="c1"># Check if there is a preceding layer to merge with</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">preceding_config</span> <span class="o">=</span> <span class="n">configs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="nb">isinstance</span><span class="p">(</span>
+                            <span class="n">preceding_config</span><span class="p">,</span> <span class="p">(</span><span class="n">Conv2DConfig</span><span class="p">,</span> <span class="n">DenseConfig</span><span class="p">,</span> <span class="n">RNNConfig</span><span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">preceding_config</span><span class="o">.</span><span class="n">activation</span> <span class="o">==</span> <span class="s2">&quot;linear&quot;</span>
+                    <span class="p">):</span>
+                        <span class="c1"># Merge the activation into the preceding layer</span>
+                        <span class="n">preceding_config</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">activation</span>
+                        <span class="c1"># Skip adding this ActivationConfig</span>
+                        <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="k">continue</span>
+                <span class="c1"># If cannot merge, add the activation spec</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_activation</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="c1"># Handle non-activation layers and strings</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">InputConfig</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_input</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Conv2DConfig</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_conv2d</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Pooling2DConfig</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_pooling2d</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">DenseConfig</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_dense</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">RNNConfig</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_rnn</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">DropoutConfig</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_dropout</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ReshapeConfig</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vgsl_reshape</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">vgsl_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unsupported configuration type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>  <span class="c1"># Move to the previous config</span>
+
+        <span class="c1"># Reverse to restore the original order</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vgsl_parts</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_model">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_model">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the model into a VGSL spec string.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_input">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_input">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InputConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the input layer into a InputConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_conv2d">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_conv2d">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_conv2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Conv2DConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the Conv2D layer into a Conv2DConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_dense">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_dense">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DenseConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the Dense layer into a DenseConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_rnn">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_rnn">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_rnn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RNNConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the RNN layer into a RNNConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_pooling">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_pooling">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_pooling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pooling2DConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the Pooling layer into a Pooling2DConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_batchnorm">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_batchnorm">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_batchnorm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the BatchNorm layer into a VGSL spec string.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_dropout">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_dropout">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DropoutConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the Dropout layer into a DropoutConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_flatten">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_flatten">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the Flatten layer into a VGSL spec string.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_reshape">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_reshape">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_reshape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReshapeConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the Reshape layer into a ReshapeConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseModelParser.parse_activation">
+<a class="viewcode-back" href="../../../source/vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_activation">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActivationConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse the Activation layer into a ActivationConfig dataclass.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="c1"># VGSL Generation Methods</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">InputConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for input layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : InputConfig</span>
+<span class="sd">            Configuration for the input layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the input layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="nb">map</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">,</span>
+                <span class="nb">filter</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">[</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span>
+                    <span class="p">],</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_conv2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Conv2DConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for Conv2D layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : Conv2DConfig</span>
+<span class="sd">            Configuration for the Conv2D layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the Conv2D layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">act</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_activation_code</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">activation</span><span class="p">)</span>
+        <span class="n">stride_spec</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">))</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">stride_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;,</span><span class="si">{</span><span class="n">stride_spec</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">stride_spec</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">act</span><span class="si">}{</span><span class="n">config</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}{</span><span class="n">stride_str</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">filters</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_pooling2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Pooling2DConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for Pooling2D layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : Pooling2DConfig</span>
+<span class="sd">            Configuration for the Pooling2D layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the Pooling2D layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pool_type_code</span> <span class="o">=</span> <span class="s2">&quot;Mp&quot;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">pool_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span> <span class="k">else</span> <span class="s2">&quot;Ap&quot;</span>
+        <span class="n">pool_size_str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">pool_size</span><span class="p">))</span>
+        <span class="n">strides_str</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span> <span class="o">!=</span> <span class="n">config</span><span class="o">.</span><span class="n">pool_size</span>
+            <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pool_type_code</span><span class="si">}{</span><span class="n">pool_size_str</span><span class="si">}{</span><span class="s1">&#39;,&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">strides_str</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">strides_str</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">DenseConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for Dense layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : DenseConfig</span>
+<span class="sd">            Configuration for the Dense layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the Dense layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">act</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_activation_code</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">activation</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;F</span><span class="si">{</span><span class="n">act</span><span class="si">}{</span><span class="n">config</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_rnn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RNNConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for RNN layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : RNNConfig</span>
+<span class="sd">            Configuration for the RNN layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the RNN layer.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an unsupported RNN type is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">bidirectional</span><span class="p">:</span>
+            <span class="n">layer_type</span> <span class="o">=</span> <span class="s2">&quot;B&quot;</span>
+            <span class="n">rnn_type</span> <span class="o">=</span> <span class="s2">&quot;l&quot;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">rnn_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;lstm&quot;</span> <span class="k">else</span> <span class="s2">&quot;g&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">rnn_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;lstm&quot;</span><span class="p">:</span>
+                <span class="n">layer_type</span> <span class="o">=</span> <span class="s2">&quot;L&quot;</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">rnn_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;gru&quot;</span><span class="p">:</span>
+                <span class="n">layer_type</span> <span class="o">=</span> <span class="s2">&quot;G&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported RNN type: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">rnn_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">rnn_type</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">go_backwards</span> <span class="k">else</span> <span class="s2">&quot;f&quot;</span>
+
+        <span class="n">return_sequences</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;s&quot;</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">return_sequences</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">bidirectional</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">spec</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">layer_type</span><span class="si">}{</span><span class="n">rnn_type</span><span class="si">}{</span><span class="n">return_sequences</span><span class="si">}{</span><span class="n">config</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">dropout</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;,D</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">dropout</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">recurrent_dropout</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;,Rd</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">recurrent_dropout</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">spec</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">DropoutConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for Dropout layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : DropoutConfig</span>
+<span class="sd">            Configuration for the Dropout layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the Dropout layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;D</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">rate</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_reshape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ReshapeConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for Reshape layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : ReshapeConfig</span>
+<span class="sd">            Configuration for the Reshape layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the Reshape layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="kc">None</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span> <span class="ow">or</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;Rc3&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reshape_dims</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;-1&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;R</span><span class="si">{</span><span class="n">reshape_dims</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_vgsl_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ActivationConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate VGSL string for Activation layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : ActivationConfig</span>
+<span class="sd">            Configuration for the Activation layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL string representation of the Activation layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">act</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_activation_code</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">activation</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;A</span><span class="si">{</span><span class="n">act</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_activation_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activation</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the VGSL activation code for a given activation function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        activation : str</span>
+<span class="sd">            Name of the activation function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            VGSL activation code.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an unsupported activation function is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ACTIVATION_MAP</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;softmax&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tanh&quot;</span><span class="p">:</span> <span class="s2">&quot;t&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;relu&quot;</span><span class="p">:</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="s2">&quot;l&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sigmoid&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;identity&quot;</span><span class="p">:</span> <span class="s2">&quot;l&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">act_code</span> <span class="o">=</span> <span class="n">ACTIVATION_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">activation</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">act_code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported activation &#39;</span><span class="si">{</span><span class="n">activation</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">act_code</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

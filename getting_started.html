@@ -1,0 +1,237 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=82662543"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-is-a-vgsl-specification">What is a VGSL Specification?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#simple-example-building-a-model">Simple Example: Building a Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#explanation-of-layers">Explanation of Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start-with-custom-layers-advanced">Quick Start with Custom Layers (Advanced)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-topics">Additional Topics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>VGSLify makes it incredibly simple to define, build, and train deep learning models using the Variable-size Graph Specification Language (VGSL). VGSL strings serve as compact representations of neural network architectures, allowing you to build models in a single line.</p>
+<p>VGSLify abstracts the complexity of backend-specific syntax, enabling seamless switching between TensorFlow and PyTorch. This flexibility allows you to focus on model architecture and training without worrying about framework-specific implementations.</p>
+<section id="what-is-a-vgsl-specification">
+<h3>What is a VGSL Specification?<a class="headerlink" href="#what-is-a-vgsl-specification" title="Link to this heading"></a></h3>
+<p>A VGSL specification string concisely defines a neural network’s architecture. The string encodes all layers, including input, convolutional layers, pooling, fully connected layers, and more. Each part of the string corresponds to a different component of the model.</p>
+<p>For example, the following VGSL string defines a simple convolutional neural network:</p>
+<p><code class="docutils literal notranslate"><span class="pre">None,28,28,1</span> <span class="pre">Cr3,3,32</span> <span class="pre">Mp2,2</span> <span class="pre">Rc2</span> <span class="pre">Fr64</span> <span class="pre">D20</span> <span class="pre">Fs10</span></code></p>
+<p>This string represents a model with an input layer, a convolutional layer, a max pooling layer, a reshape layer, a dense (fully connected) layer, dropout, and an output layer. The model’s structure is encoded entirely within this single line.</p>
+<p>Key functionality of VGSLify includes:</p>
+<ul class="simple">
+<li><p><strong>Building models with a single line</strong>: You can define complex architectures with a VGSL string, reducing the need for verbose code.</p></li>
+<li><p><strong>Switching between TensorFlow and PyTorch</strong>: VGSLify supports both TensorFlow and PyTorch, allowing you to easily switch between backends.</p></li>
+</ul>
+</section>
+</section>
+<section id="simple-example-building-a-model">
+<h2>Simple Example: Building a Model<a class="headerlink" href="#simple-example-building-a-model" title="Link to this heading"></a></h2>
+<p>Let’s walk through building a simple deep learning model using VGSLify.</p>
+<ol class="arabic">
+<li><p><strong>Import the VGSLModelGenerator</strong>:</p>
+<p>The <cite>VGSLModelGenerator</cite> class is the core component for building models from VGSL strings. Begin by importing it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vgslify</span><span class="w"> </span><span class="kn">import</span> <span class="n">VGSLModelGenerator</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Define the VGSL Specification String</strong>:</p>
+<p>The VGSL spec string encodes the structure of the model. In this example, we will define a simple convolutional neural network suitable for handling MNIST digit images (28x28 grayscale):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vgsl_spec</span> <span class="o">=</span> <span class="s2">&quot;None,28,28,1 Cr3,3,32 Mp2,2 Rc2 Fr64 D20 Fs10&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Build and View the Model</strong>:</p>
+<p>Initialize the <cite>VGSLModelGenerator</cite> and use it to build the model based on the VGSL spec string:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vgsl_gn</span> <span class="o">=</span> <span class="n">VGSLModelGenerator</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>  <span class="c1"># Set backend to TensorFlow</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">vgsl_gn</span><span class="o">.</span><span class="n">generate_model</span><span class="p">(</span><span class="n">vgsl_spec</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>  <span class="c1"># View the model architecture</span>
+</pre></div>
+</div>
+<p>This will generate the model and display a summary of its architecture, including all layers defined by the VGSL spec string.</p>
+</li>
+</ol>
+</section>
+<section id="explanation-of-layers">
+<h2>Explanation of Layers<a class="headerlink" href="#explanation-of-layers" title="Link to this heading"></a></h2>
+<p>Let’s break down the layers defined by the VGSL specification string in our example:</p>
+<ul class="simple">
+<li><p><strong>Input Layer</strong>: <code class="docutils literal notranslate"><span class="pre">None,28,28,1</span></code>
+- This defines the input shape of the model, which corresponds to grayscale images of size 28x28 pixels. The first dimension (<cite>None</cite>) allows for a variable batch size.</p></li>
+<li><p><strong>Convolutional Layer</strong>: <code class="docutils literal notranslate"><span class="pre">Cr3,3,32</span></code>
+- This adds a 2D convolutional layer with a 3x3 kernel and 32 output filters, using ReLU activation (<cite>r</cite> for ReLU).</p></li>
+<li><p><strong>MaxPooling Layer</strong>: <code class="docutils literal notranslate"><span class="pre">Mp2,2</span></code>
+- This reduces the spatial dimensions by applying 2x2 max pooling with a stride of 2x2, which downsamples the input by taking the maximum value over each 2x2 window.</p></li>
+<li><p><strong>Reshape Layer</strong>: <code class="docutils literal notranslate"><span class="pre">Rc2</span></code>
+- Reshapes the output from the previous layer, collapsing the spatial dimensions into a single vector suitable for fully connected layers.</p></li>
+<li><p><strong>Fully Connected Layer</strong>: <code class="docutils literal notranslate"><span class="pre">Fr64</span></code>
+- Adds a fully connected layer (dense layer) with 64 units.</p></li>
+<li><p><strong>Dropout Layer</strong>: <code class="docutils literal notranslate"><span class="pre">D20</span></code>
+- Applies dropout with a 20% rate to prevent overfitting by randomly setting a portion of the inputs to zero during training.</p></li>
+<li><p><strong>Output Layer</strong>: <code class="docutils literal notranslate"><span class="pre">Fs10</span></code>
+- Represents the output layer with 10 units (for 10 classes, such as the digits in MNIST) using softmax activation.</p></li>
+</ul>
+<p>This VGSL string provides a concise, human-readable format for specifying complex model architectures. VGSLify automatically translates this specification into a deep learning model that can be trained using TensorFlow or PyTorch.</p>
+</section>
+<section id="quick-start-with-custom-layers-advanced">
+<h2>Quick Start with Custom Layers (Advanced)<a class="headerlink" href="#quick-start-with-custom-layers-advanced" title="Link to this heading"></a></h2>
+<p>You can also extend VGSLify by registering custom layer builders. For example, if you want to add a custom “Swish” activation layer in TensorFlow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.tensorflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_custom_layer</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+
+<span class="nd">@register_custom_layer</span><span class="p">(</span><span class="s2">&quot;Xsw&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_swish_layer</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+    <span class="c1"># spec example: &quot;Xsw&quot; triggers this custom layer</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Lambda</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># Use the custom prefix in your VGSL spec</span>
+<span class="n">vgsl_spec</span> <span class="o">=</span> <span class="s2">&quot;None,28,28,1 Cr3,3,32 Xsw Mp2,2 Rc2 Fr64 D20 Fs10&quot;</span>
+<span class="n">vgsl_gn</span> <span class="o">=</span> <span class="n">VGSLModelGenerator</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">vgsl_gn</span><span class="o">.</span><span class="n">generate_model</span><span class="p">(</span><span class="n">vgsl_spec</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Now you have a model with a custom activation layer integrated seamlessly!</p>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<p>Once you’ve built and explored a basic model, you can dive deeper into VGSLify’s capabilities. Follow the <a class="reference external" href="tutorials.html">tutorials</a> to explore more advanced use cases such as:</p>
+<ul class="simple">
+<li><p>Using different VGSL spec strings to define custom architectures.</p></li>
+<li><p>Switching between TensorFlow and PyTorch backends.</p></li>
+<li><p>Integrating VGSLify models into larger deep learning workflows.</p></li>
+</ul>
+<p>Check out the <a class="reference external" href="source/vgslify.html">API reference</a> for detailed information on all available classes, methods, and utilities in VGSLify.</p>
+</section>
+<section id="additional-topics">
+<h2>Additional Topics<a class="headerlink" href="#additional-topics" title="Link to this heading"></a></h2>
+<p>For more examples and advanced workflows, continue reading the <a class="reference external" href="tutorials.html">Tutorials</a> and <a class="reference external" href="advanced_usage.html">Advanced Usage</a> sections.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

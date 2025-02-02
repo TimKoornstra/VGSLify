@@ -1,0 +1,609 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify package &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=82662543"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="vgslify.core package" href="vgslify.core.html" />
+    <link rel="prev" title="Advanced Usage and Customization" href="../advanced_usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">vgslify package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.torch.html">vgslify.torch package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-vgslify.generator">vgslify.generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vgslify.generator.VGSLModelGenerator"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.generator.VGSLModelGenerator.construct_layer"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator.construct_layer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.generator.VGSLModelGenerator.generate_history"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator.generate_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.generator.VGSLModelGenerator.generate_model"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator.generate_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-vgslify">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vgslify.VGSLModelGenerator"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.VGSLModelGenerator.construct_layer"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator.construct_layer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.VGSLModelGenerator.generate_history"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator.generate_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vgslify.VGSLModelGenerator.generate_model"><code class="docutils literal notranslate"><span class="pre">VGSLModelGenerator.generate_model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#vgslify.model_to_spec"><code class="docutils literal notranslate"><span class="pre">model_to_spec()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">vgslify package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/vgslify.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vgslify-package">
+<h1>vgslify package<a class="headerlink" href="#vgslify-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.core.html">vgslify.core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.core.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.core.html#module-vgslify.core.config">vgslify.core.config module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.ActivationConfig"><code class="docutils literal notranslate"><span class="pre">ActivationConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.ActivationConfig.activation"><code class="docutils literal notranslate"><span class="pre">ActivationConfig.activation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Conv2DConfig"><code class="docutils literal notranslate"><span class="pre">Conv2DConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Conv2DConfig.activation"><code class="docutils literal notranslate"><span class="pre">Conv2DConfig.activation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Conv2DConfig.filters"><code class="docutils literal notranslate"><span class="pre">Conv2DConfig.filters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Conv2DConfig.kernel_size"><code class="docutils literal notranslate"><span class="pre">Conv2DConfig.kernel_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Conv2DConfig.strides"><code class="docutils literal notranslate"><span class="pre">Conv2DConfig.strides</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DenseConfig"><code class="docutils literal notranslate"><span class="pre">DenseConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DenseConfig.activation"><code class="docutils literal notranslate"><span class="pre">DenseConfig.activation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DenseConfig.units"><code class="docutils literal notranslate"><span class="pre">DenseConfig.units</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DropoutConfig"><code class="docutils literal notranslate"><span class="pre">DropoutConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.DropoutConfig.rate"><code class="docutils literal notranslate"><span class="pre">DropoutConfig.rate</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig"><code class="docutils literal notranslate"><span class="pre">InputConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig.batch_size"><code class="docutils literal notranslate"><span class="pre">InputConfig.batch_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig.channels"><code class="docutils literal notranslate"><span class="pre">InputConfig.channels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig.depth"><code class="docutils literal notranslate"><span class="pre">InputConfig.depth</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig.height"><code class="docutils literal notranslate"><span class="pre">InputConfig.height</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.InputConfig.width"><code class="docutils literal notranslate"><span class="pre">InputConfig.width</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Pooling2DConfig"><code class="docutils literal notranslate"><span class="pre">Pooling2DConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Pooling2DConfig.pool_size"><code class="docutils literal notranslate"><span class="pre">Pooling2DConfig.pool_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Pooling2DConfig.pool_type"><code class="docutils literal notranslate"><span class="pre">Pooling2DConfig.pool_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.Pooling2DConfig.strides"><code class="docutils literal notranslate"><span class="pre">Pooling2DConfig.strides</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig"><code class="docutils literal notranslate"><span class="pre">RNNConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig.bidirectional"><code class="docutils literal notranslate"><span class="pre">RNNConfig.bidirectional</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig.dropout"><code class="docutils literal notranslate"><span class="pre">RNNConfig.dropout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig.go_backwards"><code class="docutils literal notranslate"><span class="pre">RNNConfig.go_backwards</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig.recurrent_dropout"><code class="docutils literal notranslate"><span class="pre">RNNConfig.recurrent_dropout</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig.return_sequences"><code class="docutils literal notranslate"><span class="pre">RNNConfig.return_sequences</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig.rnn_type"><code class="docutils literal notranslate"><span class="pre">RNNConfig.rnn_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.RNNConfig.units"><code class="docutils literal notranslate"><span class="pre">RNNConfig.units</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.ReshapeConfig"><code class="docutils literal notranslate"><span class="pre">ReshapeConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.config.ReshapeConfig.target_shape"><code class="docutils literal notranslate"><span class="pre">ReshapeConfig.target_shape</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.core.html#module-vgslify.core.factory">vgslify.core.factory module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory"><code class="docutils literal notranslate"><span class="pre">LayerFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.layers"><code class="docutils literal notranslate"><span class="pre">LayerFactory.layers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.data_format"><code class="docutils literal notranslate"><span class="pre">LayerFactory.data_format</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.shape"><code class="docutils literal notranslate"><span class="pre">LayerFactory.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory._input_shape"><code class="docutils literal notranslate"><span class="pre">LayerFactory._input_shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.activation"><code class="docutils literal notranslate"><span class="pre">LayerFactory.activation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.batchnorm"><code class="docutils literal notranslate"><span class="pre">LayerFactory.batchnorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.build"><code class="docutils literal notranslate"><span class="pre">LayerFactory.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.conv2d"><code class="docutils literal notranslate"><span class="pre">LayerFactory.conv2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.dense"><code class="docutils literal notranslate"><span class="pre">LayerFactory.dense()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.dropout"><code class="docutils literal notranslate"><span class="pre">LayerFactory.dropout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.flatten"><code class="docutils literal notranslate"><span class="pre">LayerFactory.flatten()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.input"><code class="docutils literal notranslate"><span class="pre">LayerFactory.input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.pooling2d"><code class="docutils literal notranslate"><span class="pre">LayerFactory.pooling2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.reshape"><code class="docutils literal notranslate"><span class="pre">LayerFactory.reshape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.core.html#vgslify.core.factory.LayerFactory.rnn"><code class="docutils literal notranslate"><span class="pre">LayerFactory.rnn()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.core.html#module-vgslify.core.spec_parser">vgslify.core.spec_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_activation_spec"><code class="docutils literal notranslate"><span class="pre">parse_activation_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_conv2d_spec"><code class="docutils literal notranslate"><span class="pre">parse_conv2d_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_dense_spec"><code class="docutils literal notranslate"><span class="pre">parse_dense_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_dropout_spec"><code class="docutils literal notranslate"><span class="pre">parse_dropout_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_input_spec"><code class="docutils literal notranslate"><span class="pre">parse_input_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_pooling2d_spec"><code class="docutils literal notranslate"><span class="pre">parse_pooling2d_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_reshape_spec"><code class="docutils literal notranslate"><span class="pre">parse_reshape_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_rnn_spec"><code class="docutils literal notranslate"><span class="pre">parse_rnn_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.spec_parser.parse_spec"><code class="docutils literal notranslate"><span class="pre">parse_spec()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.core.html#module-vgslify.core.utils">vgslify.core.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.core.html#vgslify.core.utils.get_activation_function"><code class="docutils literal notranslate"><span class="pre">get_activation_function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.core.html#module-vgslify.core">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.model_parsers.html">vgslify.model_parsers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.model_parsers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.model_parsers.html#module-vgslify.model_parsers.base">vgslify.model_parsers.base module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser"><code class="docutils literal notranslate"><span class="pre">BaseModelParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.generate_vgsl"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.generate_vgsl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_activation"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_activation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_batchnorm"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_batchnorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_conv2d"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_conv2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_dense"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_dense()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_dropout"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_dropout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_flatten"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_flatten()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_input"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_model"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_pooling"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_pooling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_reshape"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_reshape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.base.BaseModelParser.parse_rnn"><code class="docutils literal notranslate"><span class="pre">BaseModelParser.parse_rnn()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.model_parsers.html#module-vgslify.model_parsers.torch">vgslify.model_parsers.torch module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser"><code class="docutils literal notranslate"><span class="pre">TorchModelParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.layer_parsers"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.layer_parsers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.get_custom_parsers"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.get_custom_parsers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_activation"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_activation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_batchnorm"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_batchnorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_conv2d"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_conv2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_dense"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_dense()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_dropout"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_dropout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_flatten"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_flatten()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_input"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_model"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_pooling"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_pooling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_reshape"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_reshape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.parse_rnn"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_rnn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.TorchModelParser.register"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.torch.register_custom_parser"><code class="docutils literal notranslate"><span class="pre">register_custom_parser()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.model_parsers.html#module-vgslify.model_parsers.tensorflow">vgslify.model_parsers.tensorflow module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.layer_parsers"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.layer_parsers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.get_custom_parsers"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.get_custom_parsers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_activation"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_activation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_batchnorm"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_batchnorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_conv2d"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_conv2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_dense"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_dense()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_dropout"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_dropout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_flatten"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_flatten()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_input"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_model"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_pooling"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_pooling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_reshape"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_reshape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.parse_rnn"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_rnn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.TensorFlowModelParser.register"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.tensorflow.register_custom_parser"><code class="docutils literal notranslate"><span class="pre">register_custom_parser()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.model_parsers.html#module-vgslify.model_parsers">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.layer_parsers"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.layer_parsers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.get_custom_parsers"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.get_custom_parsers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_activation"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_activation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_batchnorm"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_batchnorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_conv2d"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_conv2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_dense"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_dense()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_dropout"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_dropout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_flatten"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_flatten()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_input"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_model"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_pooling"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_pooling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_reshape"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_reshape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.parse_rnn"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.parse_rnn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TensorFlowModelParser.register"><code class="docutils literal notranslate"><span class="pre">TensorFlowModelParser.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser"><code class="docutils literal notranslate"><span class="pre">TorchModelParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.layer_parsers"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.layer_parsers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.get_custom_parsers"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.get_custom_parsers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_activation"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_activation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_batchnorm"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_batchnorm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_conv2d"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_conv2d()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_dense"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_dense()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_dropout"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_dropout()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_flatten"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_flatten()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_input"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_input()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_model"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_pooling"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_pooling()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_reshape"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_reshape()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.parse_rnn"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.parse_rnn()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.model_parsers.html#vgslify.model_parsers.TorchModelParser.register"><code class="docutils literal notranslate"><span class="pre">TorchModelParser.register()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.tensorflow.html">vgslify.tensorflow package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.tensorflow.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.tensorflow.html#module-vgslify.tensorflow.layers">vgslify.tensorflow.layers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.TensorFlowLayerFactory"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.TensorFlowLayerFactory.layers"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.layers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.TensorFlowLayerFactory.shape"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.TensorFlowLayerFactory._input_shape"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory._input_shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.TensorFlowLayerFactory.build"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.TensorFlowLayerFactory.get_custom_layer_registry"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.get_custom_layer_registry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.TensorFlowLayerFactory.register"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.layers.register_custom_layer"><code class="docutils literal notranslate"><span class="pre">register_custom_layer()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.tensorflow.html#module-vgslify.tensorflow">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.TensorFlowLayerFactory"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.TensorFlowLayerFactory.layers"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.layers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.TensorFlowLayerFactory.shape"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.TensorFlowLayerFactory._input_shape"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory._input_shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.TensorFlowLayerFactory.build"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.TensorFlowLayerFactory.get_custom_layer_registry"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.get_custom_layer_registry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.TensorFlowLayerFactory.register"><code class="docutils literal notranslate"><span class="pre">TensorFlowLayerFactory.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.tensorflow.html#vgslify.tensorflow.register_custom_layer"><code class="docutils literal notranslate"><span class="pre">register_custom_layer()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vgslify.torch.html">vgslify.torch package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.torch.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.torch.html#module-vgslify.torch.layers">vgslify.torch.layers module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.TorchLayerFactory"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.TorchLayerFactory.layers"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.layers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.TorchLayerFactory.shape"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.TorchLayerFactory._input_shape"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory._input_shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.TorchLayerFactory.build"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.TorchLayerFactory.get_custom_layer_registry"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.get_custom_layer_registry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.TorchLayerFactory.register"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.layers.register_custom_layer"><code class="docutils literal notranslate"><span class="pre">register_custom_layer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.reshape.Reshape"><code class="docutils literal notranslate"><span class="pre">Reshape</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.reshape.Reshape.forward"><code class="docutils literal notranslate"><span class="pre">Reshape.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vgslify.torch.html#module-vgslify.torch">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.TorchLayerFactory"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.TorchLayerFactory.layers"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.layers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.TorchLayerFactory.shape"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.TorchLayerFactory._input_shape"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory._input_shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.TorchLayerFactory.build"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.build()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.TorchLayerFactory.get_custom_layer_registry"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.get_custom_layer_registry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.TorchLayerFactory.register"><code class="docutils literal notranslate"><span class="pre">TorchLayerFactory.register()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="vgslify.torch.html#vgslify.torch.register_custom_layer"><code class="docutils literal notranslate"><span class="pre">register_custom_layer()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-vgslify.generator">
+<span id="vgslify-generator-module"></span><h2>vgslify.generator module<a class="headerlink" href="#module-vgslify.generator" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vgslify.generator.VGSLModelGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vgslify.generator.</span></span><span class="sig-name descname"><span class="pre">VGSLModelGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.generator.VGSLModelGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>VGSLModelGenerator constructs a neural network model based on a VGSL (Variable-size Graph
+Specification Language) specification string. This class supports dynamic model generation
+for different backends, with current support for TensorFlow and PyTorch.</p>
+<p>The generator takes a VGSL specification string that defines the architecture of the neural
+network, including the input layer, convolutional layers, pooling layers, RNN layers, dense
+layers, and more. The class parses this string, constructs the layers in sequence, and builds
+the final model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.generator.VGSLModelGenerator.construct_layer">
+<span class="sig-name descname"><span class="pre">construct_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator.construct_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.generator.VGSLModelGenerator.construct_layer" title="Link to this definition"></a></dt>
+<dd><p>Constructs a single layer using the layer factory based on the spec string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for a layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The constructed layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the layer specification is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.generator.VGSLModelGenerator.generate_history">
+<span class="sig-name descname"><span class="pre">generate_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator.generate_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.generator.VGSLModelGenerator.generate_history" title="Link to this definition"></a></dt>
+<dd><p>Generate the history of layer specifications without building the full model.</p>
+<p>This method parses the VGSL specification string, constructs each layer using
+the layer factory, and stores them in a list, but does not chain them or connect
+input/output layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_spec</strong> (<em>str</em>) – The VGSL specification string defining the model architecture.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of layers constructed from the specification string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.generator.VGSLModelGenerator.generate_model">
+<span class="sig-name descname"><span class="pre">generate_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VGSL_Model'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator.generate_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.generator.VGSLModelGenerator.generate_model" title="Link to this definition"></a></dt>
+<dd><p>Build the model based on the VGSL spec string.</p>
+<p>This method parses the VGSL specification string, creates each layer
+using the layer factory, and constructs the model sequentially.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>str</em>) – The VGSL specification string defining the model architecture.</p></li>
+<li><p><strong>model_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model, by default “VGSL_Model”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The built model using the specified backend.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-vgslify">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-vgslify" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="vgslify.VGSLModelGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">vgslify.</span></span><span class="sig-name descname"><span class="pre">VGSLModelGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.VGSLModelGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>VGSLModelGenerator constructs a neural network model based on a VGSL (Variable-size Graph
+Specification Language) specification string. This class supports dynamic model generation
+for different backends, with current support for TensorFlow and PyTorch.</p>
+<p>The generator takes a VGSL specification string that defines the architecture of the neural
+network, including the input layer, convolutional layers, pooling layers, RNN layers, dense
+layers, and more. The class parses this string, constructs the layers in sequence, and builds
+the final model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.VGSLModelGenerator.construct_layer">
+<span class="sig-name descname"><span class="pre">construct_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator.construct_layer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.VGSLModelGenerator.construct_layer" title="Link to this definition"></a></dt>
+<dd><p>Constructs a single layer using the layer factory based on the spec string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spec</strong> (<em>str</em>) – The VGSL specification string for a layer.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The constructed layer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the layer specification is unknown.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.VGSLModelGenerator.generate_history">
+<span class="sig-name descname"><span class="pre">generate_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator.generate_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.VGSLModelGenerator.generate_history" title="Link to this definition"></a></dt>
+<dd><p>Generate the history of layer specifications without building the full model.</p>
+<p>This method parses the VGSL specification string, constructs each layer using
+the layer factory, and stores them in a list, but does not chain them or connect
+input/output layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model_spec</strong> (<em>str</em>) – The VGSL specification string defining the model architecture.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of layers constructed from the specification string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="vgslify.VGSLModelGenerator.generate_model">
+<span class="sig-name descname"><span class="pre">generate_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VGSL_Model'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/generator.html#VGSLModelGenerator.generate_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.VGSLModelGenerator.generate_model" title="Link to this definition"></a></dt>
+<dd><p>Build the model based on the VGSL spec string.</p>
+<p>This method parses the VGSL specification string, creates each layer
+using the layer factory, and constructs the model sequentially.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_spec</strong> (<em>str</em>) – The VGSL specification string defining the model architecture.</p></li>
+<li><p><strong>model_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model, by default “VGSL_Model”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The built model using the specified backend.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="vgslify.model_to_spec">
+<span class="sig-prename descclassname"><span class="pre">vgslify.</span></span><span class="sig-name descname"><span class="pre">model_to_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/vgslify/utils/model_to_spec.html#model_to_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#vgslify.model_to_spec" title="Link to this definition"></a></dt>
+<dd><p>Convert a deep learning model (TensorFlow or PyTorch) to a VGSL spec string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<em>Model</em>) – The deep learning model to be converted. Can be a TensorFlow model (tf.keras.models.Model)
+or a PyTorch model (torch.nn.Module).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>VGSL spec string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the model is not supported or cannot be parsed.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">vgslify</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_to_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;path_to_model.h5&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spec_string</span> <span class="o">=</span> <span class="n">model_to_spec</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">spec_string</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../advanced_usage.html" class="btn btn-neutral float-left" title="Advanced Usage and Customization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vgslify.core.html" class="btn btn-neutral float-right" title="vgslify.core package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

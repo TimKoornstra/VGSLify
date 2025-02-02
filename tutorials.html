@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorials &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=82662543"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Supported Layers" href="supported_layers.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-1-building-a-cnn-for-image-classification">Tutorial 1: Building a CNN for Image Classification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-by-step-instructions">Step-by-Step Instructions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-2-creating-an-lstm-for-sequence-prediction">Tutorial 2: Creating an LSTM for Sequence Prediction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Step-by-Step Instructions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tutorial-3-converting-models-back-to-vgsl-specification">Tutorial 3: Converting Models Back to VGSL Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-topics">Additional Topics</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorials</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tutorials.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h1>
+<p>This section provides hands-on tutorials for using VGSLify to build and train deep learning models. Follow these step-by-step guides to get familiar with how VGSLify simplifies model creation through VGSL specifications.</p>
+<section id="tutorial-1-building-a-cnn-for-image-classification">
+<h2>Tutorial 1: Building a CNN for Image Classification<a class="headerlink" href="#tutorial-1-building-a-cnn-for-image-classification" title="Link to this heading"></a></h2>
+<section id="overview">
+<h3>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h3>
+<p>In this tutorial, you will build a Convolutional Neural Network (CNN) for image classification using the CIFAR-10 dataset. We will define the model using a VGSL spec string, which allows us to specify the architecture in a concise, human-readable format. By the end of this tutorial, you will have a fully trained CNN model for image classification.</p>
+</section>
+<section id="step-by-step-instructions">
+<h3>Step-by-Step Instructions<a class="headerlink" href="#step-by-step-instructions" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Import required libraries</strong>:</p>
+<p>Begin by importing the necessary libraries for TensorFlow and VGSLify.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tensorflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify</span><span class="w"> </span><span class="kn">import</span> <span class="n">VGSLModelGenerator</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Load and preprocess the dataset</strong>:</p>
+<p>CIFAR-10 is a dataset of 60,000 32x32 color images in 10 classes, with 6,000 images per class. You can load and preprocess the dataset as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">cifar10</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+
+<span class="c1"># Normalize the images to the range [0, 1]</span>
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">x_train</span> <span class="o">/</span> <span class="mf">255.0</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">/</span> <span class="mf">255.0</span>
+
+<span class="c1"># Convert labels to one-hot encoding</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Define the VGSL spec string for the CNN</strong>:</p>
+<p>The VGSL spec string defines the layers of the CNN. Here’s a simple CNN architecture:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vgsl_spec</span> <span class="o">=</span> <span class="s2">&quot;None,32,32,3 Cr3,3,32 Mp2,2 Rc2 Cr3,3,64 Mp2,2 Rc2 Fr128 D25 Fs10&quot;</span>
+</pre></div>
+</div>
+<p>Explanation:</p>
+<ul class="simple">
+<li><p><cite>None,32,32,3</cite>: Input layer for images of size 32x32 with 3 color channels (RGB).</p></li>
+<li><p><cite>Cr3,3,32</cite>: Convolutional layer with a 3x3 filter, ReLU activation, and 32 filters.</p></li>
+<li><p><cite>Mp2,2</cite>: MaxPooling layer with a 2x2 pool size (and default strides).</p></li>
+<li><p><cite>Cr3,3,64</cite>: Second convolutional layer with 64 filters.</p></li>
+<li><p><cite>Rc2</cite>: Reshape layer to flatten the output for the fully connected layer.</p></li>
+<li><p><cite>Fr128</cite>: Fully connected (dense) layer with 128 units and ReLU activation.</p></li>
+<li><p><cite>D25</cite>: Dropout layer with a 25% dropout rate.</p></li>
+<li><p><cite>Fs10</cite>: Output layer with 10 units and softmax activation for classification into 10 classes.</p></li>
+</ul>
+</li>
+<li><p><strong>Build and compile the model</strong>:</p>
+<p>Use VGSLify to build and compile the model. This step generates the CNN architecture based on the VGSL string and compiles it for training.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vgsl_gn</span> <span class="o">=</span> <span class="n">VGSLModelGenerator</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">vgsl_gn</span><span class="o">.</span><span class="n">generate_model</span><span class="p">(</span><span class="n">vgsl_spec</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;categorical_crossentropy&#39;</span><span class="p">,</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Train the model</strong>:</p>
+<p>Now, train the CNN on the CIFAR-10 training set. You can adjust the batch size and number of epochs as needed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Evaluate the model performance</strong>:</p>
+<p>After training, evaluate the model on the test set to see how well it performs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">test_loss</span><span class="p">,</span> <span class="n">test_acc</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Test accuracy: </span><span class="si">{</span><span class="n">test_acc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also plot the training history to visualize how the accuracy and loss evolve over time.</p>
+</li>
+</ol>
+</section>
+</section>
+<section id="tutorial-2-creating-an-lstm-for-sequence-prediction">
+<h2>Tutorial 2: Creating an LSTM for Sequence Prediction<a class="headerlink" href="#tutorial-2-creating-an-lstm-for-sequence-prediction" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Overview<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>In this tutorial, you will build an LSTM (Long Short-Term Memory) model using VGSLify to predict the next value in a sequence. This is commonly used in time-series forecasting. We will generate synthetic data, define an LSTM model using a VGSL string, and train the model to predict future values in the sequence.</p>
+</section>
+<section id="id2">
+<h3>Step-by-Step Instructions<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Import necessary libraries</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify</span><span class="w"> </span><span class="kn">import</span> <span class="n">VGSLModelGenerator</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Generate synthetic sequence data</strong>:</p>
+<p>For this example, let’s generate a sine wave as our synthetic sequence data. The LSTM will learn to predict the next value in this sequence.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_sine_wave</span><span class="p">(</span><span class="n">seq_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">seq_length</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mf">20.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span>
+
+<span class="n">sine_wave</span> <span class="o">=</span> <span class="n">generate_sine_wave</span><span class="p">()</span>
+
+<span class="c1"># Prepare the data for LSTM input</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_sequences</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="n">seq_length</span><span class="p">):</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">seq_length</span><span class="p">])</span>
+        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">seq_length</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">seq_length</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span> <span class="o">=</span> <span class="n">create_sequences</span><span class="p">(</span><span class="n">sine_wave</span><span class="p">,</span> <span class="n">seq_length</span><span class="p">)</span>
+
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># LSTM expects input shape (batch, time steps, features)</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Define the VGSL spec string for the LSTM model</strong>:</p>
+<p>Here’s the VGSL string to define an LSTM with 50 units, followed by dropout and an output layer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vgsl_spec</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;None,50,1 Lf50 D20 Fl1&quot;</span>
+</pre></div>
+</div>
+<p>Explanation:</p>
+<ul class="simple">
+<li><p><cite>None,seq_length,x_train.shape[1]</cite>: Input shape with 50 sequence length and 50 features.</p></li>
+<li><p><cite>Lf50</cite>: LSTM with 50 units, without returning sequences.</p></li>
+<li><p><cite>D20</cite>: Dropout layer with 20% dropout rate.</p></li>
+<li><p><cite>Fl1</cite>: Output layer with 1 unit and linear activation for sequence prediction.</p></li>
+</ul>
+</li>
+<li><p><strong>Build and compile the model</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vgsl_gn</span> <span class="o">=</span> <span class="n">VGSLModelGenerator</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">vgsl_gn</span><span class="o">.</span><span class="n">generate_model</span><span class="p">(</span><span class="n">vgsl_spec</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Train the model</strong>:</p>
+<p>Train the model to predict the next value in the sine wave sequence.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Evaluate the model</strong>:</p>
+<p>Once training is complete, evaluate the model by plotting the true vs predicted values in the sine wave sequence.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Predicted&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="tutorial-3-converting-models-back-to-vgsl-specification">
+<h2>Tutorial 3: Converting Models Back to VGSL Specification<a class="headerlink" href="#tutorial-3-converting-models-back-to-vgsl-specification" title="Link to this heading"></a></h2>
+<p>VGSLify not only builds models from VGSL specs—it can also convert an existing model back to its VGSL string.</p>
+<ol class="arabic">
+<li><p><strong>Load an existing model</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tensorflow.keras.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;path_to_your_model.keras&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Convert the model to a VGSL spec string</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vgslify</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_to_spec</span>
+<span class="n">vgsl_spec</span> <span class="o">=</span> <span class="n">model_to_spec</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;VGSL spec:&quot;</span><span class="p">,</span> <span class="n">vgsl_spec</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Modify and reuse the spec</strong>:</p>
+<p>The generated VGSL string can be saved, shared, or modified. Rebuild the model later using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vgsl_gn</span> <span class="o">=</span> <span class="n">VGSLModelGenerator</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">vgsl_gn</span><span class="o">.</span><span class="n">generate_model</span><span class="p">(</span><span class="n">vgsl_spec</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="additional-topics">
+<h2>Additional Topics<a class="headerlink" href="#additional-topics" title="Link to this heading"></a></h2>
+<p>For more examples and advanced workflows, continue reading the <a class="reference external" href="advanced_usage.html">Advanced Usage</a> or <a class="reference external" href="source/vgslify.html">API Reference</a> sections.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="supported_layers.html" class="btn btn-neutral float-right" title="Supported Layers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

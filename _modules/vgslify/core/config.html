@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.core.config &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=82662543"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vgslify.core.config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vgslify.core.config</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Imports</span>
+
+<span class="c1"># &gt; Standard library</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<div class="viewcode-block" id="Conv2DConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.Conv2DConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Conv2DConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for 2D Convolutional layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    activation : str</span>
+<span class="sd">        Activation function to use.</span>
+<span class="sd">    kernel_size : tuple</span>
+<span class="sd">        Size of the convolution kernels.</span>
+<span class="sd">    strides : tuple</span>
+<span class="sd">        Stride length of the convolution.</span>
+<span class="sd">    filters : int</span>
+<span class="sd">        Number of output filters in the convolution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">activation</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">kernel_size</span><span class="p">:</span> <span class="nb">tuple</span>
+    <span class="n">strides</span><span class="p">:</span> <span class="nb">tuple</span>
+    <span class="n">filters</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<div class="viewcode-block" id="Pooling2DConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.Pooling2DConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pooling2DConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for 2D Pooling layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pool_type : str</span>
+<span class="sd">        Type of pooling operation (e.g., &#39;max&#39;, &#39;average&#39;).</span>
+<span class="sd">    pool_size : tuple</span>
+<span class="sd">        Size of the pooling window.</span>
+<span class="sd">    strides : tuple</span>
+<span class="sd">        Stride length of the pooling operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">pool_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pool_size</span><span class="p">:</span> <span class="nb">tuple</span>
+    <span class="n">strides</span><span class="p">:</span> <span class="nb">tuple</span></div>
+
+
+
+<div class="viewcode-block" id="DenseConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.DenseConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DenseConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for Dense (Fully Connected) layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    activation : str</span>
+<span class="sd">        Activation function to use.</span>
+<span class="sd">    units : int</span>
+<span class="sd">        Number of neurons in the dense layer.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">activation</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">units</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<div class="viewcode-block" id="RNNConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.RNNConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RNNConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for Recurrent Neural Network layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    units : int</span>
+<span class="sd">        Number of RNN units.</span>
+<span class="sd">    return_sequences : bool</span>
+<span class="sd">        Whether to return the last output or the full sequence.</span>
+<span class="sd">    go_backwards : bool</span>
+<span class="sd">        If True, process the input sequence backwards.</span>
+<span class="sd">    dropout : float</span>
+<span class="sd">        Fraction of the units to drop for the linear transformation of the inputs.</span>
+<span class="sd">    recurrent_dropout : float</span>
+<span class="sd">        Fraction of the units to drop for the linear transformation of the recurrent state.</span>
+<span class="sd">    rnn_type : str, optional</span>
+<span class="sd">        Type of RNN (e.g., &#39;simple&#39;, &#39;lstm&#39;, &#39;gru&#39;).</span>
+<span class="sd">    bidirectional : bool, optional</span>
+<span class="sd">        If True, create a bidirectional RNN.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">units</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">return_sequences</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">go_backwards</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">dropout</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">recurrent_dropout</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">rnn_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">bidirectional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="DropoutConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.DropoutConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DropoutConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for Dropout layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rate : float</span>
+<span class="sd">        Fraction of the input units to drop.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rate</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="ReshapeConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.ReshapeConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReshapeConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for Reshape layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target_shape : tuple</span>
+<span class="sd">        Target shape of the output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">target_shape</span><span class="p">:</span> <span class="nb">tuple</span></div>
+
+
+
+<div class="viewcode-block" id="InputConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.InputConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InputConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for Input layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    batch_size : int</span>
+<span class="sd">        Size of the batches of data.</span>
+<span class="sd">    depth : int</span>
+<span class="sd">        Depth of the input (for 3D inputs).</span>
+<span class="sd">    height : int</span>
+<span class="sd">        Height of the input.</span>
+<span class="sd">    width : int</span>
+<span class="sd">        Width of the input.</span>
+<span class="sd">    channels : int</span>
+<span class="sd">        Number of channels in the input.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">channels</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+
+<div class="viewcode-block" id="ActivationConfig">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.config.ActivationConfig">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActivationConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for Activation layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    activation : str</span>
+<span class="sd">        Activation function to use.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">activation</span><span class="p">:</span> <span class="nb">str</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VGSLify Documentation &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=82662543"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">VGSLify Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vgslify-documentation">
+<h1>VGSLify Documentation<a class="headerlink" href="#vgslify-documentation" title="Link to this heading"></a></h1>
+<p>VGSLify is a powerful tool for creating and managing deep learning models using the Variable-size Graph Specification Language (VGSL). With support for both TensorFlow and PyTorch backends, VGSLify enables rapid prototyping and easy conversion between model code and compact string specifications.</p>
+<p>This documentation provides a comprehensive guide to getting started with VGSLify, advanced usage examples, and detailed API references.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>If you are new to VGSLify, start with these guides:</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#overview-of-vgslify">Overview of VGSLify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#why-use-vgslify">Why Use VGSLify?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#links-to-documentation">Links to Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-vgslify">Installing VGSLify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verifying-installation">Verifying Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#simple-example-building-a-model">Simple Example: Building a Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#explanation-of-layers">Explanation of Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#quick-start-with-custom-layers-advanced">Quick Start with Custom Layers (Advanced)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#additional-topics">Additional Topics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#tutorial-1-building-a-cnn-for-image-classification">Tutorial 1: Building a CNN for Image Classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#tutorial-2-creating-an-lstm-for-sequence-prediction">Tutorial 2: Creating an LSTM for Sequence Prediction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#tutorial-3-converting-models-back-to-vgsl-specification">Tutorial 3: Converting Models Back to VGSL Specification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#additional-topics">Additional Topics</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="user-guides">
+<h2>User Guides<a class="headerlink" href="#user-guides" title="Link to this heading"></a></h2>
+<p>Explore advanced usage and customization examples:</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="supported_layers.html">Supported Layers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="supported_layers.html#layer-specifications">Layer Specifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_layers.html#custom-layers">Custom Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_layers.html#more-examples">More Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="convert_to_vgsl_spec.html#how-it-works">How It Works</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_usage.html">Advanced Usage and Customization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced_usage.html#custom-layer-registration">Custom Layer Registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_usage.html#custom-parser-registration">Custom Parser Registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_usage.html#extending-model-conversion">Extending Model Conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_usage.html#debugging-and-best-practices">Debugging and Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced_usage.html#integrating-vgslify-in-larger-workflows">Integrating VGSLify in Larger Workflows</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="api-reference">
+<h2>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h2>
+<p>For developers looking for technical details, refer to the API docs:</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.html">vgslify package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.html#module-vgslify.generator">vgslify.generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.html#module-vgslify">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.core.html">vgslify.core package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.core.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.core.html#module-vgslify.core.config">vgslify.core.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.core.html#module-vgslify.core.factory">vgslify.core.factory module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.core.html#module-vgslify.core.spec_parser">vgslify.core.spec_parser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.core.html#module-vgslify.core.utils">vgslify.core.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.core.html#module-vgslify.core">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.model_parsers.html">vgslify.model_parsers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.model_parsers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.model_parsers.html#module-vgslify.model_parsers.base">vgslify.model_parsers.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.model_parsers.html#module-vgslify.model_parsers.torch">vgslify.model_parsers.torch module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.model_parsers.html#module-vgslify.model_parsers.tensorflow">vgslify.model_parsers.tensorflow module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.model_parsers.html#module-vgslify.model_parsers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.tensorflow.html">vgslify.tensorflow package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.tensorflow.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.tensorflow.html#module-vgslify.tensorflow.layers">vgslify.tensorflow.layers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.tensorflow.html#module-vgslify.tensorflow">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.torch.html">vgslify.torch package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.torch.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.torch.html#module-vgslify.torch.layers">vgslify.torch.layers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.torch.html#module-vgslify.torch">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="source/vgslify.utils.html">vgslify.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.utils.html#vgslify-utils-model-to-spec-module">vgslify.utils.model_to_spec module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/vgslify.utils.html#module-vgslify.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and Tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

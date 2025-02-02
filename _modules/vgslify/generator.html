@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.generator &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=82662543"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vgslify.generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vgslify.generator</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Imports</span>
+
+<span class="c1"># &gt; Standard Libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="c1"># &gt; Internal Libraries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.core.spec_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_spec</span>
+
+
+<div class="viewcode-block" id="VGSLModelGenerator">
+<a class="viewcode-back" href="../../source/vgslify.html#vgslify.generator.VGSLModelGenerator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">VGSLModelGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    VGSLModelGenerator constructs a neural network model based on a VGSL (Variable-size Graph</span>
+<span class="sd">    Specification Language) specification string. This class supports dynamic model generation</span>
+<span class="sd">    for different backends, with current support for TensorFlow and PyTorch.</span>
+
+<span class="sd">    The generator takes a VGSL specification string that defines the architecture of the neural</span>
+<span class="sd">    network, including the input layer, convolutional layers, pooling layers, RNN layers, dense</span>
+<span class="sd">    layers, and more. The class parses this string, constructs the layers in sequence, and builds</span>
+<span class="sd">    the final model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the VGSLModelGenerator with the backend.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        backend : str, optional</span>
+<span class="sd">            The backend to use for building the model. Can be &quot;tensorflow&quot;, &quot;torch&quot;, or &quot;auto&quot;.</span>
+<span class="sd">            Default is &quot;auto&quot;, which will attempt to automatically detect the available backend.</span>
+<span class="sd">        model_name : str, optional</span>
+<span class="sd">            The name of the model, by default &quot;VGSL_Model&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_detect_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory_class</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_constructors</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_backend_and_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory_class</span><span class="p">()</span>
+
+<div class="viewcode-block" id="VGSLModelGenerator.generate_model">
+<a class="viewcode-back" href="../../source/vgslify.html#vgslify.generator.VGSLModelGenerator.generate_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;VGSL_Model&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the model based on the VGSL spec string.</span>
+
+<span class="sd">        This method parses the VGSL specification string, creates each layer</span>
+<span class="sd">        using the layer factory, and constructs the model sequentially.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model_spec : str</span>
+<span class="sd">            The VGSL specification string defining the model architecture.</span>
+<span class="sd">        model_name : str, optional</span>
+<span class="sd">            Name of the model, by default &quot;VGSL_Model&quot;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The built model using the specified backend.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_layers</span><span class="p">(</span><span class="n">model_spec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">model_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VGSLModelGenerator.generate_history">
+<a class="viewcode-back" href="../../source/vgslify.html#vgslify.generator.VGSLModelGenerator.generate_history">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the history of layer specifications without building the full model.</span>
+
+<span class="sd">        This method parses the VGSL specification string, constructs each layer using</span>
+<span class="sd">        the layer factory, and stores them in a list, but does not chain them or connect</span>
+<span class="sd">        input/output layers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model_spec : str</span>
+<span class="sd">            The VGSL specification string defining the model architecture.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list of layers constructed from the specification string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_layers</span><span class="p">(</span><span class="n">model_spec</span><span class="p">,</span> <span class="n">return_history</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_layers</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">return_history</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process the VGSL specification string to build the model or generate a history of layers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model_spec : str</span>
+<span class="sd">            The VGSL specification string defining the model architecture.</span>
+<span class="sd">        return_history : bool, optional</span>
+<span class="sd">            If True, returns a list of constructed layers (history) instead of the final model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Any}</span>
+<span class="sd">            The built model using the specified backend if `return_history` is False.</span>
+<span class="sd">            Otherwise, a list of constructed layers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Reset the layer factory instance for a new model.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory_class</span><span class="p">()</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="n">parse_spec</span><span class="p">(</span><span class="n">model_spec</span><span class="p">)</span>
+
+        <span class="c1"># Create all layers using a list comprehension.</span>
+        <span class="c1"># The first spec is always the input layer.</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_factory</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">specs</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_construct_layer</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory</span><span class="p">)</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">layers</span> <span class="k">if</span> <span class="n">return_history</span> <span class="k">else</span> <span class="n">layers</span>
+
+<div class="viewcode-block" id="VGSLModelGenerator.construct_layer">
+<a class="viewcode-back" href="../../source/vgslify.html#vgslify.generator.VGSLModelGenerator.construct_layer">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">construct_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a single layer using the layer factory based on the spec string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for a layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The constructed layer.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the layer specification is unknown.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Use a fresh instance of the layer factory for standalone layer construction.</span>
+        <span class="n">temp_factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_factory_class</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_layer</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">temp_factory</span><span class="p">)</span></div>
+
+
+    <span class="c1">### Private Helper Methods ###</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_construct_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">layer_factory</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a layer using the layer factory based on the specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for a layer.</span>
+<span class="sd">        layer_factory : Any</span>
+<span class="sd">            The layer factory instance to use for constructing the layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The constructed layer.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the layer specification is unknown.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Sort prefixes by length (longest first) to match custom prefixes properly.</span>
+        <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_constructors</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
+                <span class="n">layer_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_constructors</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">layer_fn</span><span class="p">(</span><span class="n">layer_factory</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown layer specification: </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detect_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Detect the backend automatically by checking available libraries.</span>
+<span class="sd">        If both TensorFlow and PyTorch are available, TensorFlow is selected by default.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        backend : str</span>
+<span class="sd">            The backend to use for building the model. Can be &quot;tensorflow&quot;, &quot;torch&quot;, or &quot;auto&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            The detected or provided backend (&quot;tensorflow&quot; or &quot;torch&quot;).</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ImportError</span>
+<span class="sd">            If neither backend is available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">backend</span> <span class="o">!=</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">backend</span>
+
+        <span class="k">if</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;tensorflow&quot;</span>
+
+        <span class="k">if</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;torch&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;torch&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">&quot;Neither TensorFlow nor PyTorch is installed. Please install one of them.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_backend_and_factory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize and return the backend’s layer factory class and a dictionary of</span>
+<span class="sd">        layer constructor functions based on VGSL prefixes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        backend : str</span>
+<span class="sd">            The backend to use for building the model (&#39;tensorflow&#39; or &#39;torch&#39;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple containing the layer factory class and layer constructors dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;tensorflow&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.tensorflow.layers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+                    <span class="n">TensorFlowLayerFactory</span> <span class="k">as</span> <span class="n">FactoryClass</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.torch.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">TorchLayerFactory</span> <span class="k">as</span> <span class="n">FactoryClass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unsupported backend: </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">. Choose &#39;tensorflow&#39; or &#39;torch&#39;.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Backend &#39;</span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&#39; is not available. Please install the required library.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">default_constructors</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;Mp&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">pooling2d</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;Ap&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">pooling2d</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;L&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;G&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">rnn</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;Flt&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">dense</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;Bn&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">batchnorm</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+            <span class="s2">&quot;Rc&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">s</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Merge in any user-registered custom layers.</span>
+        <span class="n">custom_registry</span> <span class="o">=</span> <span class="n">FactoryClass</span><span class="o">.</span><span class="n">get_custom_layer_registry</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">builder_fn</span> <span class="ow">in</span> <span class="n">custom_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Wrap the builder to ensure the created layer is appended.</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">wrapped_builder</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">_builder_fn</span><span class="o">=</span><span class="n">builder_fn</span><span class="p">):</span>
+                <span class="n">layer</span> <span class="o">=</span> <span class="n">_builder_fn</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">layer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">factory</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+                    <span class="n">factory</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">layer</span>
+
+            <span class="n">default_constructors</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span> <span class="o">=</span> <span class="n">wrapped_builder</span>
+
+        <span class="k">return</span> <span class="n">FactoryClass</span><span class="p">,</span> <span class="n">default_constructors</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

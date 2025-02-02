@@ -1,0 +1,954 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.core.factory &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=82662543"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vgslify.core.factory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vgslify.core.factory</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Imports</span>
+
+<span class="c1"># &gt; Standard Libraries</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="c1"># &gt; Internal dependencies</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.core.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Conv2DConfig</span><span class="p">,</span>
+    <span class="n">DenseConfig</span><span class="p">,</span>
+    <span class="n">DropoutConfig</span><span class="p">,</span>
+    <span class="n">InputConfig</span><span class="p">,</span>
+    <span class="n">Pooling2DConfig</span><span class="p">,</span>
+    <span class="n">ReshapeConfig</span><span class="p">,</span>
+    <span class="n">RNNConfig</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.core.spec_parser</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">parse_activation_spec</span><span class="p">,</span>
+    <span class="n">parse_conv2d_spec</span><span class="p">,</span>
+    <span class="n">parse_dense_spec</span><span class="p">,</span>
+    <span class="n">parse_dropout_spec</span><span class="p">,</span>
+    <span class="n">parse_input_spec</span><span class="p">,</span>
+    <span class="n">parse_pooling2d_spec</span><span class="p">,</span>
+    <span class="n">parse_reshape_spec</span><span class="p">,</span>
+    <span class="n">parse_rnn_spec</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="LayerFactory">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayerFactory</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for creating neural network layers from VGSL specifications.</span>
+
+<span class="sd">    This class defines the interface that must be implemented by concrete factories</span>
+<span class="sd">    for different frameworks (e.g., TensorFlow, PyTorch). It also provides common</span>
+<span class="sd">    methods for output shape calculations to be used by subclasses.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_shape : tuple of int, optional</span>
+<span class="sd">        The initial input shape for the model.</span>
+<span class="sd">    data_format : str, default &#39;channels_last&#39;</span>
+<span class="sd">        The data format for the input tensor. Either &#39;channels_last&#39; or &#39;channels_first&#39;.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    layers : list</span>
+<span class="sd">        A list to store the created layers.</span>
+<span class="sd">    data_format : str</span>
+<span class="sd">        The data format for the input tensor.</span>
+<span class="sd">    shape : tuple of int</span>
+<span class="sd">        The current shape of the output tensor.</span>
+<span class="sd">    _input_shape : tuple of int</span>
+<span class="sd">        The initial input shape for the model.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is an abstract base class. Use a concrete implementation like</span>
+<span class="sd">    `TensorFlowLayerFactory` or `PyTorchLayerFactory` in your code.</span>
+
+<span class="sd">    This class uses a naming convention where public methods for creating layers</span>
+<span class="sd">    (e.g., conv2d) have corresponding private methods with an underscore prefix</span>
+<span class="sd">    (e.g., _conv2d) that handle the actual layer creation.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Assuming we have a TensorFlowLayerFactory implementation</span>
+<span class="sd">    &gt;&gt;&gt; factory = TensorFlowLayerFactory(input_shape=(224, 224, 3))</span>
+<span class="sd">    &gt;&gt;&gt; factory.conv2d(&#39;Cr3,3,32&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; factory.pooling2d(&#39;Mp2,2,2,2&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; factory.flatten(&#39;Flt&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; factory.dense(&#39;Fs128&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; model = factory.build(&#39;my_model&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;channels_last&quot;</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">=</span> <span class="n">data_format</span>
+
+        <span class="c1"># Make sure the input shape is valid</span>
+        <span class="k">if</span> <span class="n">input_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">input_shape</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input shape must be a tuple of integers.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set the input shape if provided</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">input_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input_shape</span> <span class="o">=</span> <span class="n">input_shape</span>
+
+<div class="viewcode-block" id="LayerFactory.build">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.build">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to build the final model using the created layers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name : str</span>
+<span class="sd">            The name of the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The final built model.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(28, 28, 1))</span>
+<span class="sd">        &gt;&gt;&gt; factory.conv2d(&#39;Cr3,3,32&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; factory.flatten(&#39;Flt&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; factory.dense(&#39;Fs10&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; model = factory.build(&#39;my_model&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="c1"># Layer creation methods</span>
+<div class="viewcode-block" id="LayerFactory.input">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an Input layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the Input layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Input layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory()</span>
+<span class="sd">        &gt;&gt;&gt; factory.input(&#39;1,28,28,1&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parse_input_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+        <span class="c1"># Adjust input shape based on the parsed dimensions</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">channels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># 4D input: shape = (depth, height, width, channels)</span>
+            <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">channels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># 3D input: shape = (height, width, channels)</span>
+            <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">channels</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># 2D input: shape = (height, width)</span>
+            <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 1D input: shape = (width,)</span>
+            <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">width</span><span class="p">,)</span>
+
+        <span class="c1"># Adjust for data format</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s2">&quot;channels_first&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">input_shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                    <span class="n">input_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">input_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">input_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input_shape</span> <span class="o">=</span> <span class="n">input_shape</span>
+
+        <span class="n">input_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">input_layer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Some backends may not return the layer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">input_layer</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">input_layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.conv2d">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.conv2d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">conv2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a 2D Convolutional layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the Conv2D layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Conv2D layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(28, 28, 1))</span>
+<span class="sd">        &gt;&gt;&gt; factory.conv2d(&#39;Cr3,3,32&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parse_conv2d_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_input_shape</span><span class="p">()</span>
+
+        <span class="n">conv_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conv2d</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">conv_layer</span><span class="p">)</span>
+
+        <span class="c1"># Add activation if needed</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">activation</span><span class="p">:</span>
+            <span class="n">activation_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_activation</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">activation</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">activation_layer</span><span class="p">)</span>
+
+        <span class="c1"># Update shape</span>
+        <span class="n">new_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_conv_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_shape</span><span class="p">(</span><span class="n">new_shape</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">conv_layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.pooling2d">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.pooling2d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pooling2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a 2D Pooling layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the Pooling2D layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Pooling2D layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(28, 28, 32))</span>
+<span class="sd">        &gt;&gt;&gt; factory.pooling2d(&#39;Mp2,2,2,2&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parse_pooling2d_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_input_shape</span><span class="p">()</span>
+
+        <span class="n">pool_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pooling2d</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">pool_layer</span><span class="p">)</span>
+
+        <span class="c1"># Update shape</span>
+        <span class="n">new_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_pool_output_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_shape</span><span class="p">(</span><span class="n">new_shape</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pool_layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.dense">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.dense">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Dense (Fully Connected) layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the Dense layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Dense layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(7*7*32,))</span>
+<span class="sd">        &gt;&gt;&gt; factory.dense(&#39;Fs128&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parse_dense_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_input_shape</span><span class="p">()</span>
+
+        <span class="n">dense_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dense</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">dense_layer</span><span class="p">)</span>
+
+        <span class="c1"># Add activation if needed</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">activation</span><span class="p">:</span>
+            <span class="n">activation_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_activation</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">activation</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">activation_layer</span><span class="p">)</span>
+
+        <span class="c1"># Update shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_shape</span><span class="p">((</span><span class="n">config</span><span class="o">.</span><span class="n">units</span><span class="p">,))</span>
+
+        <span class="k">return</span> <span class="n">dense_layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.rnn">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.rnn">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rnn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an RNN layer (LSTM or GRU), either unidirectional or bidirectional, based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the RNN layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created RNN layer (either unidirectional or bidirectional).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(28, 28))</span>
+<span class="sd">        &gt;&gt;&gt; factory.rnn(&#39;Ls128&#39;)  # Unidirectional LSTM</span>
+<span class="sd">        &gt;&gt;&gt; factory.rnn(&#39;Bl128&#39;)  # Bidirectional LSTM</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parse_rnn_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_input_shape</span><span class="p">()</span>
+
+        <span class="n">rnn_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rnn</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">rnn_layer</span><span class="p">)</span>
+
+        <span class="c1"># Update shape</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">return_sequences</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">bidirectional</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_shape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">config</span><span class="o">.</span><span class="n">units</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_shape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">config</span><span class="o">.</span><span class="n">units</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">bidirectional</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_shape</span><span class="p">((</span><span class="n">config</span><span class="o">.</span><span class="n">units</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_shape</span><span class="p">((</span><span class="n">config</span><span class="o">.</span><span class="n">units</span><span class="p">,))</span>
+
+        <span class="k">return</span> <span class="n">rnn_layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.batchnorm">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.batchnorm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">batchnorm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a BatchNormalization layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the BatchNormalization layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created BatchNormalization layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(28, 28, 32))</span>
+<span class="sd">        &gt;&gt;&gt; factory.batchnorm(&#39;Bn&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="o">!=</span> <span class="s2">&quot;Bn&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;BatchNormalization layer spec &#39;</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&#39; is incorrect. Expected &#39;Bn&#39;.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_input_shape</span><span class="p">()</span>
+
+        <span class="n">batchnorm_layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batchnorm</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_layer</span><span class="p">(</span><span class="n">batchnorm_layer</span><span class="p">)</span>
+
+        <span class="c1"># Shape remains the same</span>
+        <span class="k">return</span> <span class="n">batchnorm_layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.dropout">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.dropout">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Dropout layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the Dropout layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Dropout layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(128,))</span>
+<span class="sd">        &gt;&gt;&gt; factory.dropout(&#39;D50&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parse_dropout_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dropout</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="c1"># Shape remains the same</span>
+        <span class="k">return</span> <span class="n">layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.activation">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.activation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an Activation layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the Activation layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Activation layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(128,))</span>
+<span class="sd">        &gt;&gt;&gt; factory.activation(&#39;Ar&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">activation_function</span> <span class="o">=</span> <span class="n">parse_activation_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_activation</span><span class="p">(</span><span class="n">activation_function</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="c1"># Shape remains the same</span>
+        <span class="k">return</span> <span class="n">layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.reshape">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.reshape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reshape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Reshape layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            VGSL specification string for the Reshape layer. Can be:</span>
+<span class="sd">            - &#39;Rc(2|3)&#39;: Collapse spatial dimensions (height, width, and channels).</span>
+<span class="sd">            - &#39;R&lt;x&gt;,&lt;y&gt;,&lt;z&gt;&#39;: Reshape to the specified target shape.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Reshape layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(28, 28, 1))</span>
+<span class="sd">        &gt;&gt;&gt; factory.reshape(&#39;Rc3&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input shape must be set before adding layers.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Handle &#39;Rc&#39; (collapse spatial dimensions) specification</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Rc&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">spec</span> <span class="o">==</span> <span class="s2">&quot;Rc2&quot;</span><span class="p">:</span>
+                <span class="c1"># Flatten to (batch_size, -1)</span>
+                <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compute_flatten_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)),)</span>
+                <span class="k">return</span> <span class="n">layer</span>
+
+            <span class="k">elif</span> <span class="n">spec</span> <span class="o">==</span> <span class="s2">&quot;Rc3&quot;</span><span class="p">:</span>
+                <span class="c1"># Reshape to (batch_size, seq_length, features)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Expected a 3D input shape for &#39;Rc3&#39;, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s2">&quot;channels_first&quot;</span><span class="p">:</span>
+                    <span class="n">C</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># channels_last</span>
+                    <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span>
+
+                <span class="c1"># Handle variable height</span>
+                <span class="k">if</span> <span class="n">H</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">seq_length</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">seq_length</span> <span class="o">=</span> <span class="n">H</span> <span class="o">*</span> <span class="n">W</span> <span class="k">if</span> <span class="n">W</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+                <span class="n">features</span> <span class="o">=</span> <span class="n">W</span> <span class="o">*</span> <span class="n">C</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">ReshapeConfig</span><span class="p">(</span><span class="n">target_shape</span><span class="o">=</span><span class="p">(</span><span class="n">seq_length</span><span class="p">,</span> <span class="n">features</span><span class="p">))</span>
+                <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reshape</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">seq_length</span><span class="p">,</span> <span class="n">features</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">layer</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported Rc variant: </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Handle regular reshape (e.g., &#39;R64,64,3&#39;)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">parse_reshape_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reshape</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">target_shape</span>
+        <span class="k">return</span> <span class="n">layer</span></div>
+
+
+<div class="viewcode-block" id="LayerFactory.flatten">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.factory.LayerFactory.flatten">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Flatten layer based on the VGSL specification string.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        spec : str</span>
+<span class="sd">            The VGSL specification string for the Flatten layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Flatten layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Using a hypothetical concrete implementation</span>
+<span class="sd">        &gt;&gt;&gt; factory = SomeConcreteLayerFactory(input_shape=(7, 7, 64))</span>
+<span class="sd">        &gt;&gt;&gt; factory.flatten(&#39;Flt&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="o">!=</span> <span class="s2">&quot;Flt&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Flatten layer spec &#39;</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&#39; is incorrect. Expected &#39;Flt&#39;.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">layer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flatten</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="c1"># Update shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_compute_flatten_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">),)</span>
+        <span class="k">return</span> <span class="n">layer</span></div>
+
+
+    <span class="c1"># Abstract methods</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">InputConfig</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create an Input layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : InputConfig</span>
+<span class="sd">            The configuration object returned by parse_input_spec.</span>
+<span class="sd">        input_shape : tuple of int</span>
+<span class="sd">            The input shape.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Input layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_conv2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Conv2DConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create a Conv2D layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : Conv2DConfig</span>
+<span class="sd">            The configuration object returned by parse_conv2d_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Conv2D layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pooling2d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Pooling2DConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create a Pooling2D layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : Pooling2DConfig</span>
+<span class="sd">            The configuration object returned by parse_pooling2d_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Pooling2D layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">DenseConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create a Dense (Fully Connected) layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : DenseConfig</span>
+<span class="sd">            The configuration object returned by parse_dense_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Dense layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rnn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">RNNConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create an RNN layer (LSTM or GRU).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : RNNConfig</span>
+<span class="sd">            The configuration object returned by parse_rnn_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created RNN layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_batchnorm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create a BatchNormalization layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created BatchNormalization layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">DropoutConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create a Dropout layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : DropoutConfig</span>
+<span class="sd">            The configuration object returned by parse_dropout_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Dropout layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activation_function</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create an Activation layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        activation_function : str</span>
+<span class="sd">            Name of the activation function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Activation layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_reshape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ReshapeConfig</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create a Reshape layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : ReshapeConfig</span>
+<span class="sd">            The configuration object returned by parse_reshape_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Reshape layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_flatten</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Abstract method to create a Flatten layer.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            The created Flatten layer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Helper methods</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_conv_output_shape</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">Conv2DConfig</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the output shape of a convolutional layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_shape : tuple</span>
+<span class="sd">            The input shape.</span>
+<span class="sd">        config : Conv2DConfig</span>
+<span class="sd">            The configuration object returned by parse_conv2d_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            The output shape after the convolution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s2">&quot;channels_last&quot;</span><span class="p">:</span>
+            <span class="n">H_in</span><span class="p">,</span> <span class="n">W_in</span><span class="p">,</span> <span class="n">C_in</span> <span class="o">=</span> <span class="n">input_shape</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">C_in</span><span class="p">,</span> <span class="n">H_in</span><span class="p">,</span> <span class="n">W_in</span> <span class="o">=</span> <span class="n">input_shape</span>
+
+        <span class="c1"># Compute output dimensions based on padding and strides</span>
+        <span class="c1"># Adjust calculations based on the backend&#39;s handling of padding</span>
+
+        <span class="c1"># Example computation for &#39;same&#39; padding</span>
+        <span class="n">H_out</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">H_in</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">H_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">W_out</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">W_in</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">W_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">C_out</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">filters</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s2">&quot;channels_last&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">H_out</span><span class="p">,</span> <span class="n">W_out</span><span class="p">,</span> <span class="n">C_out</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">C_out</span><span class="p">,</span> <span class="n">H_out</span><span class="p">,</span> <span class="n">W_out</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_pool_output_shape</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">Pooling2DConfig</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the output shape of a pooling layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_shape : tuple</span>
+<span class="sd">            The input shape.</span>
+<span class="sd">        config : Pooling2DConfig</span>
+<span class="sd">            The configuration object returned by parse_pooling2d_spec.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            The output shape after pooling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s2">&quot;channels_last&quot;</span><span class="p">:</span>
+            <span class="n">H_in</span><span class="p">,</span> <span class="n">W_in</span><span class="p">,</span> <span class="n">C_in</span> <span class="o">=</span> <span class="n">input_shape</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">C_in</span><span class="p">,</span> <span class="n">H_in</span><span class="p">,</span> <span class="n">W_in</span> <span class="o">=</span> <span class="n">input_shape</span>
+
+        <span class="c1"># Compute output dimensions based on pooling size and strides</span>
+        <span class="n">H_out</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">H_in</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">H_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">W_out</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">W_in</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">config</span><span class="o">.</span><span class="n">strides</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">W_in</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_format</span> <span class="o">==</span> <span class="s2">&quot;channels_last&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">H_out</span><span class="p">,</span> <span class="n">W_out</span><span class="p">,</span> <span class="n">C_in</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">C_in</span><span class="p">,</span> <span class="n">H_out</span><span class="p">,</span> <span class="n">W_out</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_flatten_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the shape after flattening the input.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        shape : tuple</span>
+<span class="sd">            The input shape.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The product of all dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">mul</span>
+
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_input_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates that the input shape has been set before adding layers.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the input shape has not been set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input shape must be set before adding layers.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a layer to the list of layers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layer : Any</span>
+<span class="sd">            The layer to be added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the current shape of the output tensor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_shape : tuple of int</span>
+<span class="sd">            The new shape to set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">new_shape</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

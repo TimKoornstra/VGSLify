@@ -1,0 +1,628 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vgslify.core.spec_parser &mdash; VGSLify 0.14.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=82662543"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            VGSLify
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials.html">Tutorials</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../supported_layers.html">Supported Layers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../convert_to_vgsl_spec.html">Converting Models Back to VGSL Spec</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced_usage.html">Advanced Usage and Customization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.html">vgslify package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.core.html">vgslify.core package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.model_parsers.html">vgslify.model_parsers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.tensorflow.html">vgslify.tensorflow package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.torch.html">vgslify.torch package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/vgslify.utils.html">vgslify.utils package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">VGSLify</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">vgslify.core.spec_parser</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for vgslify.core.spec_parser</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Imports</span>
+
+<span class="c1"># &gt; Standard Libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="c1"># &gt; Internal dependencies</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.core.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Conv2DConfig</span><span class="p">,</span>
+    <span class="n">DenseConfig</span><span class="p">,</span>
+    <span class="n">DropoutConfig</span><span class="p">,</span>
+    <span class="n">InputConfig</span><span class="p">,</span>
+    <span class="n">Pooling2DConfig</span><span class="p">,</span>
+    <span class="n">ReshapeConfig</span><span class="p">,</span>
+    <span class="n">RNNConfig</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vgslify.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_activation_function</span>
+
+
+<div class="viewcode-block" id="parse_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_spec</span><span class="p">(</span><span class="n">model_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the full model spec string into a list of individual layer specs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model_spec : str</span>
+<span class="sd">        The VGSL specification string defining the model architecture.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of layer specification strings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">model_spec</span><span class="o">.</span><span class="n">split</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="parse_conv2d_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_conv2d_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_conv2d_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Conv2DConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for a Conv2D layer and returns the parsed configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the convolutional layer. Expected format:</span>
+<span class="sd">        `C(s|t|r|l|m)&lt;x&gt;,&lt;y&gt;,[&lt;s_x&gt;,&lt;s_y&gt;,]&lt;d&gt;`</span>
+<span class="sd">        - (s|t|r|l|m): Activation type.</span>
+<span class="sd">        - &lt;x&gt;,&lt;y&gt;: Kernel size.</span>
+<span class="sd">        - &lt;s_x&gt;,&lt;s_y&gt;: Optional strides (defaults to (1, 1) if not provided).</span>
+<span class="sd">        - &lt;d&gt;: Number of filters (depth).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Conv2DConfig</span>
+<span class="sd">        Parsed configuration for the Conv2D layer.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError:</span>
+<span class="sd">        If the provided VGSL spec string does not match the expected format.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from vgslify.core.parser import parse_conv2d_spec</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_conv2d_spec(&quot;Cr3,3,64&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(config)</span>
+<span class="sd">    Conv2DConfig(activation=&#39;relu&#39;, kernel_size=(3, 3), strides=(1, 1), filters=64)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Extract convolutional parameters</span>
+    <span class="n">conv_filter_params</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)]</span>
+
+    <span class="c1"># Check if the layer format is as expected</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conv_filter_params</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Conv layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2"> has too few parameters. &quot;</span>
+            <span class="s2">&quot;Expected format: C(s|t|r|l|m)&lt;x&gt;,&lt;y&gt;,&lt;d&gt; or &quot;</span>
+            <span class="s2">&quot;C(s|t|r|l|m)&lt;x&gt;,&lt;y&gt;,&lt;s_x&gt;,&lt;s_y&gt;,&lt;d&gt;&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conv_filter_params</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Conv layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2"> has too many parameters. &quot;</span>
+            <span class="s2">&quot;Expected format: C(s|t|r|l|m)&lt;x&gt;,&lt;y&gt;,&lt;d&gt; or &quot;</span>
+            <span class="s2">&quot;C(s|t|r|l|m)&lt;x&gt;,&lt;y&gt;,&lt;s_x&gt;,&lt;s_y&gt;,&lt;d&gt;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Extract activation function</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">activation</span> <span class="o">=</span> <span class="n">get_activation_function</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">activation</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Fall back to default activation</span>
+
+    <span class="c1"># Check parameter length and assign kernel size, strides, and filters</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conv_filter_params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">conv_filter_params</span>
+        <span class="n">strides</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Default stride</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">conv_filter_params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s_x</span><span class="p">,</span> <span class="n">s_y</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">conv_filter_params</span>
+        <span class="n">strides</span> <span class="o">=</span> <span class="p">(</span><span class="n">s_x</span><span class="p">,</span> <span class="n">s_y</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid number of parameters in </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">kernel_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="c1"># Return the parsed configuration</span>
+    <span class="k">return</span> <span class="n">Conv2DConfig</span><span class="p">(</span>
+        <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">d</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_pooling2d_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_pooling2d_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_pooling2d_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pooling2DConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for a Pooling2D layer and returns the parsed configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the pooling layer. Expected format:</span>
+<span class="sd">        `Mp&lt;x&gt;,&lt;y&gt;[,&lt;s_x&gt;,&lt;s_y&gt;]` or `Ap&lt;x&gt;,&lt;y&gt;[,&lt;s_x&gt;,&lt;s_y&gt;]`</span>
+<span class="sd">        - &lt;x&gt;,&lt;y&gt;: Pool size.</span>
+<span class="sd">        - &lt;s_x&gt;,&lt;s_y&gt;: Strides. If not specified, defaults to pool size.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pooling2DConfig</span>
+<span class="sd">        Parsed configuration for the Pooling2D layer.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError:</span>
+<span class="sd">        If the provided VGSL spec string does not match the expected format.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_pooling2d_spec(&quot;Mp2,2&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(config)</span>
+<span class="sd">    Pooling2DConfig(pool_size=(2, 2), strides=(2, 2))</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_pooling2d_spec(&quot;Mp2,2,1,1&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(config)</span>
+<span class="sd">    Pooling2DConfig(pool_size=(2, 2), strides=(1, 1))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Extract pooling type</span>
+    <span class="n">pool_type</span> <span class="o">=</span> <span class="n">spec</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">pool_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Mp&quot;</span><span class="p">,</span> <span class="s2">&quot;Ap&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid pooling type &#39;</span><span class="si">{</span><span class="n">pool_type</span><span class="si">}</span><span class="s2">&#39; in </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Expected &#39;Mp&#39; for MaxPooling or &#39;Ap&#39; for AveragePooling.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">pool_type</span> <span class="o">=</span> <span class="s2">&quot;max&quot;</span> <span class="k">if</span> <span class="n">pool_type</span> <span class="o">==</span> <span class="s2">&quot;Mp&quot;</span> <span class="k">else</span> <span class="s2">&quot;avg&quot;</span>
+
+    <span class="c1"># Extract pooling and stride parameters</span>
+    <span class="n">pool_stride_params</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;-?\d+&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)]</span>
+
+    <span class="c1"># Check if the parameters are as expected</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool_stride_params</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Pooling layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2"> does not have the expected number of parameters. &quot;</span>
+            <span class="s2">&quot;Expected format: &lt;p&gt;&lt;x&gt;,&lt;y&gt;[,&lt;stride_x&gt;,&lt;stride_y&gt;]&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">pool_x</span><span class="p">,</span> <span class="n">pool_y</span> <span class="o">=</span> <span class="n">pool_stride_params</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># If strides are not specified, set them equal to the pool size</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pool_stride_params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">stride_x</span><span class="p">,</span> <span class="n">stride_y</span> <span class="o">=</span> <span class="n">pool_x</span><span class="p">,</span> <span class="n">pool_y</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stride_x</span><span class="p">,</span> <span class="n">stride_y</span> <span class="o">=</span> <span class="n">pool_stride_params</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+
+    <span class="c1"># Check if pool and stride values are valid</span>
+    <span class="k">if</span> <span class="n">pool_x</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">pool_y</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">stride_x</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">stride_y</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid values for pooling or stride in </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;All values should be positive integers.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Pooling2DConfig</span><span class="p">(</span>
+        <span class="n">pool_type</span><span class="o">=</span><span class="n">pool_type</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="n">pool_x</span><span class="p">,</span> <span class="n">pool_y</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">stride_x</span><span class="p">,</span> <span class="n">stride_y</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_dense_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_dense_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_dense_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DenseConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for a Dense layer and returns the parsed configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the dense layer. Expected format: `F(s|t|r|l|m)&lt;d&gt;`</span>
+<span class="sd">        - `(s|t|r|l|m)`: Non-linearity type. One of sigmoid, tanh, relu,</span>
+<span class="sd">          linear, or softmax.</span>
+<span class="sd">        - `&lt;d&gt;`: Number of outputs (units).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DenseConfig</span>
+<span class="sd">        Parsed configuration for the Dense layer.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided VGSL spec string does not match the expected format.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_dense_spec(&quot;Fr64&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(config)</span>
+<span class="sd">    DenseConfig(activation=&#39;relu&#39;, units=64)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Ensure the layer string format is as expected</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^F[a-z]-?\d+$&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Dense layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2"> is of unexpected format. Expected format: F(s|t|r|l|m)&lt;d&gt;.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Extract the activation function</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">activation</span> <span class="o">=</span> <span class="n">get_activation_function</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid activation function &#39;</span><span class="si">{</span><span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; for Dense layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Expected one of &#39;s&#39;, &#39;t&#39;, &#39;r&#39;, &#39;l&#39;, or &#39;m&#39;.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="c1"># Extract the number of neurons (units)</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="k">if</span> <span class="n">units</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid number of neurons </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2"> for Dense layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Return the parsed configuration</span>
+    <span class="k">return</span> <span class="n">DenseConfig</span><span class="p">(</span><span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_rnn_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_rnn_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_rnn_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RNNConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for an RNN layer (LSTM, GRU, Bidirectional)</span>
+<span class="sd">    and returns the parsed configuration.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the RNN layer. Expected format:</span>
+<span class="sd">        For LSTM/GRU: `(L|G)(f|r)[s]&lt;n&gt;[,D&lt;rate&gt;,Rd&lt;rate&gt;]`</span>
+<span class="sd">        For Bidirectional: `B(g|l)&lt;n&gt;[,D&lt;rate&gt;,Rd&lt;rate&gt;]`</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    RNNConfig</span>
+<span class="sd">        Parsed configuration for the RNN layer.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_rnn_spec(&quot;Lf64,D50,Rd25&quot;)  # Forward LSTM with 64 units</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_rnn_spec(&quot;Gr64&quot;)           # Reverse GRU with 64 units</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_rnn_spec(&quot;Bl64&quot;)           # Bidirectional LSTM with 64 units</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">):</span>
+        <span class="c1"># Handle Bidirectional case</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;B([gl])(-?\d+),?(D-?\d+)?,?(Rd-?\d+)?$&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Bidirectional RNN layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2"> is of unexpected format. &quot;</span>
+                <span class="s2">&quot;Expected format: B(g|l)&lt;n&gt;[,D&lt;rate&gt;,Rd&lt;rate&gt;]&quot;</span>
+            <span class="p">)</span>
+        <span class="n">rnn_type</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">recurrent_dropout</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="n">bidirectional</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Handle LSTM/GRU case</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([LG])([fr])(s?)(-?\d+),?(D-?\d+)?,?(Rd-?\d+)?$&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;RNN layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2"> is of unexpected format. &quot;</span>
+                <span class="s2">&quot;Expected format: (L|G)(f|r)[s]&lt;n&gt;[,D&lt;rate&gt;,Rd&lt;rate&gt;]&quot;</span>
+            <span class="p">)</span>
+        <span class="n">layer_type</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">summarize</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">recurrent_dropout</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">rnn_type</span> <span class="o">=</span> <span class="n">layer_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># &#39;l&#39; for LSTM, &#39;g&#39; for GRU</span>
+        <span class="n">bidirectional</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">units</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+    <span class="n">dropout</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">dropout</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">dropout</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mi">100</span>
+    <span class="n">recurrent_dropout</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">recurrent_dropout</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">recurrent_dropout</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Rd&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="mi">100</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Validation</span>
+    <span class="k">if</span> <span class="n">units</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid number of units </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2"> for RNN layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dropout</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">dropout</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dropout rate must be between 0 and 1.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">recurrent_dropout</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">recurrent_dropout</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Recurrent dropout rate must be between 0 and 1.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">RNNConfig</span><span class="p">(</span>
+        <span class="n">units</span><span class="o">=</span><span class="n">units</span><span class="p">,</span>
+        <span class="n">return_sequences</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">summarize</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bidirectional</span> <span class="k">else</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">go_backwards</span><span class="o">=</span><span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;r&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">bidirectional</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+        <span class="n">recurrent_dropout</span><span class="o">=</span><span class="n">recurrent_dropout</span><span class="p">,</span>
+        <span class="n">rnn_type</span><span class="o">=</span><span class="n">rnn_type</span><span class="p">,</span>
+        <span class="n">bidirectional</span><span class="o">=</span><span class="n">bidirectional</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_dropout_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_dropout_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_dropout_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DropoutConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for a Dropout layer and returns the parsed configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the Dropout layer. Expected format:</span>
+<span class="sd">        `D&lt;rate&gt;` where &lt;rate&gt; is the dropout percentage (0-100).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    DropoutConfig</span>
+<span class="sd">        Parsed configuration for the Dropout layer.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided VGSL spec string does not match the expected format.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_dropout_spec(&quot;D50&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(config)</span>
+<span class="sd">    DropoutConfig(rate=0.5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;D(-?\d+)$&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Dropout layer </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2"> is of unexpected format. Expected format: D&lt;rate&gt;.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">dropout_rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">dropout_rate</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">dropout_rate</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Dropout rate must be in the range [0, 100].&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">DropoutConfig</span><span class="p">(</span><span class="n">rate</span><span class="o">=</span><span class="n">dropout_rate</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_activation_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_activation_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_activation_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for an Activation layer and returns the activation function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the Activation layer. Expected format: `A(s|t|r|l|m)`</span>
+<span class="sd">        - `s`: softmax</span>
+<span class="sd">        - `t`: tanh</span>
+<span class="sd">        - `r`: relu</span>
+<span class="sd">        - `l`: linear</span>
+<span class="sd">        - `m`: sigmoid</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The activation function name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided VGSL spec string does not match the expected format.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; activation = parse_activation_spec(&quot;Ar&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(activation)</span>
+<span class="sd">    &#39;relu&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;A([strlm])$&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Activation layer spec &#39;</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&#39; is incorrect. Expected format: A(s|t|r|l|m).&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">get_activation_function</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="parse_reshape_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_reshape_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_reshape_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReshapeConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for a Reshape layer and returns the target shape.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the Reshape layer. Expected format: `R&lt;x&gt;,&lt;y&gt;,&lt;z&gt;`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ReshapeConfig</span>
+<span class="sd">        Parsed configuration for the Reshape layer.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided VGSL spec string does not match the expected format.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_reshape_spec(&quot;R64,64,3&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(config)</span>
+<span class="sd">    ReshapeConfig(target_shape=(64, 64, 3))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;R(-?\d+),(-?\d+)(?:,(-?\d+))?$&quot;</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Reshape layer spec &#39;</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&#39; is incorrect. Expected format: R&lt;x&gt;,&lt;y&gt;[,&lt;z&gt;].&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">target_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ReshapeConfig</span><span class="p">(</span><span class="n">target_shape</span><span class="o">=</span><span class="n">target_shape</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="parse_input_spec">
+<a class="viewcode-back" href="../../../source/vgslify.core.html#vgslify.core.spec_parser.parse_input_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_input_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InputConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses a VGSL specification string for an Input layer and returns the parsed configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    spec : str</span>
+<span class="sd">        VGSL specification for the Input layer. Supported format:</span>
+<span class="sd">        `&lt;batch_size&gt;,&lt;depth&gt;,&lt;height&gt;,&lt;width&gt;,&lt;channels&gt;` for 4D inputs,</span>
+<span class="sd">        `&lt;batch_size&gt;,&lt;height&gt;,&lt;width&gt;,&lt;channels&gt;` for 3D inputs,</span>
+<span class="sd">        `&lt;batch_size&gt;,&lt;height&gt;,&lt;width&gt;` for 2D inputs,</span>
+<span class="sd">        `&lt;batch_size&gt;,&lt;width&gt;` for 1D inputs.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    InputConfig</span>
+<span class="sd">        Parsed configuration for the Input layer.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the provided VGSL spec string does not match the expected format.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; config = parse_input_spec(&quot;None,224,224,3&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(config)</span>
+<span class="sd">    InputConfig(batch_size=None, width=224, depth=None, height=224, channels=3)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">batch</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">dims</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">batch</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">dims</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">batch</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">dims</span>
+            <span class="n">depth</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">batch</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">dims</span>
+            <span class="n">height</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid input spec: </span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">InputConfig</span><span class="p">(</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">batch</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">batch</span><span class="p">),</span>
+            <span class="n">width</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">width</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">width</span><span class="p">),</span>
+            <span class="n">depth</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span> <span class="k">if</span> <span class="n">depth</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">height</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">height</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="k">if</span> <span class="n">height</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">channels</span><span class="o">=</span><span class="kc">None</span>
+            <span class="k">if</span> <span class="n">channels</span> <span class="o">==</span> <span class="s2">&quot;None&quot;</span>
+            <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">channels</span>
+            <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid input string format &#39;</span><span class="si">{</span><span class="n">spec</span><span class="si">}</span><span class="s2">&#39;. Expected valid VGSL format.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Tim Koornstra.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
