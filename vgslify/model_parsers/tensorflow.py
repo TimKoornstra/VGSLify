@@ -268,7 +268,6 @@ class TensorFlowModelParser(BaseModelParser):
     def parse_pooling(
         self,
         layer: Union[tf.keras.layers.MaxPooling2D, tf.keras.layers.AveragePooling2D],
-        pool_type: str,
     ) -> Pooling2DConfig:
         """
         Parse a Pooling layer into a Pooling2DConfig dataclass.
@@ -277,14 +276,17 @@ class TensorFlowModelParser(BaseModelParser):
         ----------
         layer : tf.keras.layers.MaxPooling2D or tf.keras.layers.AveragePooling2D
             The Pooling layer to parse.
-        pool_type : str
-            Type of pooling ('max' or 'average').
 
         Returns
         -------
         Pooling2DConfig
             The configuration for the Pooling layer.
         """
+        if isinstance(layer, tf.keras.layers.MaxPooling2D):
+            pool_type = "max"
+        elif isinstance(layer, tf.keras.layers.AveragePooling2D):
+            pool_type = "average"
+
         return Pooling2DConfig(
             pool_type=pool_type,
             pool_size=layer.pool_size,
