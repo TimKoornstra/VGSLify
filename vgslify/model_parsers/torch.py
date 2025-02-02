@@ -19,7 +19,7 @@ from vgslify.core.config import (
     ReshapeConfig,
     RNNConfig,
 )
-from vgslify.parsers.base import BaseModelParser
+from vgslify.model_parsers.base import BaseModelParser
 from vgslify.torch.layers import Reshape
 
 
@@ -431,7 +431,7 @@ def register_custom_parser(layer_cls: Type[nn.Module]):
     --------
     Registering a custom parser for a `MyCustomLayer`:
 
-    >>> from vgslify.parsers.torch import register_custom_parser
+    >>> from vgslify.model_parsers.torch import register_custom_parser
     >>> from torch import nn
     >>> class MyCustomLayer(nn.Module):
     ...     def __init__(self, param: int):

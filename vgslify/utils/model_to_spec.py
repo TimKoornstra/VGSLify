@@ -30,7 +30,7 @@ def model_to_spec(model) -> str:
 
     Examples
     --------
-    >>> from vgslify.utils import model_to_spec
+    >>> from vgslify import model_to_spec
     >>> import tensorflow as tf
     >>> model = tf.keras.models.load_model("path_to_model.h5")
     >>> spec_string = model_to_spec(model)
@@ -39,13 +39,13 @@ def model_to_spec(model) -> str:
 
     # Check if it's a TensorFlow model
     if tf and isinstance(model, tf.keras.Model):
-        from vgslify.parsers.tensorflow import TensorFlowModelParser
+        from vgslify.model_parsers import TensorFlowModelParser
 
         parser = TensorFlowModelParser()
 
     # Check if it's a PyTorch model
     if nn and isinstance(model, nn.Module):
-        from vgslify.parsers.torch import TorchModelParser
+        from vgslify.model_parsers import TorchModelParser
 
         parser = TorchModelParser()
 
