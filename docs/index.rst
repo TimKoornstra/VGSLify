@@ -1,13 +1,13 @@
 VGSLify Documentation
 =====================
 
-`vgslify` is a powerful tool for creating and managing models using the Variable-size Graph Specification Language (VGSL). It offers flexibility by supporting both TensorFlow and PyTorch backends, making it suitable for various deep learning workflows.
+VGSLify is a powerful tool for creating and managing deep learning models using the Variable-size Graph Specification Language (VGSL). With support for both TensorFlow and PyTorch backends, VGSLify enables rapid prototyping and easy conversion between model code and compact string specifications.
 
-This documentation provides a comprehensive guide to getting started with VGSLify, in-depth tutorials, and detailed API references for developers.
+This documentation provides a comprehensive guide to getting started with VGSLify, advanced usage examples, and detailed API references.
 
 Getting Started
 ---------------
-New to VGSLify? Follow these guides to install and start building models with VGSL:
+If you are new to VGSLify, start with these guides:
 
 .. toctree::
    :maxdepth: 2
@@ -20,7 +20,7 @@ New to VGSLify? Follow these guides to install and start building models with VG
 
 User Guides
 -----------
-Explore advanced usage, examples, and details on the VGSL specification:
+Explore advanced usage and customization examples:
 
 .. toctree::
    :maxdepth: 2
@@ -28,10 +28,11 @@ Explore advanced usage, examples, and details on the VGSL specification:
 
    supported_layers
    convert_to_vgsl_spec
+   advanced_usage
 
 API Reference
 -------------
-For developers looking for more technical details, the following API documentation will help you understand and use the library:
+For developers looking for technical details, refer to the API docs:
 
 .. toctree::
    :maxdepth: 2
@@ -39,12 +40,12 @@ For developers looking for more technical details, the following API documentati
 
    source/vgslify
    source/vgslify.core
-   source/vgslify.parsers
-   source/vgslify.utils
+   source/vgslify.model_parsers
    source/vgslify.tensorflow
    source/vgslify.torch
+   source/vgslify.utils
 
-Indices and tables
+Indices and Tables
 ==================
 
 * :ref:`genindex`

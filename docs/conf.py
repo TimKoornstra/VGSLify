@@ -12,9 +12,9 @@ sys.path.insert(0, os.path.abspath(".."))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "VGSLify"
-copyright = "2024, Tim Koornstra"
+copyright = "2025, Tim Koornstra"
 author = "Tim Koornstra"
-release = "0.13.3"
+release = "0.14.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

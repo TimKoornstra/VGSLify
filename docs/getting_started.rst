@@ -35,7 +35,7 @@ Let’s walk through building a simple deep learning model using VGSLify.
 
    .. code-block:: python
 
-      from vgslify.generator import VGSLModelGenerator
+      from vgslify import VGSLModelGenerator
 
 2. **Define the VGSL Specification String**:
 
@@ -85,10 +85,32 @@ Let’s break down the layers defined by the VGSL specification string in our ex
 
 This VGSL string provides a concise, human-readable format for specifying complex model architectures. VGSLify automatically translates this specification into a deep learning model that can be trained using TensorFlow or PyTorch.
 
+Quick Start with Custom Layers (Advanced)
+-----------------------------------------
+You can also extend VGSLify by registering custom layer builders. For example, if you want to add a custom “Swish” activation layer in TensorFlow:
+
+.. code-block:: python
+
+   from vgslify.tensorflow import register_custom_layer
+   import tensorflow as tf
+
+   @register_custom_layer("Xsw")
+   def build_swish_layer(factory, spec):
+       # spec example: "Xsw" triggers this custom layer
+       return tf.keras.layers.Lambda(lambda x: x * tf.keras.activations.sigmoid(x))
+
+   # Use the custom prefix in your VGSL spec
+   vgsl_spec = "None,28,28,1 Cr3,3,32 Xsw Mp2,2 Rc2 Fr64 D20 Fs10"
+   vgsl_gn = VGSLModelGenerator(backend="tensorflow")
+   model = vgsl_gn.generate_model(vgsl_spec)
+   model.summary()
+
+Now you have a model with a custom activation layer integrated seamlessly!
+
 Next Steps
 ----------
 
-Once you’ve built and explored a basic model, you can dive deeper into VGSLify's capabilities. Follow the [tutorials](tutorials.html) to explore more advanced use cases such as:
+Once you’ve built and explored a basic model, you can dive deeper into VGSLify's capabilities. Follow the `tutorials <tutorials.html>`_ to explore more advanced use cases such as:
 
 - Using different VGSL spec strings to define custom architectures.
 - Switching between TensorFlow and PyTorch backends.
@@ -96,3 +118,6 @@ Once you’ve built and explored a basic model, you can dive deeper into VGSLify
 
 Check out the `API reference <source/vgslify.html>`_ for detailed information on all available classes, methods, and utilities in VGSLify.
 
+Additional Topics
+-----------------
+For more examples and advanced workflows, continue reading the `Tutorials <tutorials.html>`_ and `Advanced Usage <advanced_usage.html>`_ sections.

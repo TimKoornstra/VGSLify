@@ -8,7 +8,7 @@ Subpackages
    :maxdepth: 4
 
    vgslify.core
-   vgslify.parsers
+   vgslify.model_parsers
    vgslify.tensorflow
    vgslify.torch
 

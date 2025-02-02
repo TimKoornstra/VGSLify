@@ -19,7 +19,7 @@ Here’s how you can convert an existing model to its VGSL spec:
 
 .. code-block:: python
 
-    from vgslify.utils import model_to_spec
+    from vgslify import model_to_spec
     from tensorflow.keras.models import load_model
 
     # Load an existing TensorFlow model (previously saved)
@@ -51,7 +51,7 @@ Once you've converted the model to a VGSL spec, you can easily save or share the
 
 .. code-block:: python
 
-    from vgslify.generator import VGSLModelGenerator
+    from vgslify import VGSLModelGenerator
 
     # Load the VGSL spec from file
     with open("model_spec.txt", "r") as f:

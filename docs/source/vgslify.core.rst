@@ -21,7 +21,7 @@ vgslify.core.factory module
    :show-inheritance:
 
 vgslify.core.spec_parser module
---------------------------
+-------------------------------
 
 .. automodule:: vgslify.core.spec_parser
    :members:

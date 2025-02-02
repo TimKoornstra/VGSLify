@@ -49,5 +49,6 @@ To get started with VGSLify or dive deeper into its capabilities, explore the fo
 - `Installation Guide <installation.html>`_: Learn how to install VGSLify and the required dependencies.
 - `Getting Started <getting_started.html>`_: Learn how to use VGSLify to build, train, and use deep learning models.
 - `Tutorials <tutorials.html>`_: Step-by-step tutorials to guide you through common tasks and advanced features.
+- `Advanced Usage <advanced_usage.html>`_: More advanced tutorials and tips.
 - `API Reference <api_reference.html>`_: Detailed documentation of VGSLify's classes, methods, and utilities.
 

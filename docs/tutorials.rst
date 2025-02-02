@@ -21,7 +21,7 @@ Step-by-Step Instructions
    .. code-block:: python
 
       import tensorflow as tf
-      from vgslify.generator import VGSLModelGenerator
+      from vgslify import VGSLModelGenerator
 
 2. **Load and preprocess the dataset**:
 
@@ -105,7 +105,7 @@ Step-by-Step Instructions
    .. code-block:: python
 
       import numpy as np
-      from vgslify.generator import VGSLModelGenerator
+      from vgslify import VGSLModelGenerator
 
 2. **Generate synthetic sequence data**:
 
@@ -141,7 +141,7 @@ Step-by-Step Instructions
 
    .. code-block:: python
 
-      vgsl_spec = f"None,{seq_length},{x_train.shape[1]} Lf50 D20 Fl1"
+      vgsl_spec = f"None,50,1 Lf50 D20 Fl1"
 
    Explanation:
 
@@ -182,3 +182,34 @@ Step-by-Step Instructions
       plt.legend()
       plt.show()
 
+Tutorial 3: Converting Models Back to VGSL Specification
+--------------------------------------------------------
+VGSLify not only builds models from VGSL specs—it can also convert an existing model back to its VGSL string.
+
+1. **Load an existing model**:
+
+   .. code-block:: python
+
+      from tensorflow.keras.models import load_model
+      model = load_model("path_to_your_model.keras")
+
+2. **Convert the model to a VGSL spec string**:
+
+   .. code-block:: python
+
+      from vgslify import model_to_spec
+      vgsl_spec = model_to_spec(model)
+      print("VGSL spec:", vgsl_spec)
+
+3. **Modify and reuse the spec**:
+
+   The generated VGSL string can be saved, shared, or modified. Rebuild the model later using:
+
+   .. code-block:: python
+
+      vgsl_gn = VGSLModelGenerator(backend="tensorflow")
+      model = vgsl_gn.generate_model(vgsl_spec)
+
+Additional Topics
+-----------------
+For more examples and advanced workflows, continue reading the `Advanced Usage <advanced_usage.html>`_ or `API Reference <source/vgslify.html>`_ sections.

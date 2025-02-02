@@ -105,6 +105,12 @@ Layer Specifications
   - `Rc3` collapses the output from `(None, 8, 8, 64)` to `(None, 64, 64)` for input to an RNN layer.
   - `R64,64,3` reshapes the output to `(None, 64, 64, 3)`.
 
+Custom Layers
+-------------
+Custom layers can be defined using a custom prefix (e.g., "Xsw" or "Xcustom"). Once registered, these layers are invoked automatically when the spec string begins with the custom prefix.
+
+For example, a custom activation or a compound layer can be added via the methods described in the [Advanced Usage](advanced_usage.html) section.
+
 More Examples
 -------------
 

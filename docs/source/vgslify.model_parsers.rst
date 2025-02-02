@@ -1,11 +1,11 @@
 vgslify.model_parsers package
-=======================
+=============================
 
 Submodules
 ----------
 
 vgslify.model_parsers.base module
------------------------------------
+---------------------------------
 
 .. automodule:: vgslify.model_parsers.base
    :members:
@@ -13,7 +13,7 @@ vgslify.model_parsers.base module
    :show-inheritance:
 
 vgslify.model_parsers.torch module
-------------------------------------
+----------------------------------
 
 .. automodule:: vgslify.model_parsers.torch
    :members:
@@ -21,7 +21,7 @@ vgslify.model_parsers.torch module
    :show-inheritance:
 
 vgslify.model_parsers.tensorflow module
----------------------------------
+---------------------------------------
 
 .. automodule:: vgslify.model_parsers.tensorflow
    :members:
