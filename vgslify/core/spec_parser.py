@@ -16,23 +16,6 @@ from vgslify.core.config import (
 from vgslify.core.utils import get_activation_function
 
 
-def parse_spec(model_spec: str) -> list:
-    """
-    Parse the full model spec string into a list of individual layer specs.
-
-    Parameters
-    ----------
-    model_spec : str
-        The VGSL specification string defining the model architecture.
-
-    Returns
-    -------
-    list
-        A list of layer specification strings.
-    """
-    return model_spec.split()
-
-
 def parse_conv2d_spec(spec: str) -> Conv2DConfig:
     """
     Parses a VGSL specification string for a Conv2D layer and returns the parsed configuration.

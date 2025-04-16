@@ -5,7 +5,7 @@ import importlib
 from typing import Any, Callable, Dict, List
 
 # > Internal Libraries
-from vgslify.core.spec_parser import parse_spec
+from vgslify.core.graph import LayerNode, parse_graph_spec, traverse_graph
 
 
 class VGSLModelGenerator:
@@ -101,16 +101,28 @@ class VGSLModelGenerator:
             The built model using the specified backend if `return_history` is False.
             Otherwise, a list of constructed layers.
         """
-        # Reset the layer factory instance for a new model.
-        self.layer_factory = self.layer_factory_class()
-        specs = parse_spec(model_spec)
-
-        # Create all layers using a list comprehension.
-        # The first spec is always the input layer.
-        layers = [self.layer_factory.input(specs[0])] + [
-            self._construct_layer(spec, self.layer_factory) for spec in specs[1:]
-        ]
-        return layers if return_history else layers
+        # Parse into graph
+        graph = parse_graph_spec(model_spec)
+        # Traverse graph to get nodes in data-flow order
+        nodes = traverse_graph(graph.entry)
+        history = []
+        # Build or record each layer
+        for node in nodes:
+            if isinstance(node, LayerNode):
+                spec = node.spec
+                # First spec should be input
+                if not history:
+                    layer = self.layer_factory.input(spec)
+                else:
+                    # Determine prefix for dispatch
+                    for prefix, ctor in sorted(
+                        self.layer_constructors.items(), key=lambda x: -len(x[0])
+                    ):
+                        if spec.startswith(prefix):
+                            layer = ctor(self.layer_factory, spec)
+                            break
+                history.append(layer)
+        return history if return_history else history
 
     def construct_layer(self, spec: str) -> Any:
         """
