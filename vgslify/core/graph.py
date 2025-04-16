@@ -5,63 +5,125 @@ from typing import Dict, List, Optional
 class VGSLNode:
     """
     Base class for nodes in the VGSL graph.
-    Each node may have multiple outgoing edges.
+
+    Attributes
+    ----------
+    name : str
+        The identifier or spec of the node.
+    next : List[VGSLNode]
+        Outgoing edges to other nodes.
     """
 
     def __init__(self, name: str):
+        """
+        Parameters
+        ----------
+        name : str
+            The name or spec string of the node.
+        """
         self.name = name
         self.next: List[VGSLNode] = []
 
     def add_edge(self, node: "VGSLNode"):
+        """
+        Adds a directed edge from this node to another.
+
+        Parameters
+        ----------
+        node : VGSLNode
+            The node to connect as a successor.
+        """
         self.next.append(node)
 
 
 class LayerNode(VGSLNode):
     """
-    Represents a regular layer spec.
+    Represents a regular layer specification in the VGSL graph.
+
+    Attributes
+    ----------
+    spec : str
+        The VGSL layer specification string (e.g., 'C3,3,16').
     """
 
     def __init__(self, spec: str):
+        """
+        Parameters
+        ----------
+        spec : str
+            VGSL spec string representing the layer.
+        """
         super().__init__(name=spec)
         self.spec = spec
 
 
 class BranchNode(VGSLNode):
     """
-    Represents a branching point; splits into multiple paths.
+    Represents a branching point in the VGSL graph.
+
+    Attributes
+    ----------
+    branches : List[VGSLNode]
+        List of nodes that start new branches.
     """
 
     def __init__(self):
+        """Initializes a branch node with empty branches."""
         super().__init__(name="branch")
         self.branches: List[VGSLNode] = []
 
     def add_branch(self, node: VGSLNode):
+        """
+        Adds a new branch from this node.
+
+        Parameters
+        ----------
+        node : VGSLNode
+            The node where the branch begins.
+        """
         self.branches.append(node)
         self.add_edge(node)
 
 
 class MergeNode(VGSLNode):
     """
-    Represents a merge point where multiple branches converge.
+    Represents a merge point in the VGSL graph where multiple branches converge.
     """
 
     def __init__(self):
+        """Initializes a merge node."""
         super().__init__(name="merge")
 
 
 class VGSLGraph:
     """
-    Encapsulates the full graph of the model spec.
-    entry: starting node
-    exit: final node
+    Represents the full VGSL graph structure.
+
+    Attributes
+    ----------
+    entry : Optional[VGSLNode]
+        The starting node of the graph.
+    exit : Optional[VGSLNode]
+        The final node of the graph.
+    nodes : List[VGSLNode]
+        All nodes in the graph.
     """
 
     def __init__(self):
+        """Initializes an empty VGSLGraph."""
         self.entry: Optional[VGSLNode] = None
         self.exit: Optional[VGSLNode] = None
         self.nodes: List[VGSLNode] = []
 
     def add_node(self, node: VGSLNode):
+        """
+        Adds a node to the graph and updates entry/exit points.
+
+        Parameters
+        ----------
+        node : VGSLNode
+            The node to add.
+        """
         self.nodes.append(node)
         if self.entry is None:
             self.entry = node
@@ -70,12 +132,27 @@ class VGSLGraph:
 
 def parse_graph_spec(model_spec: str) -> VGSLGraph:
     """
-    Parses a VGSL spec string into a VGSLGraph, handling '(' and ')' for branching.
+    Parses a VGSL model specification string into a VGSLGraph.
 
-    Example: "C3,3,16 (Mp2,2 Fr128) Cr3,3,32"
-    Yields a graph with a branch: after conv16, two parallel paths (pool->dense), then merge before conv32.
+    Handles parentheses for defining branching and merging structures.
+
+    Parameters
+    ----------
+    model_spec : str
+        A space-separated VGSL spec string. Branches are enclosed in parentheses.
+
+    Returns
+    -------
+    VGSLGraph
+        The parsed VGSLGraph.
+
+    Examples
+    --------
+    >>> g = parse_graph_spec("C3,3,16 (Mp2,2 Fr128) Cr3,3,32")
+    >>> [node.name for node in traverse_graph(g.entry)]
+    ['C3,3,16', 'branch', 'Mp2,2', 'Fr128', 'merge', 'Cr3,3,32']
     """
-    # Tokenize: split on spaces, but separate parentheses
+    # TODO: Rewrite branching using special token, and each branch within [ ]
     tokens = re.findall(r"\(|\)|[^\s()]+", model_spec)
 
     graph = VGSLGraph()
@@ -106,7 +183,6 @@ def parse_graph_spec(model_spec: str) -> VGSLGraph:
             graph.add_node(node)
             if stack:
                 branch_node = stack[-1]["branch"]
-                # first or subsequent in this branch
                 if node not in branch_node.branches:
                     branch_node.add_branch(node)
             elif current:
@@ -118,8 +194,19 @@ def parse_graph_spec(model_spec: str) -> VGSLGraph:
 
 def traverse_graph(entry: VGSLNode) -> List[VGSLNode]:
     """
-    Depth-first traversal of the VGSLGraph from `entry`, returning nodes in visit order.
-    Ensures each node appears once, respecting data-flow dependencies.
+    Performs a depth-first traversal from the given entry node.
+
+    Ensures each node is visited exactly once.
+
+    Parameters
+    ----------
+    entry : VGSLNode
+        The starting node for traversal.
+
+    Returns
+    -------
+    List[VGSLNode]
+        Nodes in depth-first visit order.
     """
     visited = set()
     order: List[VGSLNode] = []
